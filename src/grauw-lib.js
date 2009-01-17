@@ -50,7 +50,7 @@ if (!gl.unit)
  */
 gl.unit.JSUnit = function() {
 	this.time = null;
-	this.output = '';
+	this.outputDiv = document.createElement('div');
 	this.init();
 }
 gl.unit.JSUnit.prototype = new Object();
@@ -60,23 +60,48 @@ gl.unit.JSUnit.prototype.init = function() {
 }
 
 gl.unit.JSUnit.prototype.start = function() {
-	// override
+	this.writeln('JSUnit running...');
+	this.test();
+	this.writeln('JSUnit finished.');
 	this.end();
 }
 
 gl.unit.JSUnit.prototype.end = function() {
-	var oTextArea = document.createElement('textarea');
-	oTextArea.cols = 80;
-	oTextArea.rows = 30;
-	oTextArea.style.position = 'absolute';
-	oTextArea.style.top = '10px';
-	oTextArea.style.right = '10px';
-	oTextArea.value = this.output;
-	document.body.insertBefore(oTextArea, document.body.firstChild);
+	this.outputDiv.style.width = '800px';
+	this.outputDiv.style.position = 'absolute';
+	this.outputDiv.style.top = '10px';
+	this.outputDiv.style.right = '10px';
+	this.outputDiv.style.fontFamily = 'Arial, sans-serif';
+	this.outputDiv.style.fontSize = 'smaller';
+	document.body.insertBefore(this.outputDiv, document.body.firstChild);
 }
 
 gl.unit.JSUnit.prototype.writeln = function(sString) {
-	this.output += sString + '\n';
+	var oDiv = document.createElement('div');
+	oDiv.appendChild(document.createTextNode(sString));
+	this.outputDiv.appendChild(oDiv);
+}
+
+gl.unit.JSUnit.prototype.writelnError = function(sString) {
+	var oDiv = document.createElement('div');
+	oDiv.style.color = '#f00';
+	oDiv.appendChild(document.createTextNode(sString));
+	this.outputDiv.appendChild(oDiv);
+}
+
+gl.unit.JSUnit.prototype.assertEquals = function(oExpected, oResult, sMessage) {
+	if (oExpected != oResult)
+		this.writelnError('AssertEquals failed. Expected: ' + oExpected + ', result: ' + oResult + ' — ' + sMessage);
+}
+
+gl.unit.JSUnit.prototype.assertTrue = function(bResult, sMessage) {
+	if (!bResult)
+		this.writelnError('AssertTrue failed. Result: ' + bResult + ' - ' + sMessage);
+}
+
+gl.unit.JSUnit.prototype.assertFalse = function(bResult, sMessage) {
+	if (bResult)
+		this.writelnError('AssertFalse failed. Result: ' + bResult + ' - ' + sMessage);
 }
 
 gl.unit.JSUnit.prototype.timeStart = function() {

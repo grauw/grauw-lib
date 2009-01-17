@@ -41,8 +41,12 @@ gl.uri.URI._regexp = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?
  * @param {String} baseURI the base URI (must be absolute) to resolve against
  */
 gl.uri.URI.resolve = function(sURI, sBaseURI) {
-	return new gl.uri.URI(sURI).resolve(new gl.uri.URI(sBaseURI)).toString();
+	var oURI = gl.uri.URI.cache[sURI] || (gl.uri.URI.cache[sURI] = new gl.uri.URI(sURI))
+	var oBaseURI = gl.uri.URI.cache[sBaseURI] || (gl.uri.URI.cache[sBaseURI] = new gl.uri.URI(sBaseURI));
+	return oURI.resolve(oBaseURI).toString();
 }
+
+gl.uri.URI.cache = {};
 
 /**
  * Clones this URI object
@@ -177,6 +181,10 @@ gl.uri.URIUnit = function() {
 }
 gl.Class.create(gl.uri.URIUnit, gl.unit.JSUnit);
 
+/**
+ * Unit tests
+ * See RFC 3986 appendix C
+ */
 gl.uri.URIUnit.prototype.tests = [
 		// normal examples
 		['http://a/b/c/d;p?q', 'g:h'          , 'g:h'],
@@ -237,17 +245,17 @@ gl.uri.URIUnit.prototype.tests = [
 		['http:a/b', '.'  , 'http:a/']
 	];
 
-gl.uri.URIUnit.prototype.start = function() {
-	this.writeln(
-			this.performanceTest()
-		);
+/**
+ * Main test function
+ */
+gl.uri.URIUnit.prototype.test = function() {
+	this.performanceTest()
 	var html = this.unitTests();
 	var outputDiv = document.getElementById('output');
 	outputDiv.innerHTML = html;
-	this.end();
 }
 
-/*
+/**
  * Unit tests
  * See RFC 3986 appendix C
  */
@@ -260,6 +268,7 @@ gl.uri.URIUnit.prototype.unitTests = function() {
 	for (var i = 0; i < this.tests.length; i++) {
 		var test = this.tests[i];
 		var sURI = gl.uri.URI.resolve(test[1], test[0]);
+		this.assertEquals(test[2], sURI, 'Resolving "' + test[1] + '" with "' + test[0] + '"');
 		html += '<tr style="background:' + (sURI == test[2] ? '#cfc' : '#fcc') + '">';
 		html += '<td>' + test[0] + '</td>';
 		html += '<td>' + test[1] + '</td>';
@@ -272,13 +281,23 @@ gl.uri.URIUnit.prototype.unitTests = function() {
 	return html;
 }
 
+/**
+ * Performance tests
+ */
 gl.uri.URIUnit.prototype.performanceTest = function() {
 	this.timeStart();
-	var oBaseURI = new gl.uri.URI('http://a/b/c/d;p?q');
-	for (var i=0; i<10000; i++) {
+	for (var i = 0; i < 10000; i++) {
 		gl.uri.URI.resolve('a/.././b', 'http://a/b/c/d;p?q');
-//		var oURI = new gl.uri.URI('a/.././b');
-//		oURI.resolve(oBaseURI);
 	}
-	return 'Running 10000x, milliseconds needed: ' + this.timeEnd();
+	this.writeln('Running 10000x, milliseconds needed: ' + this.timeEnd());
+	
+	var oBaseURI = new gl.uri.URI('http://a/b/c/d;p?q');
+	var j = 0;
+	this.timeStart();
+	for (var i = 0; i < 10000; i++) {
+		gl.uri.URI.resolve('a/.././b' + j++, 'http://a/b/c/d;p?q');
+//		var oURI = new gl.uri.URI('a/.././b' + j++);
+//		oURI.resolve(oBaseURI).toString();
+	}
+	this.writeln('Running 10000x w/ different URIs, milliseconds needed: ' + this.timeEnd());
 }
