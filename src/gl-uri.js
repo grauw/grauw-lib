@@ -41,12 +41,12 @@ gl.uri.URI._regexp = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?
  * @param {String} baseURI the base URI (must be absolute) to resolve against
  */
 gl.uri.URI.resolve = function(sURI, sBaseURI) {
-	var oURI = gl.uri.URI.cache[sURI] || (gl.uri.URI.cache[sURI] = new gl.uri.URI(sURI))
-	var oBaseURI = gl.uri.URI.cache[sBaseURI] || (gl.uri.URI.cache[sBaseURI] = new gl.uri.URI(sBaseURI));
+	var oURI = gl.uri.URI._cache[sURI] || (gl.uri.URI._cache[sURI] = new gl.uri.URI(sURI))
+	var oBaseURI = gl.uri.URI._cache[sBaseURI] || (gl.uri.URI._cache[sBaseURI] = new gl.uri.URI(sBaseURI));
 	return oURI.resolve(oBaseURI).toString();
 }
 
-gl.uri.URI.cache = {};
+gl.uri.URI._cache = {};
 
 /**
  * Clones this URI object
