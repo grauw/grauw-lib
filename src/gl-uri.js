@@ -68,22 +68,66 @@ gl.uri.URI.prototype.isAbsolute = function() {
 	return this.scheme && !this.fragment;
 }
 
-/**
- * Checks whether the URI is a fragment-only reference
- */
-gl.uri.URI.prototype.isFragmentOnly = function() {
-	return !this.scheme && !this.authority && !this.path && !this.query;
-}
-
 ///**
 //* Extensive validation of the URI against the ABNF in RFC 3986
 //*/
 //gl.uri.URI.prototype.validate
 
-///**
-//* Extensive validation of the URI against the ABNF in RFC 3986
-//*/
-//gl.uri.URI.prototype.equals
+/**
+ * Checks whether the URI is a same-document reference
+ * See RFC 3986 section 4.4
+ * 
+ * To perform more thorough comparison, you can normalise the URI objects.
+ */
+gl.uri.URI.prototype.isSameDocumentAs = function(oURI) {
+	return oURI.scheme == this.scheme &&
+	    oURI.authority == this.authority &&
+	         oURI.path == this.path &&
+	        oURI.query == this.query;
+}
+
+/**
+ * Simple String Comparison of two URIs
+ * See RFC 3986 section 6.2.1
+ * 
+ * To perform more thorough comparison, you can normalise the URI objects.
+ */
+gl.uri.URI.prototype.equals = function(oURI) {
+	return this.isSameDocumentAs(oURI) && oURI.fragment == this.fragment;
+}
+
+/**
+ * Normalizes the URI
+ * See RFC 3986 section 6.2.2
+ */
+gl.uri.URI.prototype.normalize = function() {
+	this.removeDotSegments();
+	if (this.scheme)
+		this.scheme = this.scheme.toLowerCase();
+	if (this.authority)
+		this.authority = this.authority.replace(gl.uri.URI._authorityRegex, gl.uri.URI._authorityFn).
+								replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
+	if (this.path)
+		this.path = this.path.replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
+	if (this.query)
+		this.query = this.query.replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
+	if (this.fragment)
+		this.fragment = this.fragment.replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
+}
+
+gl.uri.URI._caseRegex = /%[0-9a-z]{2}/gi;
+gl.uri.URI._percentRegex = /[a-zA-Z0-9\-\._~]/;
+gl.uri.URI._authorityRegex = /(.*@)?([^@:]*)(:.*)?/;
+
+gl.uri.URI._caseFn = function(sStr) {
+	var sDec = unescape(sStr);
+	return gl.uri.URI._percentRegex.test(sDec) ? sDec : sStr.toUpperCase();
+}
+
+gl.uri.URI._authorityFn = function(sStr, p1, p2, p3) {
+	return p1 + p2.toLowerCase() + p3;
+}
+
 
 /**
  * Resolve a relative URI (this) against a base URI.
