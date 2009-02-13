@@ -698,14 +698,16 @@ CSSSelectors = new function() {
 		}
 		m[ssp.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
-			while ((oNode = oNode.previousSibling) && (oNode.nodeType != 1 || oNode.nodeName != sNodeName))
-				;
+			do
+				oNode = oNode.previousSibling;
+			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
 		}
 		m[ssp.PSEUDO_LAST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
-			while ((oNode = oNode.nextSibling) && (oNode.nodeType != 1 || oNode.nodeName != sNodeName))
-				;
+			do
+				oNode = oNode.nextSibling;
+			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
 		}
 		m[ssp.PSEUDO_ONLY_CHILD] = function(oNode) {
@@ -717,10 +719,10 @@ CSSSelectors = new function() {
 					m[ssp.PSEUDO_LAST_OF_TYPE].call(this, oNode, null);
 		}
 		m[ssp.PSEUDO_EMPTY] = function(oNode) {
-			var aNodes = oNode.childNodes, nodeType;
-			for (var i = 0, iLen = aNodes.length; i < iLen && ((nodeType = aNodes[i].nodeType) == 1 || nodeType == 3); i++)
-				;
-			return i == iLen;
+			oNode = oNode.firstChild;
+			while (oNode && oNode.nodeType != 1 && (oNode.nodeType != 3 || oNode.length == 0))
+				oNode = oNode.nextSibling;
+			return !oNode;
 		}
 		m[ssp.PSEUDO_LANG] = function(oNode) {
 			if (!oNode.lang)
