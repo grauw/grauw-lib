@@ -11,7 +11,7 @@
  * 
  * See: http://www.grauw.nl/projects/pc/selectors/
  * 
- * @version 1.0.5
+ * @version 1.0.6
  * @author L. Holst (http://www.grauw.nl/)
  * 
  *   Copyright 2008 Laurens Holst
@@ -725,10 +725,14 @@ CSSSelectors = new function() {
 			return !oNode;
 		}
 		m[ssp.PSEUDO_LANG] = function(oNode) {
-			if (!oNode.lang)
-				return false;
-			return oNode.lang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
-					(this.arg1.length == oNode.lang.length || oNode.lang.charAt(this.arg1.length) == '-');
+			var sLang;
+			do {
+				sLang = oNode.lang || '';
+				oNode = oNode.parentNode;
+			} while (!sLang && oNode && oNode.nodeType == 1);
+			// TODO: add support for language from META element (Content-Language)
+			return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
+					(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
 		}
 		m[ssp.PSEUDO_TARGET] = function(oNode) {
 			return '#' + oNode.getAttribute('id') == document.location.hash;
@@ -803,7 +807,7 @@ CSSSelectors = new function() {
 		nlescape : new RegExp(Parser.macro.nlescape, 'g'),
 		pseudo   : new RegExp(Parser.pattern.pseudo),
 		trim     : /^\s+|\s+$/gm,
-		escapeCSS: /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f]|$)?/g,
+		escapeCSS: /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g,
 		escapeRegexp: /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g
 	}
 
