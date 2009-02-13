@@ -141,6 +141,8 @@ CSSSelectors = new function() {
 		 * @param selector The selector
 		 */
 		add: function(oSelector) {
+			if (!oSelector instanceof Selector)
+				throw new Error('Add must be instance of Selector!');
 			this.selectors[this.selectors.length] = oSelector;
 		},
 
@@ -207,6 +209,8 @@ CSSSelectors = new function() {
 		 * @param combinator The combinator
 		 */
 		add: function(oCombinator) {
+			if (!oCombinator instanceof Combinator)
+				throw new Error('Add must be instance of Combinator!');
 			var iLen = this.combinators.length;
 			if (iLen > 0) {
 				this.combinators[iLen - 1].nextCombinator = oCombinator;
@@ -283,6 +287,8 @@ CSSSelectors = new function() {
 		 * @param simpleSelector The simple selector
 		 */
 		add: function(oSimpleSelector) {
+			if (!oSimpleSelector instanceof SimpleSelector)
+				throw new Error('Add must be instance of SimpleSelector!');
 			this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
 		},
 
@@ -294,10 +300,10 @@ CSSSelectors = new function() {
 			var iLen = this.simpleSelectors.length,
 				bValid = iLen > 0,
 				oSimpleSelector;
-			for (var i = 1; i < iLen && bValid; i++) {
+			for (var i = 0; i < iLen && bValid; i++) {
 				oSimpleSelector = this.simpleSelectors[i];
-				bValid = oSimpleSelector.type != oSimpleSelector.UNIVERSAL &&
-						oSimpleSelector.type != oSimpleSelector.TYPE &&
+				bValid = (i == 0 || oSimpleSelector.type != oSimpleSelector.UNIVERSAL) &&
+						(i == 0 || oSimpleSelector.type != oSimpleSelector.TYPE) &&
 						oSimpleSelector.validate();
 			}
 			return bValid;
@@ -514,6 +520,7 @@ CSSSelectors = new function() {
 		PSEUDO_EMPTY            : 23,
 		PSEUDO_LANG             : 24,
 		PSEUDO_TARGET           : 25,
+		PSEUDO_NOT              : 26,
 
 		/**
 		 * Check whether the simpleSelector is in a valid final state.
@@ -742,6 +749,40 @@ CSSSelectors = new function() {
 
 
 
+	var NotSimpleSelector = function() {
+		this.simpleSelectors = [];
+	}
+	this.NotSimpleSelector = NotSimpleSelector;
+	NotSimpleSelector.prototype = new SimpleSelector();
+	
+	NotSimpleSelector.prototype.add = function(oSimpleSelector) {
+		this.simpleSelectors.push(oSimpleSelector);
+	}
+	
+	NotSimpleSelector.prototype.validate = function() {
+		var iLen = this.simpleSelectors.length,
+			bValid = iLen > 0, // XXX: can iLen be 0? i.e. :not()?
+			oSimpleSelector;
+		for (var i = 0; i < iLen && bValid; i++) {
+			oSimpleSelector = this.simpleSelectors[i];
+			bValid = (i == 0 || oSimpleSelector.type != oSimpleSelector.UNIVERSAL) &&
+					(i == 0 || oSimpleSelector.type != oSimpleSelector.TYPE) &&
+					oSimpleSelector.type != oSimpleSelector.NOT &&
+					oSimpleSelector.validate();
+		}
+		return bValid;
+		// validate that there is no NOT-simpleSelector in simpleSelectors
+	}
+	
+	NotSimpleSelector.prototype.match = function(oNode) {
+		var bMatch = true;
+		for (var i = 0, iLen = this.simpleSelectors.length; i < iLen && bMatch; i++) {
+			bMatch = !this.simpleSelectors[i].match(oNode);
+		}
+		return bMatch;
+	}
+
+
 
 	/**
 	 * Parser object constructor
@@ -751,6 +792,8 @@ CSSSelectors = new function() {
 	var Parser = function() {
 	}
 	this.Parser = Parser;
+	
+	Parser.prototype = {};
 
 	/**
 	 * Parser regexp macros for the tokenizer
@@ -785,6 +828,17 @@ CSSSelectors = new function() {
 		comma     : Parser.macro.w + ',' + Parser.macro.w,
 		descendant: Parser.macro.S
 	};
+	
+	Parser.pattern.not = ':(' + Parser.macro.ident + ')(?:\\((' +
+			[
+				Parser.pattern.class_,		// first all selectors
+				Parser.pattern.id,
+				Parser.pattern.attribute,
+				Parser.pattern.pseudo,
+				Parser.pattern.universal
+			].join('|') +
+			')\\))?';
+
 
 	/**
 	 * Regular expression objects for patterns
@@ -794,6 +848,7 @@ CSSSelectors = new function() {
 				Parser.pattern.class_,		// first all selectors
 				Parser.pattern.id,
 				Parser.pattern.attribute,
+				Parser.pattern.not,
 				Parser.pattern.pseudo,
 				Parser.pattern.universal,
 				Parser.pattern.element,
@@ -909,7 +964,8 @@ CSSSelectors = new function() {
 								'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
 								'empty'           : ssp.PSEUDO_EMPTY,
 								'lang'            : ssp.PSEUDO_LANG,
-								'target'          : ssp.PSEUDO_TARGET
+								'target'          : ssp.PSEUDO_TARGET,
+								'not'             : ssp.PSEUDO_NOT
 							}[sIdentifier];
 					if (!hType)
 						return Parser.error(sSelector);
@@ -930,6 +986,12 @@ CSSSelectors = new function() {
 							b = b == '' ? 0 : parseInt(b, 10);
 						}
 						oSimpleSelector = new SimpleSelector(hType, a, b)
+					} else if (sIdentifier == 'not') {
+						oSimpleSelector = new NotSimpleSelector();
+						for (var i in xx) {
+							// add
+							oSimpleSelector.add(...);
+						}
 					} else {
 						oSimpleSelector = new SimpleSelector(hType)
 					}
@@ -1017,6 +1079,23 @@ CSSSelectors = new function() {
 	Parser.error = function(sSelector) {
 		//
 		return null;
+	}
+	
+	
+	
+	var CachingParser = function() {
+		this.cache = {};
+		Parser.call(this);
+	}
+	this.CachingParser = CachingParser;
+	
+	CachingParser.prototype = new Parser;
+	
+	CachingParser.prototype.parse = function(sSelector) {
+		if (sSelector in this.cache) {
+			// ...
+		}
+		Parser.prototype.parse.call(this, sSelector);
 	}
 	
 }();
