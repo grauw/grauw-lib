@@ -443,7 +443,7 @@ CSSSelectors = new function() {
 			}
 			var bMatch = false;
 			for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
-				if (oNode.nodeType == 1)
+				if (aNodes[i].nodeType == 1)
 					bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
 			}
 			return bMatch;
@@ -513,6 +513,7 @@ CSSSelectors = new function() {
 		PSEUDO_ONLY_OF_TYPE     : 22,
 		PSEUDO_EMPTY            : 23,
 		PSEUDO_LANG             : 24,
+		PSEUDO_TARGET           : 25,
 
 		/**
 		 * Check whether the simpleSelector is in a valid final state.
@@ -684,13 +685,15 @@ CSSSelectors = new function() {
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
 		m[ssp.PSEUDO_FIRST_CHILD] = function(oNode) {
-			while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
-				;
+			do
+				oNode = oNode.previousSibling;
+			while (oNode && oNode.nodeType != 1);
 			return !oNode;
 		}
 		m[ssp.PSEUDO_LAST_CHILD] = function(oNode) {
-			while ((oNode = oNode.nextSibling) && oNode.nodeType != 1)
-				;
+			do
+				oNode = oNode.nextSibling;
+			while (oNode && oNode.nodeType != 1);
 			return !oNode;
 		}
 		m[ssp.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
@@ -724,6 +727,9 @@ CSSSelectors = new function() {
 				return false;
 			return oNode.lang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
 					(this.arg1.length == oNode.lang.length || oNode.lang.charAt(this.arg1.length) == '-');
+		}
+		m[ssp.PSEUDO_TARGET] = function(oNode) {
+			return '#' + oNode.getAttribute('id') == document.location.hash;
 		}
 		return m;
 	}();
@@ -795,7 +801,7 @@ CSSSelectors = new function() {
 		nlescape : new RegExp(Parser.macro.nlescape, 'g'),
 		pseudo   : new RegExp(Parser.pattern.pseudo),
 		trim     : /^\s+|\s+$/gm,
-		escapeCSS: /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g,
+		escapeCSS: /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f]|$)?/g,
 		escapeRegexp: /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g
 	}
 
@@ -896,7 +902,8 @@ CSSSelectors = new function() {
 								'only-child'      : ssp.PSEUDO_ONLY_CHILD,
 								'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
 								'empty'           : ssp.PSEUDO_EMPTY,
-								'lang'            : ssp.PSEUDO_LANG
+								'lang'            : ssp.PSEUDO_LANG,
+								'target'          : ssp.PSEUDO_TARGET
 							}[sIdentifier];
 					if (!hType)
 						return Parser.error(sSelector);
@@ -962,7 +969,7 @@ CSSSelectors = new function() {
 					if (sCharacter)
 						return sCharacter;
 					else
-						return fromCharCode(parseInt(sUnicode, 16));
+						return String.fromCharCode(parseInt(sUnicode, 16));
 				}
 			);
 		return sIdentifier;
