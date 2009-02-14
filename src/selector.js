@@ -428,12 +428,12 @@ gl.selector = new function() {
 			if (oSimpleSelector.type == oSimpleSelector.TYPE) {
 				aNodes = oNode.getElementsByTagName(this.simpleSelectors[0].arg1);
 				iStart++;
-			} else if (oSimpleSelector.type == oSimpleSelector.ID) {
-				var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
-				if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
-					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
-				return false;
 			} else {
+				if (oSimpleSelector.type == oSimpleSelector.ID) {
+					var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
+					if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
+						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
+				}
 				aNodes = oNode.all || oNode.getElementsByTagName('*');
 			}
 			var bMatch = false;
@@ -449,11 +449,12 @@ gl.selector = new function() {
 			if (oNode.children && oSimpleSelector.type == oSimpleSelector.TYPE) {
 				aNodes = oNode.children.tags(this.simpleSelectors[0].arg1);
 				iStart++;
-			} else if (oSimpleSelector.type == oSimpleSelector.ID) {
-				var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
-				return oNode2.parentNode == oNode &&
-						this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			} else {
+				if (oSimpleSelector.type == oSimpleSelector.ID) {
+					var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
+					if (oNode2.parentNode == oNode)
+						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
+				}
 				aNodes = oNode.childNodes;
 			}
 			var bMatch = false;
@@ -480,8 +481,8 @@ gl.selector = new function() {
 			return bMatch;
 		}
 		qc[cp.ROOT] = function(oNode, aResult, bSingleResult) {
-			return this.querySimpleSelectors(oNode, aResult, bSingleResult, 0) ||
-				qc[cp.DESCENDANT].call(this, oNode, aResult, bSingleResult);
+			var bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
+			return qc[cp.DESCENDANT].call(this, oNode, aResult, bSingleResult) || bMatch;
 		}
 		return qc;
 	}();

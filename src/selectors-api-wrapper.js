@@ -6,11 +6,7 @@
  * 
  * Known issues:
  * - Queries with selector groups will not return elements in the correct order.
- * 
- * Selector problems exposed by John Resig’s test suite:
- * - :not not supported yet
- * - :hover not supported
- * - escaping #, [, : and . not supported yet
+ * - :hover, :enabled, :disabled, :checked not supported
  */
 
 Element.prototype.querySelector = function(sSelector) {
