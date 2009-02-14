@@ -30,17 +30,27 @@
  * 
  */
 
+if (!window.gl)
+	gl = {};
 
 /**
  * The main CSSSelectors object.
  * Acts as sort of a namespace; all other selector objects are closures of the instance of this object.
  */
-CSSSelectors = new function() {
+gl.selector = new function() {
 
 	var oThis = this;	// to make references to this class without hard coding the actual name
 
 	this.browser_ie = !!window.ActiveXObject;
 
+	var extend = function(oBase) {
+		// create new prototype object that inherits from cBase
+		var fPrototype = new Function;
+		fPrototype.prototype = oBase.prototype;
+		return new fPrototype;
+	}
+	
+	
 	/**
 	 * Matches a node against a CSS selector or selector group.
 	 * Supports all CSS3 Selectors, except for pseudo-classes and pseudo-elements.
@@ -51,7 +61,7 @@ CSSSelectors = new function() {
 	 * @return true if the selector matches.
 	 */
 	this.match = function(oNode, sSelector) {
-		var oSelectorGroup = Parser.parse(sSelector);
+		var oSelectorGroup = oThis.parser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
 	}
 
@@ -64,7 +74,7 @@ CSSSelectors = new function() {
 	this.queryAll = function(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
-		var oSelectorGroup = Parser.parse(sSelector);
+		var oSelectorGroup = oThis.parser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
 	}
 
@@ -77,7 +87,7 @@ CSSSelectors = new function() {
 	this.query = function(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
-		var oSelectorGroup = Parser.parse(sSelector);
+		var oSelectorGroup = oThis.parser.parse(sSelector);
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
 	}
@@ -90,7 +100,7 @@ CSSSelectors = new function() {
 	 * @return The selected node.
 	 */
 	this.queryAncestor = function(oNode, sSelector, oStop) {
-		var oSelectorGroup = Parser.parse(sSelector);
+		var oSelectorGroup = oThis.parser.parse(sSelector);
 		if (!oSelectorGroup)
 			return null;
 
@@ -142,7 +152,7 @@ CSSSelectors = new function() {
 		 */
 		add: function(oSelector) {
 			if (!oSelector instanceof Selector)
-				throw new Error('Add must be instance of Selector!');
+				throw new Error('Parameter must be instance of Selector!');
 			this.selectors[this.selectors.length] = oSelector;
 		},
 
@@ -210,7 +220,7 @@ CSSSelectors = new function() {
 		 */
 		add: function(oCombinator) {
 			if (!oCombinator instanceof Combinator)
-				throw new Error('Add must be instance of Combinator!');
+				throw new Error('Parameter must be instance of Combinator!');
 			var iLen = this.combinators.length;
 			if (iLen > 0) {
 				this.combinators[iLen - 1].nextCombinator = oCombinator;
@@ -288,7 +298,7 @@ CSSSelectors = new function() {
 		 */
 		add: function(oSimpleSelector) {
 			if (!oSimpleSelector instanceof SimpleSelector)
-				throw new Error('Add must be instance of SimpleSelector!');
+				throw new Error('Parameter must be instance of SimpleSelector!');
 			this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
 		},
 
@@ -749,37 +759,21 @@ CSSSelectors = new function() {
 
 
 
-	var NotSimpleSelector = function() {
-		this.simpleSelectors = [];
+	var NotSimpleSelector = function(oSimpleSelector) {
+		if (!oSimpleSelector instanceof SimpleSelector)
+			throw new Error('Parameter must be instance of SimpleSelector!');
+		this.simpleSelector = oSimpleSelector;
 	}
 	this.NotSimpleSelector = NotSimpleSelector;
-	NotSimpleSelector.prototype = new SimpleSelector();
 	
-	NotSimpleSelector.prototype.add = function(oSimpleSelector) {
-		this.simpleSelectors.push(oSimpleSelector);
-	}
+	NotSimpleSelector.prototype = extend(SimpleSelector);
 	
 	NotSimpleSelector.prototype.validate = function() {
-		var iLen = this.simpleSelectors.length,
-			bValid = iLen > 0, // XXX: can iLen be 0? i.e. :not()?
-			oSimpleSelector;
-		for (var i = 0; i < iLen && bValid; i++) {
-			oSimpleSelector = this.simpleSelectors[i];
-			bValid = (i == 0 || oSimpleSelector.type != oSimpleSelector.UNIVERSAL) &&
-					(i == 0 || oSimpleSelector.type != oSimpleSelector.TYPE) &&
-					oSimpleSelector.type != oSimpleSelector.NOT &&
-					oSimpleSelector.validate();
-		}
-		return bValid;
-		// validate that there is no NOT-simpleSelector in simpleSelectors
+		return !(this.simpleSelector instanceof NotSimpleSelector);
 	}
 	
 	NotSimpleSelector.prototype.match = function(oNode) {
-		var bMatch = true;
-		for (var i = 0, iLen = this.simpleSelectors.length; i < iLen && bMatch; i++) {
-			bMatch = !this.simpleSelectors[i].match(oNode);
-		}
-		return bMatch;
+		return !this.simpleSelector.match(oNode);
 	}
 
 
@@ -796,75 +790,65 @@ CSSSelectors = new function() {
 	Parser.prototype = {};
 
 	/**
-	 * Parser regexp macros for the tokenizer
+	 * Parser regexp macros and patterns for the tokenizer
 	 * See: http://www.w3.org/TR/CSS21/syndata.html#tokenization
 	 */
-	Parser.macro = {};
-	Parser.macro.w        = '[ \t\r\n\f]*';
-	Parser.macro.S        = '[ \t\r\n\f]+';
-	Parser.macro.escape_  = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|[ \\n\\r\\t\\f])?|\\\\[^\\n\\r\\f0-9a-fA-F]';
-	Parser.macro.nlescape = '\\\\(?:r\n|[\n\r\f])';
-	Parser.macro.ident    = '(?:[-]?(?:[_a-zA-Z]|[^\\0-\\177]|' + Parser.macro.escape_ + ')(?:[_a-zA-Z0-9-]|[^\\0-\\177]|' + Parser.macro.escape_ + ')*)';
-	//Parser.macro.ns_ident = '(?:(?:' + Parser.macro.ident + '|\\*)?\\|)?' + Parser.macro.ident;
-	Parser.macro.string1  = '\\"(?:[^\\n\\r\\f\\\\"]|' + Parser.macro.nlescape + '|' + Parser.macro.escape_ + ')*\\"';
-	Parser.macro.string2  = "\\'(?:[^\\n\\r\\f\\\\']|" + Parser.macro.nlescape + "|" + Parser.macro.escape_ + ")*\\'";
-	Parser.macro.string   = '(?:' + Parser.macro.string1 + '|' + Parser.macro.string2 + ')';
-	//Parser.macro.nth      = '(?:-?[0-9]*n)?(?:[+\\-][0-9]+)?|odd|even';
-
-	/**
-	 * Parser regexp patterns for the supported selectors
-	 * Note: combinators must be placed inbetween two \s* patterns
-	 */
-	Parser.pattern = {
-		class_    : '\\.' + Parser.macro.ident,
-		id        : '#' + Parser.macro.ident,
-		attribute : '\\[(' + Parser.macro.ident + ')(?:([~|\\^\\$*]?=)(' + Parser.macro.ident + '|' + Parser.macro.string + '))?\\]',
-		pseudo    : ':(' + Parser.macro.ident + ')(?:\\(([^)]+)\\))?',
-		universal : '\\*',	// '(?:' + Parser.macro.ident + '\\|)\\*'
-		element   : Parser.macro.ident,	// Parser.macro.ns_ident
-		child     : Parser.macro.w + '>' + Parser.macro.w,
-		adjacent  : Parser.macro.w + '\\+' + Parser.macro.w,
-		sibling   : Parser.macro.w + '~' + Parser.macro.w,
-		comma     : Parser.macro.w + ',' + Parser.macro.w,
-		descendant: Parser.macro.S
-	};
-	
-	Parser.pattern.not = ':(' + Parser.macro.ident + ')(?:\\((' +
-			[
-				Parser.pattern.class_,		// first all selectors
-				Parser.pattern.id,
-				Parser.pattern.attribute,
-				Parser.pattern.pseudo,
-				Parser.pattern.universal
-			].join('|') +
-			')\\))?';
+	var oPatterns = {};
+	// Macros
+	oPatterns.w        = '[ \t\r\n\f]*';
+	oPatterns.S        = '[ \t\r\n\f]+';
+	oPatterns.escape_  = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|[ \\n\\r\\t\\f])?|\\\\[^\\n\\r\\f0-9a-fA-F]';
+	oPatterns.nlescape = '\\\\(?:\\r\\n|[\\n\\r\\f])';
+	oPatterns.ident    = '(?:[-]?(?:[_a-zA-Z]|[^\\0-\\177]|' + oPatterns.escape_ + ')(?:[_a-zA-Z0-9-]|[^\\0-\\177]|' + oPatterns.escape_ + ')*)';
+//	oPatterns.ns_ident = '(?:(?:' + oPatterns.ident + '|\\*)?\\|)?' + oPatterns.ident;
+	oPatterns.string1  = '\\"(?:[^\\n\\r\\f\\\\"]|' + oPatterns.nlescape + '|' + oPatterns.escape_ + ')*\\"';
+	oPatterns.string2  = "\\'(?:[^\\n\\r\\f\\\\']|" + oPatterns.nlescape + "|" + oPatterns.escape_ + ")*\\'";
+	oPatterns.string   = '(?:' + oPatterns.string1 + '|' + oPatterns.string2 + ')';
+//	oPatterns.nth      = '(?:-?[0-9]*n)?(?:[+\\-][0-9]+)?|odd|even';
+	// Simple selectors
+	oPatterns.class_     = '\\.' + oPatterns.ident;
+	oPatterns.id         = '#' + oPatterns.ident;
+	oPatterns.attribute  = '\\[(' + oPatterns.ident + ')(?:([~|\\^\\$*]?=)(' + oPatterns.ident + '|' + oPatterns.string + '))?\\]';
+	oPatterns.pseudo     = ':(' + oPatterns.ident + ')(?:\\(([^)]+)\\))?';
+	oPatterns.universal  = '\\*';				// '(?:' + oPatterns.ident + '\\|)\\*'
+	oPatterns.element    = oPatterns.ident;		// oPatterns.ns_ident
+	// Combinators
+	// Note: combinators must be placed inbetween two \s* patterns
+	oPatterns.child      = oPatterns.w + '>' + oPatterns.w;
+	oPatterns.adjacent   = oPatterns.w + '\\+' + oPatterns.w;
+	oPatterns.sibling    = oPatterns.w + '~' + oPatterns.w;
+	oPatterns.comma      = oPatterns.w + ',' + oPatterns.w;
+	oPatterns.descendant = oPatterns.S;
+	oPatterns.negation   = ':not\\((?:' + [oPatterns.class_, oPatterns.id, oPatterns.attribute, 
+	                                       oPatterns.pseudo, oPatterns.universal,
+	                                       oPatterns.element].join('|') + ')\\)';
+	Parser.pattern = oPatterns;
 
 
 	/**
 	 * Regular expression objects for patterns
 	 */
-	Parser.regexp = {
-		selector : new RegExp([
-				Parser.pattern.class_,		// first all selectors
-				Parser.pattern.id,
-				Parser.pattern.attribute,
-				Parser.pattern.not,
-				Parser.pattern.pseudo,
-				Parser.pattern.universal,
-				Parser.pattern.element,
-				Parser.pattern.child,		// then the combinators
-				Parser.pattern.adjacent,
-				Parser.pattern.sibling,
-				Parser.pattern.comma,
-				Parser.pattern.descendant	// descendant combinator must be last
-			].join('|'), 'g'),
-		attribute: new RegExp(Parser.pattern.attribute),
-		nlescape : new RegExp(Parser.macro.nlescape, 'g'),
-		pseudo   : new RegExp(Parser.pattern.pseudo),
-		trim     : /^\s+|\s+$/gm,
-		escapeCSS: /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g,
-		escapeRegexp: /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g
-	}
+	Parser.regexp = {};
+	Parser.regexp.selector = new RegExp([
+				oPatterns.class_,		// first all selectors
+				oPatterns.id,
+				oPatterns.attribute,
+				oPatterns.negation,
+				oPatterns.pseudo,
+				oPatterns.universal,
+				oPatterns.element,
+				oPatterns.child,		// then the combinators
+				oPatterns.adjacent,
+				oPatterns.sibling,
+				oPatterns.comma,
+				oPatterns.descendant	// descendant combinator must be last
+			].join('|'), 'g');
+	Parser.regexp.attribute    = new RegExp(oPatterns.attribute);
+	Parser.regexp.nlescape     = new RegExp(oPatterns.nlescape, 'g');
+	Parser.regexp.pseudo       = new RegExp(oPatterns.pseudo);
+	Parser.regexp.trim         = /^\s+|\s+$/gm;
+	Parser.regexp.escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
+	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
 
 	/**
 	 * The cache object for the parsed selectors
@@ -877,15 +861,12 @@ CSSSelectors = new function() {
 	 * @param selector The selector.
 	 * @return SelectorGroup object, null if unable to parse the selector (error message in errorMessage property).
 	 */
-	Parser.parse = function(sSelector) {
-		if (sSelector in Parser.cache)
-			return Parser.cache[sSelector];
-
+	Parser.prototype.parse = function(sSelector) {
 		// segment selector
 		var aSelectorParts = sSelector.match(Parser.regexp.selector);
 		// check whether selector was parsed completely...
 		if (sSelector != aSelectorParts.join(''))
-			return Parser.error(sSelector);
+			throw new ParsingException(sSelector);
 
 		// convenience variables to access constants
 		var ssp = SimpleSelector.prototype,
@@ -968,7 +949,7 @@ CSSSelectors = new function() {
 								'not'             : ssp.PSEUDO_NOT
 							}[sIdentifier];
 					if (!hType)
-						return Parser.error(sSelector);
+						throw new ParsingException(sSelector);
 					if (sIdentifier == 'lang') {
 						oSimpleSelector = new SimpleSelector(hType, aParsedPseudo[2]);
 					} else if (sIdentifier.indexOf('nth-') == 0) {
@@ -987,11 +968,11 @@ CSSSelectors = new function() {
 						}
 						oSimpleSelector = new SimpleSelector(hType, a, b)
 					} else if (sIdentifier == 'not') {
-						oSimpleSelector = new NotSimpleSelector();
-						for (var i in xx) {
-							// add
-							oSimpleSelector.add(...);
-						}
+						var oTempGroup = this.parse(aParsedPseudo[2]);
+						var oTempCombinator = oTempGroup.selectors[0].combinators[0];
+						if (oTempCombinator.simpleSelectors.length != 1)
+							throw new ParsingException(sSelector);
+						oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
 					} else {
 						oSimpleSelector = new SimpleSelector(hType)
 					}
@@ -1020,10 +1001,10 @@ CSSSelectors = new function() {
 					break;
 			}
 		}
-		if (!oSelectorGroup.validate()) {
-			return Parser.error(sSelector);
-		}
-		return Parser.cache[sSelector] = oSelectorGroup;
+		if (!oSelectorGroup.validate())
+			throw new ParsingException(sSelector);
+		
+		return oSelectorGroup;
 	}
 
 	/**
@@ -1056,7 +1037,7 @@ CSSSelectors = new function() {
 		if (sString.length < 2 ||
 			!((sFirstChar == "'" && sLastChar == "'") ||
 		      (sFirstChar == '"' && sLastChar == '"')))
-			return Parser.error(sString);
+			throw new ParsingException(sString);
 		*/
 		sString = sString.substring(1, sString.length - 1);
 		sString = sString.replace(Parser.regexp.nlescape, '');
@@ -1072,15 +1053,6 @@ CSSSelectors = new function() {
 		return sString.replace(Parser.regexp.escapeRegexp, '\\$1');
 	}
 	
-	/**
-	 * Called when there is a parsing error.
-	 * @return Always null.
-	 */
-	Parser.error = function(sSelector) {
-		//
-		return null;
-	}
-	
 	
 	
 	var CachingParser = function() {
@@ -1089,13 +1061,32 @@ CSSSelectors = new function() {
 	}
 	this.CachingParser = CachingParser;
 	
-	CachingParser.prototype = new Parser;
+	CachingParser.prototype = extend(Parser);
 	
 	CachingParser.prototype.parse = function(sSelector) {
-		if (sSelector in this.cache) {
-			// ...
-		}
-		Parser.prototype.parse.call(this, sSelector);
+		if (!(sSelector in this.cache))
+			this.cache[sSelector] = Parser.prototype.parse.call(this, sSelector);
+		return this.cache[sSelector];
+	}
+	
+	
+	/**
+	 * Default instantiation of a caching parser.
+	 */
+	this.parser = new CachingParser();
+	
+	
+	
+	var ParsingException = function(sSelector) {
+		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
+		this.selector = sSelector;
+	}
+	this.ParsingException = ParsingException;
+	
+	ParsingException.prototype = extend(Error);
+	
+	ParsingException.prototype.toString = function() {
+		return 'CSS Selector parsing error: ' + this.selector;
 	}
 	
 }();

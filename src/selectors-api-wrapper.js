@@ -1,4 +1,6 @@
-/*
+/**
+ * @fileoverview
+ * 
  * Class that wraps the Grauw Selectors to provide a Selectors API-like interface.
  * Element selectors only available on browsers that support adding to the Element prototype (i.e. not IE).
  * 
@@ -36,13 +38,16 @@ document.querySelectorAll = function(sSelector) {
 }
 
 function parse(sSelector) {
-	if (!sSelector) {
+	if (!sSelector)
 		throw syntax_err(sSelector);
-	}
-	sSelector = sSelector.replace(/^\s+/, '').replace(/\s+$/, '');
-	var oSelector = CSSSelectors.Parser.parse(sSelector);
-	if (!oSelector) {
-		throw syntax_err(sSelector);
+	try {
+		sSelector = sSelector.replace(/^\s+/, '').replace(/\s+$/, '');
+		var oSelector = gl.selector.parser.parse(sSelector);
+	} catch(e) {
+		if (e instanceof gl.selector.ParsingException)
+			throw syntax_err(sSelector);
+		else
+			throw e;
 	}
 	return oSelector;
 }
