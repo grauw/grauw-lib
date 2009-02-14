@@ -451,9 +451,8 @@ gl.selector = new function() {
 				iStart++;
 			} else if (oSimpleSelector.type == oSimpleSelector.ID) {
 				var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
-				if (oNode2.parentNode == oNode) {
-					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
-				}
+				return oNode2.parentNode == oNode &&
+						this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			} else {
 				aNodes = oNode.childNodes;
 			}
