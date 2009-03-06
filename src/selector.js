@@ -873,11 +873,6 @@ gl.selector = new function() {
 	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
 
 	/**
-	 * The cache object for the parsed selectors
-	 */
-	Parser.cache = {};
-
-	/**
 	 * Parses a CSS selector or selector group.
 	 * Uses caching to speed up subsequent calls.
 	 * @param selector The selector.
