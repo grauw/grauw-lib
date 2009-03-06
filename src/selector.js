@@ -4,10 +4,10 @@
  * Grauw CSS Selectors
  * 
  * Public methods:
- * - CSSSelectors.match(node, selector)
- * - CSSSelectors.query(node, selector)
- * - CSSSelectors.queryAll(node, selector)
- * - CSSSelectors.queryAncestor(node, selector)
+ * - gl.selector.match(node, selector)
+ * - gl.selector.query(node, selector)
+ * - gl.selector.queryAll(node, selector)
+ * - gl.selector.queryAncestor(node, selector)
  * 
  * See: http://www.grauw.nl/projects/pc/selectors/
  * 
@@ -34,7 +34,7 @@ if (!window.gl)
 	gl = {};
 
 /**
- * The main CSSSelectors object.
+ * The main CSS Selectors object.
  * Acts as sort of a namespace; all other selector objects are closures of the instance of this object.
  */
 gl.selector = new function() {
@@ -53,9 +53,8 @@ gl.selector = new function() {
 	
 	/**
 	 * Matches a node against a CSS selector or selector group.
-	 * Supports all CSS3 Selectors, except for pseudo-classes and pseudo-elements.
-	 * The structural pseudo-classes and :lang() pseudo-class however, are supported.
-	 * This is basically the STTS 3 profile, plus lang support.
+	 * Supports all CSS3 Selectors, except for pseudo-elements and the following
+	 * pseuro-classes: :link, :visited, :hover, :active, :focus.
 	 * @param node The node
 	 * @param selector The selector
 	 * @return true if the selector matches.
@@ -69,7 +68,7 @@ gl.selector = new function() {
 	 * Queries a CSS selector or selector group against a node.
 	 * @param node The node
 	 * @param selector The selector
-	 * @return Array containing the selected nodes.
+	 * @return An array containing the selected nodes.
 	 */
 	this.queryAll = function(oNode, sSelector) {
 		if (oNode.nodeType == 9)
@@ -529,8 +528,13 @@ gl.selector = new function() {
 		PSEUDO_ONLY_OF_TYPE     : 22,
 		PSEUDO_EMPTY            : 23,
 		PSEUDO_LANG             : 24,
-		PSEUDO_TARGET           : 25,
-		PSEUDO_NOT              : 26,
+		PSEUDO_ENABLED          : 25,
+		PSEUDO_DISABLED         : 26,
+		PSEUDO_CHECKED          : 27,
+		PSEUDO_READ_ONLY        : 28,
+		PSEUDO_READ_WRITE       : 29,
+		PSEUDO_TARGET           : 30,
+		PSEUDO_NOT              : 31,
 
 		/**
 		 * Check whether the simpleSelector is in a valid final state.
@@ -751,6 +755,24 @@ gl.selector = new function() {
 			return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
 					(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
 		}
+		m[ssp.PSEUDO_ENABLED] = function(oNode) {
+			var sTagName = oNode.tagName.toUpperCase();
+			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && !oNode.disabled;
+		}
+		m[ssp.PSEUDO_DISABLED] = function(oNode) {
+			var sTagName = oNode.tagName.toUpperCase();
+			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && oNode.disabled;
+		}
+		m[ssp.PSEUDO_CHECKED] = function(oNode) {
+			var sTagName = oNode.tagName.toUpperCase();
+			return sTagName == 'INPUT' && oNode.checked || sTagName == 'OPTION' && oNode.selected;
+		}
+		m[ssp.PSEUDO_READ_ONLY] = function(oNode) {
+			return !('readOnly' in oNode) || oNode.readOnly;
+		}
+		m[ssp.PSEUDO_READ_WRITE] = function(oNode) {
+			return 'readOnly' in oNode && !oNode.readOnly;
+		}
 		m[ssp.PSEUDO_TARGET] = function(oNode) {
 			return '#' + oNode.getAttribute('id') == document.location.hash;
 		}
@@ -786,7 +808,7 @@ gl.selector = new function() {
 	var Parser = function() {
 	}
 	this.Parser = Parser;
-	
+
 	Parser.prototype = {};
 
 	/**
@@ -945,6 +967,11 @@ gl.selector = new function() {
 								'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
 								'empty'           : ssp.PSEUDO_EMPTY,
 								'lang'            : ssp.PSEUDO_LANG,
+								'enabled'         : ssp.PSEUDO_ENABLED,
+								'disabled'        : ssp.PSEUDO_DISABLED,
+								'checked'         : ssp.PSEUDO_CHECKED,
+								'read-only'       : ssp.PSEUDO_READ_ONLY,
+								'read-write'      : ssp.PSEUDO_READ_WRITE,
 								'target'          : ssp.PSEUDO_TARGET,
 								'not'             : ssp.PSEUDO_NOT
 							}[sIdentifier];
@@ -1003,7 +1030,7 @@ gl.selector = new function() {
 		}
 		if (!oSelectorGroup.validate())
 			throw new ParsingException(sSelector);
-		
+
 		return oSelectorGroup;
 	}
 
@@ -1088,5 +1115,5 @@ gl.selector = new function() {
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
 	}
-	
+
 }();
