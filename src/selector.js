@@ -49,8 +49,8 @@ gl.selector = new function() {
 		fPrototype.prototype = oBase.prototype;
 		return new fPrototype;
 	}
-	
-	
+
+
 	/**
 	 * Matches a node against a CSS selector or selector group.
 	 * Supports all CSS3 Selectors, except for pseudo-elements and the following
@@ -787,13 +787,13 @@ gl.selector = new function() {
 		this.simpleSelector = oSimpleSelector;
 	}
 	this.NotSimpleSelector = NotSimpleSelector;
-	
+
 	NotSimpleSelector.prototype = extend(SimpleSelector);
-	
+
 	NotSimpleSelector.prototype.validate = function() {
 		return !(this.simpleSelector instanceof NotSimpleSelector);
 	}
-	
+
 	NotSimpleSelector.prototype.match = function(oNode) {
 		return !this.simpleSelector.match(oNode);
 	}
@@ -1079,9 +1079,12 @@ gl.selector = new function() {
 	Parser.escapeRegexp = function(sString) {
 		return sString.replace(Parser.regexp.escapeRegexp, '\\$1');
 	}
-	
-	
-	
+
+
+
+	/**
+	 * A subclass of Parser that provides caching of parsed selectors.
+	 */
 	var CachingParser = function() {
 		this.cache = {};
 		Parser.call(this);
@@ -1095,23 +1098,26 @@ gl.selector = new function() {
 			this.cache[sSelector] = Parser.prototype.parse.call(this, sSelector);
 		return this.cache[sSelector];
 	}
-	
-	
+
+
 	/**
 	 * Default instantiation of a caching parser.
 	 */
 	this.parser = new CachingParser();
-	
-	
-	
+
+
+
+	/**
+	 * An exception object that is thrown when there is a parse error.
+	 */
 	var ParsingException = function(sSelector) {
 		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
 		this.selector = sSelector;
 	}
 	this.ParsingException = ParsingException;
-	
+
 	ParsingException.prototype = extend(Error);
-	
+
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
 	}
