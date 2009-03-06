@@ -381,12 +381,14 @@ gl.selector = new function() {
 		queryFunction: null
 	}
 
+	// convenience variable to access constants
+	var cp = Combinator.prototype;
+
 	/**
 	 * Array of matching combinators
 	 */
 	Combinator.prototype.matchCombinator = function() {
-		var mc = [],
-			cp = Combinator.prototype;
+		var mc = [];
 		mc[cp.DESCENDANT] = function(oNode) {
 			var bMatch = false;
 			while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
@@ -417,8 +419,7 @@ gl.selector = new function() {
 	 * Array of querying combinators
 	 */
 	Combinator.prototype.queryCombinator = function() {
-		var qc = [],
-			cp = Combinator.prototype;
+		var qc = [];
 		qc[cp.DESCENDANT] = function(oNode, aResult, bSingleResult) {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
@@ -590,12 +591,14 @@ gl.selector = new function() {
 */
 	}
 
+	// convenience variable to access constants
+	var ssp = SimpleSelector.prototype;
+
 	/**
 	 * Array of simple selector matching functions
 	 */
 	SimpleSelector.prototype.matcher = function() {
-		var m = [],
-			ssp = SimpleSelector.prototype;
+		var m = [];
 		m[ssp.UNIVERSAL] = function(oNode) {
 			return true;
 		}
@@ -782,6 +785,7 @@ gl.selector = new function() {
 
 
 	var NotSimpleSelector = function(oSimpleSelector) {
+		this.type = ssp.PSEUDO_NOT;
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
@@ -872,6 +876,38 @@ gl.selector = new function() {
 	Parser.regexp.escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
 	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
 
+	Parser.attrTypeMap = {
+			'=' : ssp.ATTRIBUTE_EQUALS,
+			'~=': ssp.ATTRIBUTE_LIST,
+			'|=': ssp.ATTRIBUTE_LANG,
+			'^=': ssp.ATTRIBUTE_STARTS,
+			'$=': ssp.ATTRIBUTE_ENDS,
+			'*=': ssp.ATTRIBUTE_CONTAINS
+		};
+
+	Parser.pseudoTypeMap = {
+			'root'            : ssp.PSEUDO_ROOT,
+			'nth-child'       : ssp.PSEUDO_NTH_CHILD,
+			'nth-last-child'  : ssp.PSEUDO_NTH_LAST_CHILD,
+			'nth-of-type'     : ssp.PSEUDO_NTH_OF_TYPE,
+			'nth-last-of-type': ssp.PSEUDO_NTH_LAST_OF_TYPE,
+			'first-child'     : ssp.PSEUDO_FIRST_CHILD,
+			'last-child'      : ssp.PSEUDO_LAST_CHILD,
+			'first-of-type'   : ssp.PSEUDO_FIRST_OF_TYPE,
+			'last-of-type'    : ssp.PSEUDO_LAST_OF_TYPE,
+			'only-child'      : ssp.PSEUDO_ONLY_CHILD,
+			'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
+			'empty'           : ssp.PSEUDO_EMPTY,
+			'lang'            : ssp.PSEUDO_LANG,
+			'enabled'         : ssp.PSEUDO_ENABLED,
+			'disabled'        : ssp.PSEUDO_DISABLED,
+			'checked'         : ssp.PSEUDO_CHECKED,
+			'read-only'       : ssp.PSEUDO_READ_ONLY,
+			'read-write'      : ssp.PSEUDO_READ_WRITE,
+			'target'          : ssp.PSEUDO_TARGET,
+			'not'             : ssp.PSEUDO_NOT
+		};
+
 	/**
 	 * Parses a CSS selector or selector group.
 	 * Uses caching to speed up subsequent calls.
@@ -884,10 +920,6 @@ gl.selector = new function() {
 		// check whether selector was parsed completely...
 		if (sSelector != aSelectorParts.join(''))
 			throw new ParsingException(sSelector);
-
-		// convenience variables to access constants
-		var ssp = SimpleSelector.prototype,
-			cp = Combinator.prototype;
 
 		// instantiate initial object model
 		var oSelectorGroup = new SelectorGroup(),
@@ -926,14 +958,7 @@ gl.selector = new function() {
 						oCombinator.add(new SimpleSelector(ssp.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1])));
 					} else {
 						var oSimpleSelector = new SimpleSelector(
-								{
-									'=' : ssp.ATTRIBUTE_EQUALS,
-									'~=': ssp.ATTRIBUTE_LIST,
-									'|=': ssp.ATTRIBUTE_LANG,
-									'^=': ssp.ATTRIBUTE_STARTS,
-									'$=': ssp.ATTRIBUTE_ENDS,
-									'*=': ssp.ATTRIBUTE_CONTAINS
-								}[parsedAttr[2]],
+								Parser.attrTypeMap[parsedAttr[2]],
 								Parser.decodeIdent(parsedAttr[1]),
 								parsedAttr[3].charAt(0) == '"' || parsedAttr[3].charAt(0) == "'" ?
 									Parser.decodeString(parsedAttr[3]) :
@@ -948,32 +973,11 @@ gl.selector = new function() {
 					var aParsedPseudo = Parser.regexp.pseudo.exec(sSelectorPart),
 						sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
 						oSimpleSelector,
-						hType = {
-								'root'            : ssp.PSEUDO_ROOT,
-								'nth-child'       : ssp.PSEUDO_NTH_CHILD,
-								'nth-last-child'  : ssp.PSEUDO_NTH_LAST_CHILD,
-								'nth-of-type'     : ssp.PSEUDO_NTH_OF_TYPE,
-								'nth-last-of-type': ssp.PSEUDO_NTH_LAST_OF_TYPE,
-								'first-child'     : ssp.PSEUDO_FIRST_CHILD,
-								'last-child'      : ssp.PSEUDO_LAST_CHILD,
-								'first-of-type'   : ssp.PSEUDO_FIRST_OF_TYPE,
-								'last-of-type'    : ssp.PSEUDO_LAST_OF_TYPE,
-								'only-child'      : ssp.PSEUDO_ONLY_CHILD,
-								'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
-								'empty'           : ssp.PSEUDO_EMPTY,
-								'lang'            : ssp.PSEUDO_LANG,
-								'enabled'         : ssp.PSEUDO_ENABLED,
-								'disabled'        : ssp.PSEUDO_DISABLED,
-								'checked'         : ssp.PSEUDO_CHECKED,
-								'read-only'       : ssp.PSEUDO_READ_ONLY,
-								'read-write'      : ssp.PSEUDO_READ_WRITE,
-								'target'          : ssp.PSEUDO_TARGET,
-								'not'             : ssp.PSEUDO_NOT
-							}[sIdentifier];
-					if (!hType)
+						iType = Parser.pseudoTypeMap[sIdentifier];
+					if (!iType)
 						throw new ParsingException(sSelector);
 					if (sIdentifier == 'lang') {
-						oSimpleSelector = new SimpleSelector(hType, aParsedPseudo[2]);
+						oSimpleSelector = new SimpleSelector(iType, aParsedPseudo[2]);
 					} else if (sIdentifier.indexOf('nth-') == 0) {
 						var nth = aParsedPseudo[2],
 							a, b, n;
@@ -988,7 +992,7 @@ gl.selector = new function() {
 							a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
 							b = b == '' ? 0 : parseInt(b, 10);
 						}
-						oSimpleSelector = new SimpleSelector(hType, a, b)
+						oSimpleSelector = new SimpleSelector(iType, a, b)
 					} else if (sIdentifier == 'not') {
 						var oTempGroup = this.parse(aParsedPseudo[2]);
 						var oTempCombinator = oTempGroup.selectors[0].combinators[0];
@@ -996,7 +1000,7 @@ gl.selector = new function() {
 							throw new ParsingException(sSelector);
 						oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
 					} else {
-						oSimpleSelector = new SimpleSelector(hType)
+						oSimpleSelector = new SimpleSelector(iType)
 					}
 					oCombinator.add(oSimpleSelector);
 					break;
