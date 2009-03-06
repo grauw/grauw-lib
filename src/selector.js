@@ -882,7 +882,7 @@ gl.selector = new function() {
 		// post-process segments
 		for (var i = 0, iLen = aSelectorParts.length; i < iLen; i++) {
 			// trim combinators with excessive space, note that descendant combinator becomes ''
-			sSelectorPart = aSelectorParts[i].replace(Parser.regexp.trim, '');
+			var sSelectorPart = aSelectorParts[i].replace(Parser.regexp.trim, '');
 			switch (sSelectorPart.charAt(0)) {
 				// selector group
 				case ',':
