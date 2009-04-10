@@ -430,7 +430,7 @@ gl.selector = new function() {
 				iStart++;
 			} else {
 				if (oSimpleSelector.type == oSimpleSelector.ID) {
-					var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
+					var oNode2 = oNode.ownerDocument.getElementById(this.simpleSelectors[0].arg1);
 					if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 				}
@@ -451,7 +451,7 @@ gl.selector = new function() {
 				iStart++;
 			} else {
 				if (oSimpleSelector.type == oSimpleSelector.ID) {
-					var oNode2 = (oNode.ownerDocument || oNode.document).getElementById(this.simpleSelectors[0].arg1);
+					var oNode2 = oNode.ownerDocument.getElementById(this.simpleSelectors[0].arg1);
 					if (oNode2.parentNode == oNode)
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 				}
@@ -639,7 +639,7 @@ gl.selector = new function() {
 			return this.arg2 != '' && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
 		}
 		m[ssp.PSEUDO_ROOT] = function(oNode) {
-			return (oNode.ownerDocument || oNode.document).documentElement == oNode;
+			return oNode.ownerDocument.documentElement == oNode;
 		}
 		// Attempt at making nth child selectors perform better
 /*		m[ssp.PSEUDO_NTH_CHILD] = function(oNode) {
