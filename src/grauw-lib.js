@@ -43,14 +43,53 @@ gl.Prototype.extend = function(cBase) {
 }
 
 
-gl.core = new function() {
+/* deal with inability of IE to set controller property on XML nodes */
 
+var browser_ie = !!window.ActiveXObject;
+
+if (browser_ie)
+	gl.modelNodes = [];
+
+function setController(oModelNode, oController) {
+	if (browser_ie) {
+		var id = gl.modelNodes.length;
+		gl.modelNodes[id] = oController;
+		oModelNode.setAttribute('_controller', id);
+	} else {
+		oModelNode.controller = oController;
+	}
+}
+
+function getController(oModelNode) {
+	if (browser_ie) {
+		var id = oModelNode.getAttribute('_controller');
+		return id && gl.modelNodes[id] || null;
+	} else {
+		return oModelNode.controller;
+	}
+}
+
+function xmlEscape(sText) {
+	return sText.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/&/g,'&amp;');
+}
+
+function parseHTML_IE(sHTML) {
+	var oDiv = document.createElement('div');
+	oDiv.innerHTML = '&#160;' + sHTML;
+	return oDiv.childNodes[1];
+}
+
+
+gl.core = new function() {
+	
 	var Component = function(oDocument) {
 		this.viewNode = this.getTemplate(oDocument);
 	}
 	this.Component = gl.Class.create(Component);
 
 	Component.prototype.getTemplate = function(oDocument) {
+		if (browser_ie)
+			return parseHTML_IE(this._template.xml);
 		return oDocument.importNode(this._template, true);
 	}
 
@@ -107,7 +146,7 @@ gl.core = new function() {
 	
 	var Element = function(oModelNode) {
 		this.modelNode = oModelNode;
-		oModelNode.controller = this;
+		setController(oModelNode, this);
 	}
 	this.Element = gl.Class.create(Element);
 
@@ -134,14 +173,15 @@ gl.templates = new function() {
 	function getChildInstancesOf(oNode, cClass) {
 		var oNode = oNode.firstChild;
 		var aClasses = [];
+		var oController;
 		while (oNode) {
-			if (oNode.nodeType == 1 && oNode.controller instanceof cClass)
-				aClasses.push(oNode.controller);
+			if (oNode.nodeType == 1 && (oController = getController(oNode)) instanceof cClass)
+				aClasses.push(oController);
 			oNode = oNode.nextSibling;
 		}
 		return aClasses;
 	}
-	
+
 	var Namespace = function(oModelNode) {
 		gl.core.Element.call(this, oModelNode);
 	}
@@ -229,7 +269,7 @@ gl.templates = new function() {
 	
 	Constructor.prototype.getConstructor = function() {
 		var sArguments = this.modelNode.getAttribute('arguments');
-		var sBody = this.modelNode.textContent;
+		var sBody = this.modelNode.textContent || this.modelNode.text || '';
 		if (sArguments)
 			return new Function(sArguments, sBody);
 		else
@@ -253,9 +293,13 @@ gl.templates = new function() {
 		
 		switch (this.getType()) {
 		case 'text/css':
-			var oStyle = document.createElement('style');
-			oStyle.type = 'text/css';
-			oStyle.appendChild(document.createTextNode(oModelNode.textContent));
+			if (browser_ie) {
+				var oStyle = parseHTML_IE('<style type="text/css">' + xmlEscape(oModelNode.text) + '</style>');
+			} else {
+				var oStyle = document.createElement('style');
+				oStyle.type = 'text/css';
+				oStyle.appendChild(document.createTextNode(oModelNode.textContent));
+			}
 			document.getElementsByTagName('head')[0].appendChild(oStyle);
 			break;
 		case 'text/javascript':
