@@ -60,19 +60,19 @@ gl.unit.JSUnit.prototype.init = function() {
 }
 
 gl.unit.JSUnit.prototype.start = function() {
-	this.writeln('JSUnit running...');
+	this.writeln('JSUnit running…');
 	this.test();
 	this.writeln('JSUnit finished.');
 	this.end();
 }
 
 gl.unit.JSUnit.prototype.end = function() {
-	this.outputDiv.style.width = '800px';
-	this.outputDiv.style.position = 'absolute';
-	this.outputDiv.style.top = '10px';
-	this.outputDiv.style.right = '10px';
-	this.outputDiv.style.fontFamily = 'Arial, sans-serif';
-	this.outputDiv.style.fontSize = 'smaller';
+	this.outputDiv.setAttribute('style',
+			'position:absolute;width:600px;top:10px;right:10px;' +
+			'font-family:Arial,sans-serif;font-size:smaller;' +
+			'opacity:0.8;background-color:#ddf;border-radius:5px;' +
+			'-moz-border-radius:5px;-webkit-border-radius:5px;' +
+			'padding: 5px;');
 	document.body.insertBefore(this.outputDiv, document.body.firstChild);
 }
 
