@@ -102,7 +102,7 @@ URIUnit.prototype.unitTests = function() {
 		html += '<td>' + test[1] + '</td>';
 		html += '<td>' + sURI + '</td>';
 		html += '<td>' + test[2] + '</td>';
-		html += '<td>' + (sURI == test[2]) + '</td>';
+		html += '<td>' + (sURI == test[2] ? 'yes' : 'no') + '</td>';
 		html += '</tr>';
 	}
 	html += '</table>';
