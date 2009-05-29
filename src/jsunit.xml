@@ -15,18 +15,33 @@
 				width: 600px;
 				top: 10px;
 				right: 10px;
+				padding: 5px;
+				color: black;
+				background-color: #ddf;
 				font-family: Arial, sans-serif;
 				font-size: smaller;
 				opacity: 0.8;
-				background-color: #ddf;
 				border-radius: 5px;
 				-moz-border-radius: 5px;
 				-webkit-border-radius: 5px;
+			}
+			.gl-unit-log h2 {
+				margin: -5px -5px 5px -5px;
 				padding: 5px;
+				background-color: #ccf;
+				border-radius: 5px 5px 0 0;
+				border-top-left-radius: 5px;
+				border-top-right-radius: 5px;
+				-moz-border-radius-topleft: 5px;
+				-moz-border-radius-topright: 5px;
+				-webkit-border-top-left-radius: 5px;
+				-webkit-border-top-right-radius: 5px;
 			}
 		</t:resource>
 		<t:template>
-			<div class="gl-unit-log"/>
+			<div class="gl-unit-log">
+				<h2>JSUnit debug log</h2>
+			</div>
 		</t:template>
 		<t:constructor>
 			gl.core.Component.call(this, arguments[0]);
