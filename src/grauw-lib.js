@@ -307,10 +307,10 @@ if (!gl.unit)
  */
 gl.unit.JSUnit = function() {
 	this.time = null;
-	this.outputDiv = document.createElement('div');
+	this.log = new gl.unit.JSUnitLog(document);
 	this.init();
 }
-gl.unit.JSUnit.prototype = new Object();
+gl.unit.JSUnit.prototype = new Object;
 
 gl.unit.JSUnit.prototype.init = function() {
 	// override
@@ -324,26 +324,15 @@ gl.unit.JSUnit.prototype.start = function() {
 }
 
 gl.unit.JSUnit.prototype.end = function() {
-	this.outputDiv.setAttribute('style',
-			'position:absolute;width:600px;top:10px;right:10px;' +
-			'font-family:Arial,sans-serif;font-size:smaller;' +
-			'opacity:0.8;background-color:#ddf;border-radius:5px;' +
-			'-moz-border-radius:5px;-webkit-border-radius:5px;' +
-			'padding: 5px;');
-	document.body.insertBefore(this.outputDiv, document.body.firstChild);
+	document.body.insertBefore(this.log.viewNode, document.body.firstChild);
 }
 
 gl.unit.JSUnit.prototype.writeln = function(sString) {
-	var oDiv = document.createElement('div');
-	oDiv.appendChild(document.createTextNode(sString));
-	this.outputDiv.appendChild(oDiv);
+	this.log.writeln(sString);
 }
 
 gl.unit.JSUnit.prototype.writelnError = function(sString) {
-	var oDiv = document.createElement('div');
-	oDiv.style.color = '#f00';
-	oDiv.appendChild(document.createTextNode(sString));
-	this.outputDiv.appendChild(oDiv);
+	this.log.writelnError(sString);
 }
 
 gl.unit.JSUnit.prototype.assertEquals = function(oExpected, oResult, sMessage) {
