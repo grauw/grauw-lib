@@ -42,6 +42,7 @@ gl.selector = new function() {
 	var oThis = this;	// to make references to this class without hard coding the actual name
 
 	var browser_ie = !!window.ActiveXObject;
+	var browser_webkit = navigator.userAgent.indexOf('AppleWebKit') != -1;
 
 	function extend(oBase) {
 		// create new prototype object that inherits from cBase
@@ -447,7 +448,7 @@ gl.selector = new function() {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
 				iStart = 0;
-			if (oNode.children && oSimpleSelector.type == oSimpleSelector.TYPE) {
+			if (oNode.children && !browser_webkit && oSimpleSelector.type == oSimpleSelector.TYPE) {
 				aNodes = oNode.children.tags(oSimpleSelector.arg1);
 				iStart++;
 			} else {
