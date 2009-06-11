@@ -53,6 +53,28 @@ gl.selector = new function() {
 		return fConstructor;
 	}
 
+	/**
+	 * Helper function for cross-browser hasAttribute
+	 */
+	function hasAttribute(oNode, sName) {
+		if (browser_ie) {
+			var oAttr = oNode.attributes[sName];
+			return !!oAttr && oAttr.specified;
+		}
+		return oNode.hasAttribute(sName);
+	}
+
+	/**
+	 * Helper function for cross-browser getAttribute
+	 */
+	function getAttribute(oNode, sName) {
+		if (browser_ie) {
+			var oAttr = oNode.attributes[sName];
+			return oAttr ? oAttr.nodeValue : '';
+		}
+		return oNode.getAttribute(sName) || '';
+	}
+
 
 	/**
 	 * Matches a node against a CSS selector or selector group.
@@ -556,28 +578,6 @@ gl.selector = new function() {
 		},
 
 		/**
-		 * Helper function for cross-browser hasAttribute
-		 */
-		_hasAttribute : function(oNode, sName) {
-			if (browser_ie) {
-				var oAttr = oNode.attributes[sName];
-				return !!oAttr && oAttr.specified;
-			}
-			return oNode.hasAttribute(sName);
-		},
-
-		/**
-		 * Helper function for cross-browser getAttribute
-		 */
-		_getAttribute : function(oNode, sName) {
-			if (browser_ie) {
-				var oAttr = oNode.attributes[sName];
-				return oAttr ? oAttr.nodeValue : '';
-			}
-			return oNode.getAttribute(sName) || '';
-		}
-
-		/**
 		 * Helper function for cross-browser uniqueID (IE property on HTML nodes)
 		 */
 		// Attempt at making nth child selectors perform better
@@ -612,28 +612,28 @@ gl.selector = new function() {
 			return oNode.getAttribute('id') == this.arg1;
 		}
 		m[SimpleSelector.ATTRIBUTE_EXIST] = function(oNode) {
-			return this._hasAttribute(oNode, this.arg1);
+			return hasAttribute(oNode, this.arg1);
 		}
 		m[SimpleSelector.ATTRIBUTE_EQUALS] = function(oNode) {
-			return this._getAttribute(oNode, this.arg1) == this.arg2;
+			return getAttribute(oNode, this.arg1) == this.arg2;
 		}
 		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
-			return this.arg2 && this.attrListRegexp.test(this._getAttribute(oNode, this.arg1));
+			return this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
 		}
 		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
-			var sAttrValue = this._getAttribute(oNode, this.arg1);
+			var sAttrValue = getAttribute(oNode, this.arg1);
 			return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
 		}
 		m[SimpleSelector.ATTRIBUTE_STARTS] = function(oNode) {
-			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
+			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
 		}
 		m[SimpleSelector.ATTRIBUTE_ENDS] = function(oNode) {
-			var sAttrValue = this._getAttribute(oNode, this.arg1);
+			var sAttrValue = getAttribute(oNode, this.arg1);
 			return this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
 		}
 		m[SimpleSelector.ATTRIBUTE_CONTAINS] = function(oNode) {
-			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
+			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
 		}
 		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
