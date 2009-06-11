@@ -167,63 +167,61 @@ gl.selector = new function() {
 	var SelectorGroup = function() {
 		this.selectors = [];
 	}
-	this.SelectorGroup = SelectorGroup;
+	this.SelectorGroup = extend(SelectorGroup, Object);
 
-	SelectorGroup.prototype = {
-		/**
-		 * Add a selector to the selector group.
-		 * @param selector The selector
-		 */
-		add: function(oSelector) {
-			if (!oSelector instanceof Selector)
-				throw new Error('Parameter must be instance of Selector!');
-			this.selectors[this.selectors.length] = oSelector;
-		},
+	/**
+	 * Add a selector to the selector group.
+	 * @param selector The selector
+	 */
+	SelectorGroup.prototype.add = function(oSelector) {
+		if (!oSelector instanceof Selector)
+			throw new Error('Parameter must be instance of Selector!');
+		this.selectors[this.selectors.length] = oSelector;
+	}
 
-		/**
-		 * Check whether the selector is in a valid final state.
-		 * @return true if valid final state
-		 */
-		validate: function() {
-			var iLen = this.selectors.length,
-				bValid = iLen > 0;
-			for (var i = 0; i < iLen && bValid; i++)
-				bValid = this.selectors[i].validate();
-			return bValid;
-		},
+	/**
+	 * Check whether the selector is in a valid final state.
+	 * @return true if valid final state
+	 */
+	SelectorGroup.prototype.validate = function() {
+		var iLen = this.selectors.length,
+			bValid = iLen > 0;
+		for (var i = 0; i < iLen && bValid; i++)
+			bValid = this.selectors[i].validate();
+		return bValid;
+	}
 
-		/**
-		 * Matches a node against a selector group.
-		 * @param node The node
-		 * @return true if the selector matches.
-		 */
-		match: function(oNode) {
-			var oSelector,
-				iStart,
-				bMatch = false;
-			for (var i = 0, iLen = this.selectors.length; i < iLen && !bMatch; i++) {
-				oSelector = this.selectors[i];
-				bMatch = oSelector.match(oNode);
-			}
-			return bMatch;
-		},
-
-		/**
-		 * Queries a CSS selector group against a node.
-		 * @param node The node
-		 * @param singleResult If true, returns immediately when first match is found.
-		 * @return The result array
-		 */
-		query: function(oNode, bSingleResult) {
-			var aResult = [],
-				bMatch = false;
-			for (var i = 0, iLen = this.selectors.length; i < iLen && !(bSingleResult && bMatch); i++)
-				bMatch = this.selectors[i].query(oNode, aResult, bSingleResult) || bMatch;
-			// reset __queryResult variable
-			for (var i = 0, iLen = aResult.length; i < iLen; i++)
-				aResult[i].__queryResult = false;
-			return aResult;
+	/**
+	 * Matches a node against a selector group.
+	 * @param node The node
+	 * @return true if the selector matches.
+	 */
+	SelectorGroup.prototype.match = function(oNode) {
+		var oSelector,
+			iStart,
+			bMatch = false;
+		for (var i = 0, iLen = this.selectors.length; i < iLen && !bMatch; i++) {
+			oSelector = this.selectors[i];
+			bMatch = oSelector.match(oNode);
 		}
+		return bMatch;
+	}
+
+	/**
+	 * Queries a CSS selector group against a node.
+	 * @param node The node
+	 * @param singleResult If true, returns immediately when first match is found.
+	 * @return The result array
+	 */
+	SelectorGroup.prototype.query = function(oNode, bSingleResult) {
+		var aResult = [],
+			bMatch = false;
+		for (var i = 0, iLen = this.selectors.length; i < iLen && !(bSingleResult && bMatch); i++)
+			bMatch = this.selectors[i].query(oNode, aResult, bSingleResult) || bMatch;
+		// reset __queryResult variable
+		for (var i = 0, iLen = aResult.length; i < iLen; i++)
+			aResult[i].__queryResult = false;
+		return aResult;
 	}
 
 
@@ -236,59 +234,58 @@ gl.selector = new function() {
 	var Selector = function() {
 		this.combinators = [];
 	}
+	this.Selector = extend(Selector, Object);
 
-	Selector.prototype = {
-		/**
-		 * Add a combinator to the selector.
-		 * @param combinator The combinator
-		 */
-		add: function(oCombinator) {
-			if (!oCombinator instanceof Combinator)
-				throw new Error('Parameter must be instance of Combinator!');
-			var iLen = this.combinators.length;
-			if (iLen > 0) {
-				this.combinators[iLen - 1].nextCombinator = oCombinator;
-				oCombinator.previousCombinator = this.combinators[iLen - 1];
-			}
-			this.combinators[iLen] = oCombinator;
-		},
-
-		/**
-		 * Check whether the selector is in a valid final state.
-		 * @return true if valid final state
-		 */
-		validate: function() {
-			var iLen = this.combinators.length,
-				bValid = iLen > 0,
-				oCombinator;
-			for (var i = 0; i < iLen && bValid; i++) {
-				oCombinator = this.combinators[i];
-				bValid = ((i == 0 && oCombinator.type == Combinator.ROOT) ||
-						 (i > 0 && oCombinator.type != Combinator.ROOT)) &&
-						oCombinator.validate();
-			}
-			return bValid;
-		},
-
-		/**
-		 * Matches a node against a selector.
-		 * @param node The node
-		 * @return true if the selector matches.
-		 */
-		match: function(oNode) {
-			return this.combinators[this.combinators.length - 1].match(oNode);
-		},
-
-		/**
-		 * Queries a CSS selector group against a node.
-		 * @param node The node
-		 * @param result The result array
-		 * @param singleResult If true, returns immediately when first match is found.
-		 * @return true if at least one match
-		 */
-		query: function(oNode, aResult, bSingleResult) {
-			return this.combinators[0].query(oNode, aResult, bSingleResult);
+	/**
+	 * Add a combinator to the selector.
+	 * @param combinator The combinator
+	 */
+	Selector.prototype.add = function(oCombinator) {
+		if (!oCombinator instanceof Combinator)
+			throw new Error('Parameter must be instance of Combinator!');
+		var iLen = this.combinators.length;
+		if (iLen > 0) {
+			this.combinators[iLen - 1].nextCombinator = oCombinator;
+			oCombinator.previousCombinator = this.combinators[iLen - 1];
 		}
+		this.combinators[iLen] = oCombinator;
+	}
+
+	/**
+	 * Check whether the selector is in a valid final state.
+	 * @return true if valid final state
+	 */
+	Selector.prototype.validate = function() {
+		var iLen = this.combinators.length,
+			bValid = iLen > 0,
+			oCombinator;
+		for (var i = 0; i < iLen && bValid; i++) {
+			oCombinator = this.combinators[i];
+			bValid = ((i == 0 && oCombinator.type == Combinator.ROOT) ||
+					 (i > 0 && oCombinator.type != Combinator.ROOT)) &&
+					oCombinator.validate();
+		}
+		return bValid;
+	}
+
+	/**
+	 * Matches a node against a selector.
+	 * @param node The node
+	 * @return true if the selector matches.
+	 */
+	Selector.prototype.match = function(oNode) {
+		return this.combinators[this.combinators.length - 1].match(oNode);
+	}
+
+	/**
+	 * Queries a CSS selector group against a node.
+	 * @param node The node
+	 * @param result The result array
+	 * @param singleResult If true, returns immediately when first match is found.
+	 * @return true if at least one match
+	 */
+	Selector.prototype.query = function(oNode, aResult, bSingleResult) {
+		return this.combinators[0].query(oNode, aResult, bSingleResult);
 	}
 
 
@@ -306,7 +303,7 @@ gl.selector = new function() {
 		this.nextCombinator = null;
 		this.previousCombinator = null;
 	}
-	this.Combinator = Combinator;
+	this.Combinator = extend(Combinator, Object);
 
 	// type constants
 	Combinator.DESCENDANT = 1;
@@ -315,95 +312,90 @@ gl.selector = new function() {
 	Combinator.SIBLING    = 4;
 	Combinator.ROOT       = 5;	// not a real combinator, but corresponds to self-or-descendant
 
-	Combinator.prototype = {
-		/**
-		 * Add a simpleSelector to the combinator.
-		 * @param simpleSelector The simple selector
-		 */
-		add: function(oSimpleSelector) {
-			if (!oSimpleSelector instanceof SimpleSelector)
-				throw new Error('Parameter must be instance of SimpleSelector!');
-			this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
-		},
+	/**
+	 * Add a simpleSelector to the combinator.
+	 * @param simpleSelector The simple selector
+	 */
+	Combinator.prototype.add = function(oSimpleSelector) {
+		if (!oSimpleSelector instanceof SimpleSelector)
+			throw new Error('Parameter must be instance of SimpleSelector!');
+		this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
+	}
 
-		/**
-		 * Check whether the combinator is in a valid final state.
-		 * @return true if valid final state
-		 */
-		validate: function() {
-			var iLen = this.simpleSelectors.length,
-				bValid = iLen > 0,
-				oSimpleSelector;
-			for (var i = 0; i < iLen && bValid; i++) {
-				oSimpleSelector = this.simpleSelectors[i];
-				bValid = (i == 0 || oSimpleSelector.type != SimpleSelector.UNIVERSAL) &&
-						(i == 0 || oSimpleSelector.type != SimpleSelector.TYPE) &&
-						oSimpleSelector.validate();
+	/**
+	 * Check whether the combinator is in a valid final state.
+	 * @return true if valid final state
+	 */
+	Combinator.prototype.validate = function() {
+		var iLen = this.simpleSelectors.length,
+			bValid = iLen > 0,
+			oSimpleSelector;
+		for (var i = 0; i < iLen && bValid; i++) {
+			oSimpleSelector = this.simpleSelectors[i];
+			bValid = (i == 0 || oSimpleSelector.type != SimpleSelector.UNIVERSAL) &&
+					(i == 0 || oSimpleSelector.type != SimpleSelector.TYPE) &&
+					oSimpleSelector.validate();
+		}
+		return bValid;
+	}
+
+	/**
+	 * Matches a node against a combinator.
+	 * @param node The node
+	 * @param start The first simple selector to match
+	 * @return true if the selector matches.
+	 */
+	Combinator.prototype.matchSimpleSelectors = function(oNode, iStart) {
+		var bMatch = true;
+		for (var i = iStart || 0, iLen = this.simpleSelectors.length; i < iLen && bMatch; i++)
+			bMatch = this.simpleSelectors[i].match(oNode);
+		return bMatch;
+	}
+
+	/**
+	 * Matches a node against a combinator, and adds it to the query results when it matches.
+	 * @param node The node
+	 * @param result The result array
+	 * @param singleResult If true, returns immediately when first match is found.
+	 * @param start The first simpleSelector to match (used to skip selectors that have already been satisfied)
+	 * @return true if the selector matches.
+	 */
+	Combinator.prototype.querySimpleSelectors = function(oNode, aResult, bSingleResult, iStart) {
+		if (!this.nextCombinator) {
+			// if last combinator
+			if (!oNode.__queryResult && this.matchSimpleSelectors(oNode, iStart)) {
+				// __queryResult makes sure it never returns an element more than once
+				aResult[aResult.length] = oNode;
+				return oNode.__queryResult = true;
 			}
-			return bValid;
-		},
-
-		/**
-		 * Matches a node against a combinator.
-		 * @param node The node
-		 * @param start The first simple selector to match
-		 * @return true if the selector matches.
-		 */
-		matchSimpleSelectors: function(oNode, iStart) {
-			var bMatch = true;
-			for (var i = iStart || 0, iLen = this.simpleSelectors.length; i < iLen && bMatch; i++)
-				bMatch = this.simpleSelectors[i].match(oNode);
-			return bMatch;
-		},
-
-		/**
-		 * Matches a node against a combinator, and adds it to the query results when it matches.
-		 * @param node The node
-		 * @param result The result array
-		 * @param singleResult If true, returns immediately when first match is found.
-		 * @param start The first simpleSelector to match (used to skip selectors that have already been satisfied)
-		 * @return true if the selector matches.
-		 */
-		querySimpleSelectors: function(oNode, aResult, bSingleResult, iStart) {
-			if (!this.nextCombinator) {
-				// if last combinator
-				if (!oNode.__queryResult && this.matchSimpleSelectors(oNode, iStart)) {
-					// __queryResult makes sure it never returns an element more than once
-					aResult[aResult.length] = oNode;
-					return oNode.__queryResult = true;
-				}
-				// if already matched before, pretend it doesn't match and skip
-				return false;
-			}
-			if (this.matchSimpleSelectors(oNode, iStart))
-				return this.nextCombinator.query(oNode, aResult, bSingleResult);
+			// if already matched before, pretend it doesn't match and skip
 			return false;
-		},
+		}
+		if (this.matchSimpleSelectors(oNode, iStart))
+			return this.nextCombinator.query(oNode, aResult, bSingleResult);
+		return false;
+	}
 
-		/**
-		 * Matches a node against a combinator.
-		 * @param node The node
-		 * @return true if the selector matches.
-		 */
-		match: function(oNode) {
-			var bMatch = this.matchSimpleSelectors(oNode);
-			if (!bMatch)
-				return false;
-			if (this.type == this.ROOT)
-				return true;
+	/**
+	 * Matches a node against a combinator.
+	 * @param node The node
+	 * @return true if the selector matches.
+	 */
+	Combinator.prototype.match = function(oNode) {
+		var bMatch = this.matchSimpleSelectors(oNode);
+		if (!bMatch)
+			return false;
+		if (this.type == this.ROOT)
+			return true;
 
-			return this.matchFunction(oNode);
-		},
+		return this.matchFunction(oNode);
+	}
 
-		/**
-		 * Queries a CSS selector group against a selector.
-		 */
-		query: function(oNode, aResult, bSingleResult) {
-			return this.queryFunction(oNode, aResult, bSingleResult);
-		},
-
-		matchFunction: null,
-		queryFunction: null
+	/**
+	 * Queries a CSS selector group against a selector.
+	 */
+	Combinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		return this.queryFunction(oNode, aResult, bSingleResult);
 	}
 
 	/**
@@ -523,7 +515,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	}
-	this.SimpleSelector = SimpleSelector;
+	this.SimpleSelector = extend(SimpleSelector, Object);
 
 	// type constants
 	SimpleSelector.UNIVERSAL               = 1;
@@ -558,38 +550,23 @@ gl.selector = new function() {
 	SimpleSelector.PSEUDO_TARGET           = 30;
 	SimpleSelector.PSEUDO_NOT              = 31;
 
-	SimpleSelector.prototype = {
-		/**
-		 * Check whether the simpleSelector is in a valid final state.
-		 * @return true if valid final state
-		 */
-		validate: function() {
-			return true;
-		},
+	/**
+	 * Check whether the simpleSelector is in a valid final state.
+	 * @return true if valid final state
+	 */
+	SimpleSelector.prototype.validate = function() {
+		return true;
+	};
 
-		/**
-		 * Matches a node against a simple selector.
-		 * Note: Be sure that node exists before calling! No check here.
-		 * @param node The node
-		 * @return true if the selector matches.
-		 */
-		match: function(oNode) {
-			return this.matcher[this.type].call(this, oNode);
-		},
-
-		/**
-		 * Helper function for cross-browser uniqueID (IE property on HTML nodes)
-		 */
-		// Attempt at making nth child selectors perform better
-/*		_getUniqueID : function(node) {
-			return node.uniqueID || (node.uniqueID = '__i' + this._uniqueIDCounter++);
-		},
-
-		_uniqueIDCounter: 1,
-
-		_childCounterCache: null
-*/
-	}
+	/**
+	 * Matches a node against a simple selector.
+	 * Note: Be sure that node exists before calling! No check here.
+	 * @param node The node
+	 * @return true if the selector matches.
+	 */
+	SimpleSelector.prototype.match = function(oNode) {
+		return this.matcher[this.type].call(this, oNode);
+	};
 
 	/**
 	 * Array of simple selector matching functions
@@ -638,38 +615,7 @@ gl.selector = new function() {
 		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
 		}
-		// Attempt at making nth child selectors perform better
-/*		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
-			this._childCounterCache[this._getUniqueID(oNode)]
-			// idea stolen from base2:
-			//    if (element.rows) {
-			//      element.b2_length = element.rows.length;
-			//      element.b2_lookup = "rowIndex";
-			//    } else if (element.cells) {
-			//      element.b2_length = element.cells.length;
-			//      element.b2_lookup = "cellIndex";
-			//    }
-			var iCount = 1, a = this.arg1, b = this.arg2;
-			if (a == 1 && b == 0)
-				return true;
-			var parentId = this._getUniqueID(oNode.parentNode);
-			if (!this._childCounterCache)
-				this._childCounterCache = {};
-			if (!this._childCounterCache[parentId]) {
-				var childNodes = oNode.parentNode.childNodes;
-				var hCache = {};
-				for (var i = 0, len = childNodes.length; i < len; i++) {
-					var oChild = childNodes[i];
-					if (oChild.nodeType == 1)
-						hCache[this._getUniqueID(oChild)] = iCount++;
-				}
-				this._childCounterCache[parentId] = hCache;
-			}
-			var aCounterCache = this._childCounterCache[parentId];
-			iCount = aCounterCache[this._getUniqueID(oNode)];
-			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		}
-*/		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
+		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2;
 			if (a == 1 && b == 0)
 				return true;
@@ -806,9 +752,7 @@ gl.selector = new function() {
 	 */
 	var Parser = function() {
 	}
-	this.Parser = Parser;
-
-	Parser.prototype = {};
+	this.Parser = extend(Parser, Object);
 
 	/**
 	 * Parser regexp macros and patterns for the tokenizer
