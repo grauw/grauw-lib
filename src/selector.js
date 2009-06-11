@@ -239,8 +239,8 @@ gl.selector = new function() {
 				oCombinator;
 			for (var i = 0; i < iLen && bValid; i++) {
 				oCombinator = this.combinators[i];
-				bValid = ((i == 0 && oCombinator.type == oCombinator.ROOT) ||
-						 (i > 0 && oCombinator.type != oCombinator.ROOT)) &&
+				bValid = ((i == 0 && oCombinator.type == Combinator.ROOT) ||
+						 (i > 0 && oCombinator.type != Combinator.ROOT)) &&
 						oCombinator.validate();
 			}
 			return bValid;
@@ -284,14 +284,14 @@ gl.selector = new function() {
 	}
 	this.Combinator = Combinator;
 
-	Combinator.prototype = {
-		// type constants
-		DESCENDANT: 1,
-		CHILD     : 2,
-		ADJACENT  : 3,
-		SIBLING   : 4,
-		ROOT      : 5,	// not a real combinator, but corresponds to self-or-descendant
+	// type constants
+	Combinator.DESCENDANT = 1;
+	Combinator.CHILD      = 2;
+	Combinator.ADJACENT   = 3;
+	Combinator.SIBLING    = 4;
+	Combinator.ROOT       = 5;	// not a real combinator, but corresponds to self-or-descendant
 
+	Combinator.prototype = {
 		/**
 		 * Add a simpleSelector to the combinator.
 		 * @param simpleSelector The simple selector
@@ -312,8 +312,8 @@ gl.selector = new function() {
 				oSimpleSelector;
 			for (var i = 0; i < iLen && bValid; i++) {
 				oSimpleSelector = this.simpleSelectors[i];
-				bValid = (i == 0 || oSimpleSelector.type != oSimpleSelector.UNIVERSAL) &&
-						(i == 0 || oSimpleSelector.type != oSimpleSelector.TYPE) &&
+				bValid = (i == 0 || oSimpleSelector.type != SimpleSelector.UNIVERSAL) &&
+						(i == 0 || oSimpleSelector.type != SimpleSelector.TYPE) &&
 						oSimpleSelector.validate();
 			}
 			return bValid;
@@ -382,30 +382,26 @@ gl.selector = new function() {
 		queryFunction: null
 	}
 
-	// convenience variable to access constants
-	var cp = Combinator.prototype;
-
 	/**
 	 * Array of matching combinators
 	 */
 	Combinator.prototype.matchCombinator = function() {
-		var mc = [],
-			cp = Combinator.prototype;
-		mc[cp.DESCENDANT] = function(oNode) {
+		var mc = [];
+		mc[Combinator.DESCENDANT] = function(oNode) {
 			var bMatch = false;
 			while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
 				bMatch = this.previousCombinator.match(oNode);
 			return bMatch;
 		}
-		mc[cp.CHILD] = function(oNode) {
+		mc[Combinator.CHILD] = function(oNode) {
 			return !!(oNode = oNode.parentNode) && oNode.nodeType == 1 && this.previousCombinator.match(oNode);
 		}
-		mc[cp.ADJACENT] = function(oNode) {
+		mc[Combinator.ADJACENT] = function(oNode) {
 			while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
 				;
 			return !!oNode && this.previousCombinator.match(oNode);
 		}
-		mc[cp.SIBLING] = function(oNode) {
+		mc[Combinator.SIBLING] = function(oNode) {
 			var bMatch = false;
 			while (!bMatch && (oNode = oNode.previousSibling)) {
 				if (oNode.nodeType == 1)
@@ -413,7 +409,7 @@ gl.selector = new function() {
 			}
 			return bMatch;
 		}
-		mc[cp.ROOT] = null;
+		mc[Combinator.ROOT] = null;
 		return mc;
 	}();
 
@@ -422,16 +418,16 @@ gl.selector = new function() {
 	 */
 	Combinator.prototype.queryCombinator = function() {
 		var qc = [];
-		qc[cp.DESCENDANT] = function(oNode, aResult, bSingleResult) {
+		qc[Combinator.DESCENDANT] = function(oNode, aResult, bSingleResult) {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
 				iStart = 0;
 			// Note: possible Firefox optimisation: use .getElementsByClassName
-			if (oSimpleSelector.type == oSimpleSelector.TYPE) {
+			if (oSimpleSelector.type == SimpleSelector.TYPE) {
 				aNodes = oNode.getElementsByTagName(oSimpleSelector.arg1);
 				iStart++;
 			} else {
-				if (oSimpleSelector.type == oSimpleSelector.ID) {
+				if (oSimpleSelector.type == SimpleSelector.ID) {
 					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 					if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
@@ -444,15 +440,15 @@ gl.selector = new function() {
 			}
 			return bMatch;
 		}
-		qc[cp.CHILD] = function(oNode, aResult, bSingleResult) {
+		qc[Combinator.CHILD] = function(oNode, aResult, bSingleResult) {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
 				iStart = 0;
-			if (oNode.children && !browser_webkit && oSimpleSelector.type == oSimpleSelector.TYPE) {
+			if (oNode.children && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
 				aNodes = oNode.children.tags(oSimpleSelector.arg1);
 				iStart++;
 			} else {
-				if (oSimpleSelector.type == oSimpleSelector.ID) {
+				if (oSimpleSelector.type == SimpleSelector.ID) {
 					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 					if (oNode2.parentNode == oNode)
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
@@ -466,7 +462,7 @@ gl.selector = new function() {
 			}
 			return bMatch;
 		}
-		qc[cp.ADJACENT] = function(oNode, aResult, bSingleResult) {
+		qc[Combinator.ADJACENT] = function(oNode, aResult, bSingleResult) {
 			while (oNode = oNode.nextSibling) {
 				if (oNode.nodeType == 1) {
 					return this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
@@ -474,7 +470,7 @@ gl.selector = new function() {
 			}
 			return false;
 		}
-		qc[cp.SIBLING] = function(oNode, aResult, bSingleResult) {
+		qc[Combinator.SIBLING] = function(oNode, aResult, bSingleResult) {
 			var bMatch = false;
 			while ((oNode = oNode.nextSibling) && !(bSingleResult && bMatch)) {
 				if (oNode.nodeType == 1)
@@ -482,9 +478,9 @@ gl.selector = new function() {
 			}
 			return bMatch;
 		}
-		qc[cp.ROOT] = function(oNode, aResult, bSingleResult) {
+		qc[Combinator.ROOT] = function(oNode, aResult, bSingleResult) {
 			var bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
-			return qc[cp.DESCENDANT].call(this, oNode, aResult, bSingleResult) || bMatch;
+			return qc[Combinator.DESCENDANT].call(this, oNode, aResult, bSingleResult) || bMatch;
 		}
 		return qc;
 	}();
@@ -505,40 +501,40 @@ gl.selector = new function() {
 	}
 	this.SimpleSelector = SimpleSelector;
 
-	SimpleSelector.prototype = {
-		// type constants
-		UNIVERSAL               : 1,
-		TYPE                    : 2,
-		ATTRIBUTE_EXIST         : 3,
-		ATTRIBUTE_EQUALS        : 4,
-		ATTRIBUTE_LIST          : 5,
-		ATTRIBUTE_LANG          : 6,
-		ATTRIBUTE_STARTS        : 7,
-		ATTRIBUTE_ENDS          : 8,
-		ATTRIBUTE_CONTAINS      : 9,
-		CLASS                   : 10,
-		ID                      : 11,
-		PSEUDO_ROOT             : 12,
-		PSEUDO_NTH_CHILD        : 13,
-		PSEUDO_NTH_LAST_CHILD   : 14,
-		PSEUDO_NTH_OF_TYPE      : 15,
-		PSEUDO_NTH_LAST_OF_TYPE : 16,
-		PSEUDO_FIRST_CHILD      : 17,
-		PSEUDO_LAST_CHILD       : 18,
-		PSEUDO_FIRST_OF_TYPE    : 19,
-		PSEUDO_LAST_OF_TYPE     : 20,
-		PSEUDO_ONLY_CHILD       : 21,
-		PSEUDO_ONLY_OF_TYPE     : 22,
-		PSEUDO_EMPTY            : 23,
-		PSEUDO_LANG             : 24,
-		PSEUDO_ENABLED          : 25,
-		PSEUDO_DISABLED         : 26,
-		PSEUDO_CHECKED          : 27,
-		PSEUDO_READ_ONLY        : 28,
-		PSEUDO_READ_WRITE       : 29,
-		PSEUDO_TARGET           : 30,
-		PSEUDO_NOT              : 31,
+	// type constants
+	SimpleSelector.UNIVERSAL               = 1;
+	SimpleSelector.TYPE                    = 2;
+	SimpleSelector.ATTRIBUTE_EXIST         = 3;
+	SimpleSelector.ATTRIBUTE_EQUALS        = 4;
+	SimpleSelector.ATTRIBUTE_LIST          = 5;
+	SimpleSelector.ATTRIBUTE_LANG          = 6;
+	SimpleSelector.ATTRIBUTE_STARTS        = 7;
+	SimpleSelector.ATTRIBUTE_ENDS          = 8;
+	SimpleSelector.ATTRIBUTE_CONTAINS      = 9;
+	SimpleSelector.CLASS                   = 10;
+	SimpleSelector.ID                      = 11;
+	SimpleSelector.PSEUDO_ROOT             = 12;
+	SimpleSelector.PSEUDO_NTH_CHILD        = 13;
+	SimpleSelector.PSEUDO_NTH_LAST_CHILD   = 14;
+	SimpleSelector.PSEUDO_NTH_OF_TYPE      = 15;
+	SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE = 16;
+	SimpleSelector.PSEUDO_FIRST_CHILD      = 17;
+	SimpleSelector.PSEUDO_LAST_CHILD       = 18;
+	SimpleSelector.PSEUDO_FIRST_OF_TYPE    = 19;
+	SimpleSelector.PSEUDO_LAST_OF_TYPE     = 20;
+	SimpleSelector.PSEUDO_ONLY_CHILD       = 21;
+	SimpleSelector.PSEUDO_ONLY_OF_TYPE     = 22;
+	SimpleSelector.PSEUDO_EMPTY            = 23;
+	SimpleSelector.PSEUDO_LANG             = 24;
+	SimpleSelector.PSEUDO_ENABLED          = 25;
+	SimpleSelector.PSEUDO_DISABLED         = 26;
+	SimpleSelector.PSEUDO_CHECKED          = 27;
+	SimpleSelector.PSEUDO_READ_ONLY        = 28;
+	SimpleSelector.PSEUDO_READ_WRITE       = 29;
+	SimpleSelector.PSEUDO_TARGET           = 30;
+	SimpleSelector.PSEUDO_NOT              = 31;
 
+	SimpleSelector.prototype = {
 		/**
 		 * Check whether the simpleSelector is in a valid final state.
 		 * @return true if valid final state
@@ -593,58 +589,55 @@ gl.selector = new function() {
 */
 	}
 
-	// convenience variable to access constants
-	var ssp = SimpleSelector.prototype;
-
 	/**
 	 * Array of simple selector matching functions
 	 */
 	SimpleSelector.prototype.matcher = function() {
 		var m = [];
-		m[ssp.UNIVERSAL] = function(oNode) {
+		m[SimpleSelector.UNIVERSAL] = function(oNode) {
 			return true;
 		}
-		m[ssp.TYPE] = function(oNode) {
+		m[SimpleSelector.TYPE] = function(oNode) {
 			var bXHTML = oNode.namespaceURI && oNode.namespaceURI != 'http://www.w3.org/1999/xhtml';
 			var sNodeName =  bXHTML ? oNode.nodeName : oNode.nodeName.toLowerCase();
 			var sSelectorName = bXHTML ? this.arg1 : this.arg1.toLowerCase();
 			return sNodeName == sSelectorName;
 		}
-		m[ssp.CLASS] = function(oNode) {
+		m[SimpleSelector.CLASS] = function(oNode) {
 			return this.classRegexp.test(oNode.className);
 		}
-		m[ssp.ID] = function(oNode) {
+		m[SimpleSelector.ID] = function(oNode) {
 			return oNode.getAttribute('id') == this.arg1;
 		}
-		m[ssp.ATTRIBUTE_EXIST] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_EXIST] = function(oNode) {
 			return this._hasAttribute(oNode, this.arg1);
 		}
-		m[ssp.ATTRIBUTE_EQUALS] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_EQUALS] = function(oNode) {
 			return this._getAttribute(oNode, this.arg1) == this.arg2;
 		}
-		m[ssp.ATTRIBUTE_LIST] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
 			return this.arg2 && this.attrListRegexp.test(this._getAttribute(oNode, this.arg1));
 		}
-		m[ssp.ATTRIBUTE_LANG] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
 			var sAttrValue = this._getAttribute(oNode, this.arg1);
 			return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
 		}
-		m[ssp.ATTRIBUTE_STARTS] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_STARTS] = function(oNode) {
 			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
 		}
-		m[ssp.ATTRIBUTE_ENDS] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_ENDS] = function(oNode) {
 			var sAttrValue = this._getAttribute(oNode, this.arg1);
 			return this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
 		}
-		m[ssp.ATTRIBUTE_CONTAINS] = function(oNode) {
+		m[SimpleSelector.ATTRIBUTE_CONTAINS] = function(oNode) {
 			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
 		}
-		m[ssp.PSEUDO_ROOT] = function(oNode) {
+		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
 		}
 		// Attempt at making nth child selectors perform better
-/*		m[ssp.PSEUDO_NTH_CHILD] = function(oNode) {
+/*		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
 			this._childCounterCache[this._getUniqueID(oNode)]
 			// idea stolen from base2:
 			//    if (element.rows) {
@@ -674,7 +667,7 @@ gl.selector = new function() {
 			iCount = aCounterCache[this._getUniqueID(oNode)];
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
-*/		m[ssp.PSEUDO_NTH_CHILD] = function(oNode) {
+*/		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2;
 			if (a == 1 && b == 0)
 				return true;
@@ -683,7 +676,7 @@ gl.selector = new function() {
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
-		m[ssp.PSEUDO_NTH_LAST_CHILD] = function(oNode) {
+		m[SimpleSelector.PSEUDO_NTH_LAST_CHILD] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2;
 			if (a == 1 && b == 0)
 				return true;
@@ -692,7 +685,7 @@ gl.selector = new function() {
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
-		m[ssp.PSEUDO_NTH_OF_TYPE] = function(oNode) {
+		m[SimpleSelector.PSEUDO_NTH_OF_TYPE] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
 			if (a == 1 && b == 0)
 				return true;
@@ -701,7 +694,7 @@ gl.selector = new function() {
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
-		m[ssp.PSEUDO_NTH_LAST_OF_TYPE] = function(oNode) {
+		m[SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
 			if (a == 1 && b == 0)
 				return true;
@@ -710,47 +703,47 @@ gl.selector = new function() {
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
 		}
-		m[ssp.PSEUDO_FIRST_CHILD] = function(oNode) {
+		m[SimpleSelector.PSEUDO_FIRST_CHILD] = function(oNode) {
 			do
 				oNode = oNode.previousSibling;
 			while (oNode && oNode.nodeType != 1);
 			return !oNode;
 		}
-		m[ssp.PSEUDO_LAST_CHILD] = function(oNode) {
+		m[SimpleSelector.PSEUDO_LAST_CHILD] = function(oNode) {
 			do
 				oNode = oNode.nextSibling;
 			while (oNode && oNode.nodeType != 1);
 			return !oNode;
 		}
-		m[ssp.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
+		m[SimpleSelector.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
 			do
 				oNode = oNode.previousSibling;
 			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
 		}
-		m[ssp.PSEUDO_LAST_OF_TYPE] = function(oNode) {
+		m[SimpleSelector.PSEUDO_LAST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
 			do
 				oNode = oNode.nextSibling;
 			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
 		}
-		m[ssp.PSEUDO_ONLY_CHILD] = function(oNode) {
-			return m[ssp.PSEUDO_FIRST_CHILD].call(this, oNode, null) &&
-					m[ssp.PSEUDO_LAST_CHILD].call(this, oNode, null);
+		m[SimpleSelector.PSEUDO_ONLY_CHILD] = function(oNode) {
+			return m[SimpleSelector.PSEUDO_FIRST_CHILD].call(this, oNode, null) &&
+					m[SimpleSelector.PSEUDO_LAST_CHILD].call(this, oNode, null);
 		}
-		m[ssp.PSEUDO_ONLY_OF_TYPE] = function(oNode) {
-			return m[ssp.PSEUDO_FIRST_OF_TYPE].call(this, oNode, null) &&
-					m[ssp.PSEUDO_LAST_OF_TYPE].call(this, oNode, null);
+		m[SimpleSelector.PSEUDO_ONLY_OF_TYPE] = function(oNode) {
+			return m[SimpleSelector.PSEUDO_FIRST_OF_TYPE].call(this, oNode, null) &&
+					m[SimpleSelector.PSEUDO_LAST_OF_TYPE].call(this, oNode, null);
 		}
-		m[ssp.PSEUDO_EMPTY] = function(oNode) {
+		m[SimpleSelector.PSEUDO_EMPTY] = function(oNode) {
 			oNode = oNode.firstChild;
 			while (oNode && oNode.nodeType != 1 && (oNode.nodeType != 3 || oNode.length == 0))
 				oNode = oNode.nextSibling;
 			return !oNode;
 		}
-		m[ssp.PSEUDO_LANG] = function(oNode) {
+		m[SimpleSelector.PSEUDO_LANG] = function(oNode) {
 			var sLang;
 			do {
 				sLang = oNode.lang || '';
@@ -760,25 +753,25 @@ gl.selector = new function() {
 			return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
 					(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
 		}
-		m[ssp.PSEUDO_ENABLED] = function(oNode) {
+		m[SimpleSelector.PSEUDO_ENABLED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && !oNode.disabled;
 		}
-		m[ssp.PSEUDO_DISABLED] = function(oNode) {
+		m[SimpleSelector.PSEUDO_DISABLED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && oNode.disabled;
 		}
-		m[ssp.PSEUDO_CHECKED] = function(oNode) {
+		m[SimpleSelector.PSEUDO_CHECKED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName == 'INPUT' && oNode.checked || sTagName == 'OPTION' && oNode.selected;
 		}
-		m[ssp.PSEUDO_READ_ONLY] = function(oNode) {
+		m[SimpleSelector.PSEUDO_READ_ONLY] = function(oNode) {
 			return !('readOnly' in oNode) || oNode.readOnly;
 		}
-		m[ssp.PSEUDO_READ_WRITE] = function(oNode) {
+		m[SimpleSelector.PSEUDO_READ_WRITE] = function(oNode) {
 			return 'readOnly' in oNode && !oNode.readOnly;
 		}
-		m[ssp.PSEUDO_TARGET] = function(oNode) {
+		m[SimpleSelector.PSEUDO_TARGET] = function(oNode) {
 			return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
 		}
 		return m;
@@ -787,7 +780,7 @@ gl.selector = new function() {
 
 
 	var NotSimpleSelector = function(oSimpleSelector) {
-		this.type = ssp.PSEUDO_NOT;
+		this.type = SimpleSelector.PSEUDO_NOT;
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
@@ -880,35 +873,35 @@ gl.selector = new function() {
 	Parser.regexp.whiteSpace   = /\s/;
 
 	Parser.attrTypeMap = {
-			'=' : ssp.ATTRIBUTE_EQUALS,
-			'~=': ssp.ATTRIBUTE_LIST,
-			'|=': ssp.ATTRIBUTE_LANG,
-			'^=': ssp.ATTRIBUTE_STARTS,
-			'$=': ssp.ATTRIBUTE_ENDS,
-			'*=': ssp.ATTRIBUTE_CONTAINS
+			'=' : SimpleSelector.ATTRIBUTE_EQUALS,
+			'~=': SimpleSelector.ATTRIBUTE_LIST,
+			'|=': SimpleSelector.ATTRIBUTE_LANG,
+			'^=': SimpleSelector.ATTRIBUTE_STARTS,
+			'$=': SimpleSelector.ATTRIBUTE_ENDS,
+			'*=': SimpleSelector.ATTRIBUTE_CONTAINS
 		};
 
 	Parser.pseudoTypeMap = {
-			'root'            : ssp.PSEUDO_ROOT,
-			'nth-child'       : ssp.PSEUDO_NTH_CHILD,
-			'nth-last-child'  : ssp.PSEUDO_NTH_LAST_CHILD,
-			'nth-of-type'     : ssp.PSEUDO_NTH_OF_TYPE,
-			'nth-last-of-type': ssp.PSEUDO_NTH_LAST_OF_TYPE,
-			'first-child'     : ssp.PSEUDO_FIRST_CHILD,
-			'last-child'      : ssp.PSEUDO_LAST_CHILD,
-			'first-of-type'   : ssp.PSEUDO_FIRST_OF_TYPE,
-			'last-of-type'    : ssp.PSEUDO_LAST_OF_TYPE,
-			'only-child'      : ssp.PSEUDO_ONLY_CHILD,
-			'only-of-type'    : ssp.PSEUDO_ONLY_OF_TYPE,
-			'empty'           : ssp.PSEUDO_EMPTY,
-			'lang'            : ssp.PSEUDO_LANG,
-			'enabled'         : ssp.PSEUDO_ENABLED,
-			'disabled'        : ssp.PSEUDO_DISABLED,
-			'checked'         : ssp.PSEUDO_CHECKED,
-			'read-only'       : ssp.PSEUDO_READ_ONLY,
-			'read-write'      : ssp.PSEUDO_READ_WRITE,
-			'target'          : ssp.PSEUDO_TARGET,
-			'not'             : ssp.PSEUDO_NOT
+			'root'            : SimpleSelector.PSEUDO_ROOT,
+			'nth-child'       : SimpleSelector.PSEUDO_NTH_CHILD,
+			'nth-last-child'  : SimpleSelector.PSEUDO_NTH_LAST_CHILD,
+			'nth-of-type'     : SimpleSelector.PSEUDO_NTH_OF_TYPE,
+			'nth-last-of-type': SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE,
+			'first-child'     : SimpleSelector.PSEUDO_FIRST_CHILD,
+			'last-child'      : SimpleSelector.PSEUDO_LAST_CHILD,
+			'first-of-type'   : SimpleSelector.PSEUDO_FIRST_OF_TYPE,
+			'last-of-type'    : SimpleSelector.PSEUDO_LAST_OF_TYPE,
+			'only-child'      : SimpleSelector.PSEUDO_ONLY_CHILD,
+			'only-of-type'    : SimpleSelector.PSEUDO_ONLY_OF_TYPE,
+			'empty'           : SimpleSelector.PSEUDO_EMPTY,
+			'lang'            : SimpleSelector.PSEUDO_LANG,
+			'enabled'         : SimpleSelector.PSEUDO_ENABLED,
+			'disabled'        : SimpleSelector.PSEUDO_DISABLED,
+			'checked'         : SimpleSelector.PSEUDO_CHECKED,
+			'read-only'       : SimpleSelector.PSEUDO_READ_ONLY,
+			'read-write'      : SimpleSelector.PSEUDO_READ_WRITE,
+			'target'          : SimpleSelector.PSEUDO_TARGET,
+			'not'             : SimpleSelector.PSEUDO_NOT
 		};
 
 	/**
@@ -927,7 +920,7 @@ gl.selector = new function() {
 		// instantiate initial object model
 		var oSelectorGroup = new SelectorGroup(),
 			oSelector = new Selector(),
-			oCombinator = new Combinator(cp.ROOT);
+			oCombinator = new Combinator(Combinator.ROOT);
 		oSelectorGroup.add(oSelector);
 		oSelector.add(oCombinator);
 
@@ -939,26 +932,26 @@ gl.selector = new function() {
 				// selector group
 				case ',':
 					oSelector = new Selector();
-					oCombinator = new Combinator(cp.ROOT);
+					oCombinator = new Combinator(Combinator.ROOT);
 					oSelectorGroup.add(oSelector);
 					oSelector.add(oCombinator);
 					break;
 				// selectors
 				case '*':
-					oCombinator.add(new SimpleSelector(ssp.UNIVERSAL));
+					oCombinator.add(new SimpleSelector(SimpleSelector.UNIVERSAL));
 					break;
 				case '.':
-					var oSimpleSelector = new SimpleSelector(ssp.CLASS, Parser.decodeIdent(sSelectorPart.substr(1)));
+					var oSimpleSelector = new SimpleSelector(SimpleSelector.CLASS, Parser.decodeIdent(sSelectorPart.substr(1)));
 					oSimpleSelector.classRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg1) + '($|\\s)');
 					oCombinator.add(oSimpleSelector);
 					break;
 				case '#':
-					oCombinator.add(new SimpleSelector(ssp.ID, Parser.decodeIdent(sSelectorPart.substr(1))));
+					oCombinator.add(new SimpleSelector(SimpleSelector.ID, Parser.decodeIdent(sSelectorPart.substr(1))));
 					break;
 				case '[':
 					var parsedAttr = Parser.regexp.attribute.exec(sSelectorPart);
 					if (!parsedAttr[2]) {
-						oCombinator.add(new SimpleSelector(ssp.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1])));
+						oCombinator.add(new SimpleSelector(SimpleSelector.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1])));
 					} else {
 						var oSimpleSelector = new SimpleSelector(
 								Parser.attrTypeMap[parsedAttr[2]],
@@ -967,7 +960,7 @@ gl.selector = new function() {
 									Parser.decodeString(parsedAttr[3]) :
 									Parser.decodeIdent(parsedAttr[3])
 							);
-						if (oSimpleSelector.type == ssp.ATTRIBUTE_LIST) {
+						if (oSimpleSelector.type == SimpleSelector.ATTRIBUTE_LIST) {
 							if (Parser.regexp.whiteSpace.test(oSimpleSelector.arg2))
 								oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
 							else
@@ -1013,24 +1006,24 @@ gl.selector = new function() {
 					break;
 				// combinators
 				case '':
-					oCombinator = new Combinator(cp.DESCENDANT);
+					oCombinator = new Combinator(Combinator.DESCENDANT);
 					oSelector.add(oCombinator);
 					break;
 				case '>':
-					oCombinator = new Combinator(cp.CHILD);
+					oCombinator = new Combinator(Combinator.CHILD);
 					oSelector.add(oCombinator);
 					break;
 				case '+':
-					oCombinator = new Combinator(cp.ADJACENT);
+					oCombinator = new Combinator(Combinator.ADJACENT);
 					oSelector.add(oCombinator);
 					break;
 				case '~':
-					oCombinator = new Combinator(cp.SIBLING);
+					oCombinator = new Combinator(Combinator.SIBLING);
 					oSelector.add(oCombinator);
 					break;
 				// element selector (no single prefix)
 				default:
-					oCombinator.add(new SimpleSelector(ssp.TYPE, Parser.decodeIdent(sSelectorPart)));
+					oCombinator.add(new SimpleSelector(SimpleSelector.TYPE, Parser.decodeIdent(sSelectorPart)));
 					break;
 			}
 		}
