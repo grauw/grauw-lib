@@ -20,6 +20,7 @@ gl.Class.create = function(fConstructor, cBase) {
 	var cPrototype = new Function;
 	cPrototype.prototype = (cBase || Object).prototype;
 	fConstructor.prototype = new cPrototype;
+	fConstructor.prototype.constructor = fConstructor;
 	return fConstructor;
 }
 
@@ -366,6 +367,7 @@ gl.unit.JSUnit.prototype.start = function() {
 		this.test();
 	} catch(e) {
 		this.writelnError('Error: ' + String(e));
+		throw e;
 	}
 	this.writeln('JSUnit finished.');
 	this.end();
