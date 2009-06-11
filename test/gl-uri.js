@@ -77,7 +77,7 @@ URIUnit.prototype.tests = [
  * Main test function
  */
 URIUnit.prototype.test = function() {
-	this.performanceTest()
+	this.performanceTest();
 	var html = this.unitTests();
 	var outputDiv = document.getElementById('output');
 	outputDiv.innerHTML = html;
