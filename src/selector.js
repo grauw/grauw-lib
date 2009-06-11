@@ -779,7 +779,7 @@ gl.selector = new function() {
 			return 'readOnly' in oNode && !oNode.readOnly;
 		}
 		m[ssp.PSEUDO_TARGET] = function(oNode) {
-			return '#' + oNode.getAttribute('id') == document.location.hash;
+			return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
 		}
 		return m;
 	}();
