@@ -44,11 +44,13 @@ gl.selector = new function() {
 	var browser_ie = !!window.ActiveXObject;
 	var browser_webkit = navigator.userAgent.indexOf('AppleWebKit') != -1;
 
-	function extend(oBase) {
+	function extend(fConstructor, cBase) {
 		// create new prototype object that inherits from cBase
-		var fPrototype = new Function;
-		fPrototype.prototype = oBase.prototype;
-		return new fPrototype;
+		var cPrototype = new Function;
+		cPrototype.prototype = (cBase || Object).prototype;
+		fConstructor.prototype = new cPrototype;
+		fConstructor.prototype.constructor = fConstructor;
+		return fConstructor;
 	}
 
 
@@ -785,9 +787,7 @@ gl.selector = new function() {
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
 	}
-	this.NotSimpleSelector = NotSimpleSelector;
-
-	NotSimpleSelector.prototype = extend(SimpleSelector);
+	this.NotSimpleSelector = extend(NotSimpleSelector, SimpleSelector);
 
 	NotSimpleSelector.prototype.validate = function() {
 		return !(this.simpleSelector instanceof NotSimpleSelector);
@@ -1088,9 +1088,7 @@ gl.selector = new function() {
 		this.cache = {};
 		Parser.call(this);
 	}
-	this.CachingParser = CachingParser;
-	
-	CachingParser.prototype = extend(Parser);
+	this.CachingParser = extend(CachingParser, Parser);
 	
 	CachingParser.prototype.parse = function(sSelector) {
 		if (!(sSelector in this.cache))
@@ -1113,9 +1111,7 @@ gl.selector = new function() {
 		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
 		this.selector = sSelector;
 	}
-	this.ParsingException = ParsingException;
-
-	ParsingException.prototype = extend(Error);
+	this.ParsingException = extend(ParsingException, Error);
 
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
