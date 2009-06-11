@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>Selectors test</title>
+		<style type="text/css">
+		</style>
+		<script src="../src/grauw-lib.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			loadTFile('../src/jsunit.xml');
+		</script>
+		<script src="../src/selector.js" type="text/javascript"></script>
+		<script src="selector.js" type="text/javascript"></script>
+	</head>
+	<body onload="new SelectorUnit().start()">
+		<h1>Selectors test</h1>
+		<ul lang="en-GB" class="test1 test2" id="t3-1">
+			<li id="t1-1">Item 1</li>
+			<li id="t1-2">Item 2</li>
+			<li id="t1-3">Item 3</li>
+			<li id="t1-4">Item 4</li>
+			<li id="t1-5">Item 5</li>
+		</ul>
+		<ul lang="nl">
+			<li id="t1-6">Item 6</li>
+		</ul>
+		<p>
+			<span id="t2-1"></span>
+			<span id="t2-2"> </span>
+			<span id="t2-3">test</span>
+			<span id="t2-4"><!-- --></span>
+		</p>
+	</body>
+</html>
