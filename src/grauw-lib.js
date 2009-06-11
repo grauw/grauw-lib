@@ -362,7 +362,11 @@ gl.unit.JSUnit.prototype.init = function() {
 
 gl.unit.JSUnit.prototype.start = function() {
 	this.writeln('JSUnit running…');
-	this.test();
+	try {
+		this.test();
+	} catch(e) {
+		this.writelnError('Error: ' + String(e));
+	}
 	this.writeln('JSUnit finished.');
 	this.end();
 }
