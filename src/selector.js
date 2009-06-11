@@ -623,7 +623,7 @@ gl.selector = new function() {
 			return this._getAttribute(oNode, this.arg1) == this.arg2;
 		}
 		m[ssp.ATTRIBUTE_LIST] = function(oNode) {
-			return this.arg2 != '' && this.attrListRegexp.test(this._getAttribute(oNode, this.arg1));
+			return this.arg2 && this.attrListRegexp.test(this._getAttribute(oNode, this.arg1));
 		}
 		m[ssp.ATTRIBUTE_LANG] = function(oNode) {
 			var sAttrValue = this._getAttribute(oNode, this.arg1);
@@ -631,14 +631,14 @@ gl.selector = new function() {
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
 		}
 		m[ssp.ATTRIBUTE_STARTS] = function(oNode) {
-			return this.arg2 != '' && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
+			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
 		}
 		m[ssp.ATTRIBUTE_ENDS] = function(oNode) {
 			var sAttrValue = this._getAttribute(oNode, this.arg1);
-			return this.arg2 != '' && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
+			return this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
 		}
 		m[ssp.ATTRIBUTE_CONTAINS] = function(oNode) {
-			return this.arg2 != '' && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
+			return this.arg2 && this._getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
 		}
 		m[ssp.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
@@ -877,6 +877,7 @@ gl.selector = new function() {
 	Parser.regexp.trim         = /^\s+|\s+$/gm;
 	Parser.regexp.escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
 	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
+	Parser.regexp.whiteSpace   = /\s/;
 
 	Parser.attrTypeMap = {
 			'=' : ssp.ATTRIBUTE_EQUALS,
@@ -966,8 +967,12 @@ gl.selector = new function() {
 									Parser.decodeString(parsedAttr[3]) :
 									Parser.decodeIdent(parsedAttr[3])
 							);
-						if (oSimpleSelector.type == ssp.ATTRIBUTE_LIST)
-							oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
+						if (oSimpleSelector.type == ssp.ATTRIBUTE_LIST) {
+							if (Parser.regexp.whiteSpace.test(oSimpleSelector.arg2))
+								oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
+							else
+								oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
+						}
 						oCombinator.add(oSimpleSelector);
 					}
 					break;
