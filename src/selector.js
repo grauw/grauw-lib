@@ -41,9 +41,9 @@ gl.selector = new function() {
 
 	var oThis = this;	// to make references to this class without hard coding the actual name
 
-	this.browser_ie = !!window.ActiveXObject;
+	var browser_ie = !!window.ActiveXObject;
 
-	var extend = function(oBase) {
+	function extend(oBase) {
 		// create new prototype object that inherits from cBase
 		var fPrototype = new Function;
 		fPrototype.prototype = oBase.prototype;
@@ -388,7 +388,8 @@ gl.selector = new function() {
 	 * Array of matching combinators
 	 */
 	Combinator.prototype.matchCombinator = function() {
-		var mc = [];
+		var mc = [],
+			cp = Combinator.prototype;
 		mc[cp.DESCENDANT] = function(oNode) {
 			var bMatch = false;
 			while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
@@ -426,11 +427,11 @@ gl.selector = new function() {
 				iStart = 0;
 			// Note: possible Firefox optimisation: use .getElementsByClassName
 			if (oSimpleSelector.type == oSimpleSelector.TYPE) {
-				aNodes = oNode.getElementsByTagName(this.simpleSelectors[0].arg1);
+				aNodes = oNode.getElementsByTagName(oSimpleSelector.arg1);
 				iStart++;
 			} else {
 				if (oSimpleSelector.type == oSimpleSelector.ID) {
-					var oNode2 = oNode.ownerDocument.getElementById(this.simpleSelectors[0].arg1);
+					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 					if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 				}
@@ -447,11 +448,11 @@ gl.selector = new function() {
 				oSimpleSelector = this.simpleSelectors[0],
 				iStart = 0;
 			if (oNode.children && oSimpleSelector.type == oSimpleSelector.TYPE) {
-				aNodes = oNode.children.tags(this.simpleSelectors[0].arg1);
+				aNodes = oNode.children.tags(oSimpleSelector.arg1);
 				iStart++;
 			} else {
 				if (oSimpleSelector.type == oSimpleSelector.ID) {
-					var oNode2 = oNode.ownerDocument.getElementById(this.simpleSelectors[0].arg1);
+					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 					if (oNode2.parentNode == oNode)
 						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 				}
@@ -559,7 +560,7 @@ gl.selector = new function() {
 		 * Helper function for cross-browser hasAttribute
 		 */
 		_hasAttribute : function(oNode, sName) {
-			if (oThis.browser_ie) {
+			if (browser_ie) {
 				var oAttr = oNode.attributes[sName];
 				return !!oAttr && oAttr.specified;
 			}
@@ -570,7 +571,7 @@ gl.selector = new function() {
 		 * Helper function for cross-browser getAttribute
 		 */
 		_getAttribute : function(oNode, sName) {
-			if (oThis.browser_ie) {
+			if (browser_ie) {
 				var oAttr = oNode.attributes[sName];
 				return oAttr ? oAttr.nodeValue : '';
 			}
