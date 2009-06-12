@@ -51,7 +51,7 @@ gl.selector = new function() {
 		fConstructor.prototype = new cPrototype;
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
-	}
+	};
 
 	/**
 	 * Helper function for cross-browser hasAttribute
@@ -62,7 +62,7 @@ gl.selector = new function() {
 			return !!oAttr && oAttr.specified;
 		}
 		return oNode.hasAttribute(sName);
-	}
+	};
 
 	/**
 	 * Helper function for cross-browser getAttribute
@@ -73,7 +73,7 @@ gl.selector = new function() {
 			return oAttr ? oAttr.nodeValue : '';
 		}
 		return oNode.getAttribute(sName) || '';
-	}
+	};
 
 
 	/**
@@ -87,7 +87,7 @@ gl.selector = new function() {
 	this.match = function(oNode, sSelector) {
 		var oSelectorGroup = oThis.parser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
-	}
+	};
 
 	/**
 	 * Queries a CSS selector or selector group against a node.
@@ -100,7 +100,7 @@ gl.selector = new function() {
 			oNode = oNode.documentElement;
 		var oSelectorGroup = oThis.parser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
-	}
+	};
 
 	/**
 	 * Queries a CSS selector or selector group against a node and returns one node.
@@ -114,7 +114,7 @@ gl.selector = new function() {
 		var oSelectorGroup = oThis.parser.parse(sSelector);
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
-	}
+	};
 
 	/**
 	 * Use a CSS selector to return the first selection found on a node or subsequent ancestors.
@@ -136,7 +136,7 @@ gl.selector = new function() {
 				break;
 		}
 		return null;
-	}
+	};
 
 	/**
 	 * Queries a CSS selector or selector group against the document and returns one node.
@@ -145,7 +145,7 @@ gl.selector = new function() {
 	 */
 	this.queryDocument = function(sSelector) {
 		return oThis.query(document.documentElement, sSelector);
-	}
+	};
 
 	/**
 	 * Queries a CSS selector or selector group against the document.
@@ -154,7 +154,7 @@ gl.selector = new function() {
 	 */
 	this.queryDocumentAll = function(sSelector) {
 		return oThis.queryAll(document.documentElement, sSelector);
-	}
+	};
 
 
 
@@ -166,7 +166,7 @@ gl.selector = new function() {
 	 */
 	var SelectorGroup = function() {
 		this.selectors = [];
-	}
+	};
 	this.SelectorGroup = extend(SelectorGroup, Object);
 
 	/**
@@ -177,7 +177,7 @@ gl.selector = new function() {
 		if (!oSelector instanceof Selector)
 			throw new Error('Parameter must be instance of Selector!');
 		this.selectors[this.selectors.length] = oSelector;
-	}
+	};
 
 	/**
 	 * Check whether the selector is in a valid final state.
@@ -189,7 +189,7 @@ gl.selector = new function() {
 		for (var i = 0; i < iLen && bValid; i++)
 			bValid = this.selectors[i].validate();
 		return bValid;
-	}
+	};
 
 	/**
 	 * Matches a node against a selector group.
@@ -205,7 +205,7 @@ gl.selector = new function() {
 			bMatch = oSelector.match(oNode);
 		}
 		return bMatch;
-	}
+	};
 
 	/**
 	 * Queries a CSS selector group against a node.
@@ -222,7 +222,7 @@ gl.selector = new function() {
 		for (var i = 0, iLen = aResult.length; i < iLen; i++)
 			aResult[i].__queryResult = false;
 		return aResult;
-	}
+	};
 
 
 
@@ -233,7 +233,7 @@ gl.selector = new function() {
 	 */
 	var Selector = function() {
 		this.combinators = [];
-	}
+	};
 	this.Selector = extend(Selector, Object);
 
 	/**
@@ -249,7 +249,7 @@ gl.selector = new function() {
 			oCombinator.previousCombinator = this.combinators[iLen - 1];
 		}
 		this.combinators[iLen] = oCombinator;
-	}
+	};
 
 	/**
 	 * Check whether the selector is in a valid final state.
@@ -266,7 +266,7 @@ gl.selector = new function() {
 					oCombinator.validate();
 		}
 		return bValid;
-	}
+	};
 
 	/**
 	 * Matches a node against a selector.
@@ -275,7 +275,7 @@ gl.selector = new function() {
 	 */
 	Selector.prototype.match = function(oNode) {
 		return this.combinators[this.combinators.length - 1].match(oNode);
-	}
+	};
 
 	/**
 	 * Queries a CSS selector group against a node.
@@ -286,7 +286,7 @@ gl.selector = new function() {
 	 */
 	Selector.prototype.query = function(oNode, aResult, bSingleResult) {
 		return this.combinators[0].query(oNode, aResult, bSingleResult);
-	}
+	};
 
 
 
@@ -302,7 +302,7 @@ gl.selector = new function() {
 		this.simpleSelectors = [];
 		this.nextCombinator = null;
 		this.previousCombinator = null;
-	}
+	};
 	this.Combinator = extend(Combinator, Object);
 
 	// type constants
@@ -320,7 +320,7 @@ gl.selector = new function() {
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
-	}
+	};
 
 	/**
 	 * Check whether the combinator is in a valid final state.
@@ -337,7 +337,7 @@ gl.selector = new function() {
 					oSimpleSelector.validate();
 		}
 		return bValid;
-	}
+	};
 
 	/**
 	 * Matches a node against a combinator.
@@ -350,7 +350,7 @@ gl.selector = new function() {
 		for (var i = iStart || 0, iLen = this.simpleSelectors.length; i < iLen && bMatch; i++)
 			bMatch = this.simpleSelectors[i].match(oNode);
 		return bMatch;
-	}
+	};
 
 	/**
 	 * Matches a node against a combinator, and adds it to the query results when it matches.
@@ -374,7 +374,7 @@ gl.selector = new function() {
 		if (this.matchSimpleSelectors(oNode, iStart))
 			return this.nextCombinator.query(oNode, aResult, bSingleResult);
 		return false;
-	}
+	};
 
 	/**
 	 * Matches a node against a combinator.
@@ -389,14 +389,14 @@ gl.selector = new function() {
 			return true;
 
 		return this.matchFunction(oNode);
-	}
+	};
 
 	/**
 	 * Queries a CSS selector group against a selector.
 	 */
 	Combinator.prototype.query = function(oNode, aResult, bSingleResult) {
 		return this.queryFunction(oNode, aResult, bSingleResult);
-	}
+	};
 
 	/**
 	 * Array of matching combinators
@@ -408,15 +408,15 @@ gl.selector = new function() {
 			while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
 				bMatch = this.previousCombinator.match(oNode);
 			return bMatch;
-		}
+		};
 		mc[Combinator.CHILD] = function(oNode) {
 			return !!(oNode = oNode.parentNode) && oNode.nodeType == 1 && this.previousCombinator.match(oNode);
-		}
+		};
 		mc[Combinator.ADJACENT] = function(oNode) {
 			while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
 				;
 			return !!oNode && this.previousCombinator.match(oNode);
-		}
+		};
 		mc[Combinator.SIBLING] = function(oNode) {
 			var bMatch = false;
 			while (!bMatch && (oNode = oNode.previousSibling)) {
@@ -424,7 +424,7 @@ gl.selector = new function() {
 					bMatch = this.previousCombinator.match(oNode);
 			}
 			return bMatch;
-		}
+		};
 		mc[Combinator.ROOT] = null;
 		return mc;
 	}();
@@ -455,7 +455,7 @@ gl.selector = new function() {
 				bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
 			}
 			return bMatch;
-		}
+		};
 		qc[Combinator.CHILD] = function(oNode, aResult, bSingleResult) {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
@@ -477,7 +477,7 @@ gl.selector = new function() {
 					bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
 			}
 			return bMatch;
-		}
+		};
 		qc[Combinator.ADJACENT] = function(oNode, aResult, bSingleResult) {
 			while (oNode = oNode.nextSibling) {
 				if (oNode.nodeType == 1) {
@@ -485,7 +485,7 @@ gl.selector = new function() {
 				}
 			}
 			return false;
-		}
+		};
 		qc[Combinator.SIBLING] = function(oNode, aResult, bSingleResult) {
 			var bMatch = false;
 			while ((oNode = oNode.nextSibling) && !(bSingleResult && bMatch)) {
@@ -493,11 +493,11 @@ gl.selector = new function() {
 					bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0) || bMatch;
 			}
 			return bMatch;
-		}
+		};
 		qc[Combinator.ROOT] = function(oNode, aResult, bSingleResult) {
 			var bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
 			return qc[Combinator.DESCENDANT].call(this, oNode, aResult, bSingleResult) || bMatch;
-		}
+		};
 		return qc;
 	}();
 
@@ -514,7 +514,7 @@ gl.selector = new function() {
 		this.match = this.matcher[iType];
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
-	}
+	};
 	this.SimpleSelector = extend(SimpleSelector, Object);
 
 	// type constants
@@ -575,46 +575,46 @@ gl.selector = new function() {
 		var m = [];
 		m[SimpleSelector.UNIVERSAL] = function(oNode) {
 			return true;
-		}
+		};
 		m[SimpleSelector.TYPE] = function(oNode) {
 			var bXHTML = oNode.namespaceURI && oNode.namespaceURI != 'http://www.w3.org/1999/xhtml';
 			var sNodeName =  bXHTML ? oNode.nodeName : oNode.nodeName.toLowerCase();
 			var sSelectorName = bXHTML ? this.arg1 : this.arg1.toLowerCase();
 			return sNodeName == sSelectorName;
-		}
+		};
 		m[SimpleSelector.CLASS] = function(oNode) {
 			return this.classRegexp.test(oNode.className);
-		}
+		};
 		m[SimpleSelector.ID] = function(oNode) {
 			return oNode.getAttribute('id') == this.arg1;
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_EXIST] = function(oNode) {
 			return hasAttribute(oNode, this.arg1);
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_EQUALS] = function(oNode) {
 			return getAttribute(oNode, this.arg1) == this.arg2;
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
 			return this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
 			var sAttrValue = getAttribute(oNode, this.arg1);
 			return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_STARTS] = function(oNode) {
 			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_ENDS] = function(oNode) {
 			var sAttrValue = getAttribute(oNode, this.arg1);
 			return this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
-		}
+		};
 		m[SimpleSelector.ATTRIBUTE_CONTAINS] = function(oNode) {
 			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
-		}
+		};
 		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2;
 			if (a == 1 && b == 0)
@@ -623,7 +623,7 @@ gl.selector = new function() {
 				if (oNode.nodeType == 1)
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		}
+		};
 		m[SimpleSelector.PSEUDO_NTH_LAST_CHILD] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2;
 			if (a == 1 && b == 0)
@@ -632,7 +632,7 @@ gl.selector = new function() {
 				if (oNode.nodeType == 1)
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		}
+		};
 		m[SimpleSelector.PSEUDO_NTH_OF_TYPE] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
 			if (a == 1 && b == 0)
@@ -641,7 +641,7 @@ gl.selector = new function() {
 				if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		}
+		};
 		m[SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE] = function(oNode) {
 			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
 			if (a == 1 && b == 0)
@@ -650,47 +650,47 @@ gl.selector = new function() {
 				if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
 					iCount++;
 			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		}
+		};
 		m[SimpleSelector.PSEUDO_FIRST_CHILD] = function(oNode) {
 			do
 				oNode = oNode.previousSibling;
 			while (oNode && oNode.nodeType != 1);
 			return !oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_LAST_CHILD] = function(oNode) {
 			do
 				oNode = oNode.nextSibling;
 			while (oNode && oNode.nodeType != 1);
 			return !oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
 			do
 				oNode = oNode.previousSibling;
 			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_LAST_OF_TYPE] = function(oNode) {
 			var sNodeName = oNode.nodeName;
 			do
 				oNode = oNode.nextSibling;
 			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
 			return !oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_ONLY_CHILD] = function(oNode) {
 			return m[SimpleSelector.PSEUDO_FIRST_CHILD].call(this, oNode, null) &&
 					m[SimpleSelector.PSEUDO_LAST_CHILD].call(this, oNode, null);
-		}
+		};
 		m[SimpleSelector.PSEUDO_ONLY_OF_TYPE] = function(oNode) {
 			return m[SimpleSelector.PSEUDO_FIRST_OF_TYPE].call(this, oNode, null) &&
 					m[SimpleSelector.PSEUDO_LAST_OF_TYPE].call(this, oNode, null);
-		}
+		};
 		m[SimpleSelector.PSEUDO_EMPTY] = function(oNode) {
 			oNode = oNode.firstChild;
 			while (oNode && oNode.nodeType != 1 && (oNode.nodeType != 3 || oNode.length == 0))
 				oNode = oNode.nextSibling;
 			return !oNode;
-		}
+		};
 		m[SimpleSelector.PSEUDO_LANG] = function(oNode) {
 			var sLang;
 			do {
@@ -700,28 +700,28 @@ gl.selector = new function() {
 			// TODO: add support for language from META element (Content-Language)
 			return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
 					(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
-		}
+		};
 		m[SimpleSelector.PSEUDO_ENABLED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && !oNode.disabled;
-		}
+		};
 		m[SimpleSelector.PSEUDO_DISABLED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && oNode.disabled;
-		}
+		};
 		m[SimpleSelector.PSEUDO_CHECKED] = function(oNode) {
 			var sTagName = oNode.tagName.toUpperCase();
 			return sTagName == 'INPUT' && oNode.checked || sTagName == 'OPTION' && oNode.selected;
-		}
+		};
 		m[SimpleSelector.PSEUDO_READ_ONLY] = function(oNode) {
 			return !('readOnly' in oNode) || oNode.readOnly;
-		}
+		};
 		m[SimpleSelector.PSEUDO_READ_WRITE] = function(oNode) {
 			return 'readOnly' in oNode && !oNode.readOnly;
-		}
+		};
 		m[SimpleSelector.PSEUDO_TARGET] = function(oNode) {
 			return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
-		}
+		};
 		return m;
 	}();
 
@@ -732,16 +732,16 @@ gl.selector = new function() {
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
-	}
+	};
 	this.NotSimpleSelector = extend(NotSimpleSelector, SimpleSelector);
 
 	NotSimpleSelector.prototype.validate = function() {
 		return !(this.simpleSelector instanceof NotSimpleSelector);
-	}
+	};
 
 	NotSimpleSelector.prototype.match = function(oNode) {
 		return !this.simpleSelector.match(oNode);
-	}
+	};
 
 
 
@@ -751,7 +751,7 @@ gl.selector = new function() {
 	 * @constructor
 	 */
 	var Parser = function() {
-	}
+	};
 	this.Parser = extend(Parser, Object);
 
 	/**
@@ -975,7 +975,7 @@ gl.selector = new function() {
 			throw new ParsingException(sSelector);
 
 		return oSelectorGroup;
-	}
+	};
 
 	/**
 	 * Decode a CSS identifier
@@ -992,7 +992,7 @@ gl.selector = new function() {
 				}
 			);
 		return sIdentifier;
-	}
+	};
 
 	/**
 	 * Decode a CSS string
@@ -1012,7 +1012,7 @@ gl.selector = new function() {
 		sString = sString.substring(1, sString.length - 1);
 		sString = sString.replace(Parser.regexp.nlescape, '');
 		return Parser.decodeIdent(sString);
-	}
+	};
 
 	/**
 	 * Escapes a string for use in a regular expression.
@@ -1021,7 +1021,7 @@ gl.selector = new function() {
 	 */
 	Parser.escapeRegexp = function(sString) {
 		return sString.replace(Parser.regexp.escapeRegexp, '\\$1');
-	}
+	};
 
 
 
@@ -1031,14 +1031,14 @@ gl.selector = new function() {
 	var CachingParser = function() {
 		this.cache = {};
 		Parser.call(this);
-	}
+	};
 	this.CachingParser = extend(CachingParser, Parser);
 	
 	CachingParser.prototype.parse = function(sSelector) {
 		if (!(sSelector in this.cache))
 			this.cache[sSelector] = Parser.prototype.parse.call(this, sSelector);
 		return this.cache[sSelector];
-	}
+	};
 
 
 	/**
@@ -1054,11 +1054,11 @@ gl.selector = new function() {
 	var ParsingException = function(sSelector) {
 		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
 		this.selector = sSelector;
-	}
+	};
 	this.ParsingException = extend(ParsingException, Error);
 
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
-	}
+	};
 
 }();
