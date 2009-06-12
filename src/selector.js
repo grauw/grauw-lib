@@ -385,7 +385,7 @@ gl.selector = new function() {
 		var bMatch = this.matchSimpleSelectors(oNode);
 		if (!bMatch)
 			return false;
-		if (this.type == this.ROOT)
+		if (this.type == Combinator.ROOT)
 			return true;
 
 		return this.matchFunction(oNode);
