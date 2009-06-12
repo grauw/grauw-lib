@@ -6,7 +6,7 @@ if (!window.gl)
  */
 SelectorUnit = function() {
 	gl.unit.JSUnit.call(this);
-}
+};
 gl.Class.create(SelectorUnit, gl.unit.JSUnit);
 
 /**
@@ -43,7 +43,7 @@ SelectorUnit.prototype.tests = [
 SelectorUnit.prototype.test = function() {
 	this.performanceTest();
 	this.unitTests();
-}
+};
 
 /**
  * Unit tests
@@ -52,22 +52,37 @@ SelectorUnit.prototype.test = function() {
 SelectorUnit.prototype.unitTests = function() {
 	for (var i = 0; i < this.tests.length; i++) {
 		var test = this.tests[i];
-		this.writeln('Querying "' + test[0] + '" on document.');
+		this.writeln('Testing selector “' + test[0] + '”.');
 		try {
-			var aResult = gl.selector.queryAll(document, test[0]);
-			this.assertTrue(aResult instanceof Array, 'Result is array.');
-			this.assertEquals(test[1].length, aResult.length, 'Result length mismatch.');
-			for (var j = 0; j < aResult.length; j++) {
-				this.assertEquals(test[1][j], aResult[j].getAttribute('id'), 'Result node ID mismatch.');
-			}
+			this.unitTestQuery(test[0], test[1]);
+			this.unitTestMatch(test[0], test[1]);
 		} catch(e) {
 			this.writelnError('Error: ' + String(e));
+			throw e;
 		}
 	}
-}
+};
+
+SelectorUnit.prototype.unitTestQuery = function(sSelector, aExpected) {
+	var aResult = gl.selector.queryAll(document, sSelector);
+	this.assertEquals(aExpected.length, aResult.length, 'Result length should match expected length.');
+	for (var i = 0; i < aExpected.length; i++) {
+		this.assertEquals(aExpected[i], aResult[i].getAttribute('id'), 'Result node ID should match expected ID.');
+	}
+};
+
+SelectorUnit.prototype.unitTestMatch = function(sSelector, aExpected) {
+	if (!aExpected.length)
+		return;
+	for (var i = 0; i < aExpected.length; i++) {
+		var oNode = document.getElementById(aExpected[i]);
+		var bMatch = gl.selector.match(oNode, sSelector);
+		this.assertTrue(bMatch, 'Node with ID ' + aExpected[i] + ' should match.');
+	}
+};
 
 /**
  * Performance tests
  */
 SelectorUnit.prototype.performanceTest = function() {
-}
+};
