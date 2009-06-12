@@ -297,8 +297,6 @@ gl.selector = new function() {
 	 */
 	var Combinator = function(iType) {
 		this.type = iType;
-		this.matchFunction = this.matchCombinator[iType];
-		this.queryFunction = this.queryCombinator[iType];
 		this.simpleSelectors = [];
 		this.nextCombinator = null;
 		this.previousCombinator = null;
@@ -388,14 +386,31 @@ gl.selector = new function() {
 		if (this.type == Combinator.ROOT)
 			return true;
 
-		return this.matchFunction(oNode);
+		return this.matchNext(oNode);
+	};
+
+	/**
+	 * Matches on the next combinator.
+	 * @param node The node
+	 * Note: this method is replaced with a matcher function.
+	 */
+	Combinator.prototype.matchNext = function(oNode) {
+		this.matchNext = this.matchCombinator[this.type];
+		return this.matchNext(oNode);
+//		return this.matchCombinator[this.type].call(this, oNode);
 	};
 
 	/**
 	 * Queries a CSS selector group against a selector.
+	 * Note: this method is replaced with a matcher function.
+	 * @param node The node
+	 * @param result The result array
+	 * @param singleResult If true, returns immediately when first match is found.
 	 */
 	Combinator.prototype.query = function(oNode, aResult, bSingleResult) {
-		return this.queryFunction(oNode, aResult, bSingleResult);
+		this.query = this.queryCombinator[this.type];
+		return this.query(oNode, aResult, bSingleResult);
+//		return this.queryCombinator[this.type].call(this, oNode, aResult, bSingleResult);
 	};
 
 	/**
@@ -511,7 +526,6 @@ gl.selector = new function() {
 	 */
 	var SimpleSelector = function(iType, sArg1, sArg2) {
 		this.type = iType;
-		this.match = this.matcher[iType];
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
@@ -560,12 +574,14 @@ gl.selector = new function() {
 
 	/**
 	 * Matches a node against a simple selector.
-	 * Note: Be sure that node exists before calling! No check here.
+	 * Note: this method is replaced with a matcher function.
 	 * @param node The node
 	 * @return true if the selector matches.
 	 */
 	SimpleSelector.prototype.match = function(oNode) {
-		return this.matcher[this.type].call(this, oNode);
+		this.match = this.matcher[this.type];
+		return this.match(oNode);
+//		return this.matcher[this.type].call(this, oNode);
 	};
 
 	/**
