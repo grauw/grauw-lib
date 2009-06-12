@@ -1,6 +1,3 @@
-if (!window.gl)
-	gl = {};
-
 /**
  * Unit tests
  */
