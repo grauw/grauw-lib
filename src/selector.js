@@ -51,7 +51,7 @@ gl.selector = new function() {
 		fConstructor.prototype = new cPrototype;
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
-	};
+	}
 
 	/**
 	 * Helper function for cross-browser hasAttribute
@@ -62,7 +62,7 @@ gl.selector = new function() {
 			return !!oAttr && oAttr.specified;
 		}
 		return oNode.hasAttribute(sName);
-	};
+	}
 
 	/**
 	 * Helper function for cross-browser getAttribute
@@ -73,7 +73,7 @@ gl.selector = new function() {
 			return oAttr ? oAttr.nodeValue : '';
 		}
 		return oNode.getAttribute(sName) || '';
-	};
+	}
 
 
 	/**
