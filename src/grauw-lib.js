@@ -5,7 +5,7 @@ gl = {};
  * Boot this shit!
  */
 gl.boot = function() {
-}
+};
 
 
 /**
@@ -22,12 +22,12 @@ gl.Class.create = function(fConstructor, cBase) {
 	fConstructor.prototype = new cPrototype;
 	fConstructor.prototype.constructor = fConstructor;
 	return fConstructor;
-}
+};
 
 gl.Class.mixin = function(oObject, hMethods) {
    for (var i in hMethods)
        oObject[i] = hMethods[i];
-}
+};
 
 
 /**
@@ -41,7 +41,7 @@ gl.Prototype.extend = function(cBase) {
 	var cPrototype = new Function;
 	cPrototype.prototype = (cBase || Object).prototype;
 	return new cPrototype;
-}
+};
 
 
 /* deal with inability of IE to set controller property on XML nodes */
@@ -85,26 +85,26 @@ gl.core = new function() {
 	
 	var Component = function(oDocument) {
 		this.viewNode = this.getTemplate(oDocument);
-	}
+	};
 	this.Component = gl.Class.create(Component);
 
 	Component.prototype.getTemplate = function(oDocument) {
 		if (browser_ie)
 			return parseHTML_IE(this._template.xml);
 		return oDocument.importNode(this._template, true);
-	}
+	};
 
 
 	var NamespaceList = function() {
 		this.namespaces = {};
-	}
+	};
 	this.NamespaceList = gl.Class.create(NamespaceList);
 
 	NamespaceList.prototype.add = function(oNamespace) {
 //		if (!(oElement instanceof Namespace))
 //			throw new Error('Illegal argument - oElement must be of type gl.core.Element');
 		this.namespaces[oNamespace.uri] = oNamespace;
-	}
+	};
 	
 	NamespaceList.prototype.build = function(oNode) {
 		var cElement = this.getElementByNode(oNode);
@@ -118,37 +118,37 @@ gl.core = new function() {
 			oNode = oNode.nextSibling;
 		}
 		return oElement;
-	}
+	};
 	
 	NamespaceList.prototype.getNamespace = function(sNamespaceURI) {
 		return this.namespaces[sNamespaceURI];
-	}
+	};
 	
 	NamespaceList.prototype.getElementByNode = function(oNode) {
 		var oNamespace = this.namespaces[oNode.namespaceURI];
 		return oNamespace && oNamespace.getElement(oNode.localName || oNode.baseName) || null;
-	}
+	};
 
 	var Namespace = function(sURI) {
 		this.uri = sURI;
 		this.elements = {};
-	}
+	};
 	this.Namespace = gl.Class.create(Namespace);
 
 	Namespace.prototype.add = function(oElement, sLocalName) {
 //		if (!(oElement instanceof Element))
 //			throw new Error('Illegal argument - oElement must be of type gl.core.Element');
 		this.elements[sLocalName] = oElement;
-	}
+	};
 	
 	Namespace.prototype.getElement = function(sLocalName) {
 		return this.elements[sLocalName];
-	}
+	};
 	
 	var Element = function(oModelNode) {
 		this.modelNode = oModelNode;
 		setController(oModelNode, this);
-	}
+	};
 	this.Element = gl.Class.create(Element);
 
 }();
@@ -185,55 +185,55 @@ gl.templates = new function() {
 
 	var Namespace = function(oModelNode) {
 		gl.core.Element.call(this, oModelNode);
-	}
+	};
 	this.Namespace = gl.Class.create(Namespace, gl.core.Element);
 	
 	Namespace.prototype.getURI = function() {
 		return this.modelNode.getAttribute('name') || null;
-	}
+	};
 	
 	Namespace.prototype.getObject = function() {
 		return getReference(this.modelNode.getAttribute('object') || '', true);
-	}
+	};
 	
 	Namespace.prototype.getClasses = function() {
 		return getChildInstancesOf(this.modelNode, Class);
-	}
+	};
 	
 	Namespace.prototype.init = function() {
 		var aClasses = this.getClasses();
 		for (var i = 0; i < aClasses.length; i++) {
 			aClasses[i].init(this);
 		}
-	}
+	};
 	
 	var Class = function(oModelNode, oParent) {
 		gl.core.Element.call(this, oModelNode);
 		this._namespace = oParent;
-	}
+	};
 	this.Class = gl.Class.create(Class, gl.core.Element);
 	
 	Class.prototype.getName = function() {
 		return this.modelNode.getAttribute('name') || null;
-	}
+	};
 	
 	Class.prototype.getExtends = function() {
 		return getReference(this.modelNode.getAttribute('extends') || 'gl.core.Component');
-	}
+	};
 	
 	Class.prototype.getConstructor = function() {
 		var oConstructor = getChildInstancesOf(this.modelNode, Constructor)[0];
 		return oConstructor ? oConstructor.getConstructor() : new Function;
-	}
+	};
 	
 	Class.prototype.getTemplate = function() {
 		var oTemplate = getChildInstancesOf(this.modelNode, Template)[0];
 		return oTemplate ? oTemplate.getTemplate() : null;
-	}
+	};
 	
 	Class.prototype.getMethods = function() {
 		return getChildInstancesOf(this.modelNode, Method);
-	}
+	};
 	
 	Class.prototype.init = function(oNamespace) {
 		var fConstructor = this.getConstructor();
@@ -244,12 +244,12 @@ gl.templates = new function() {
 			fConstructor.prototype[aMethods[i].getName()] = aMethods[i].getMethod();
 		}
 		return oNamespace.getObject()[this.getName()] = fConstructor;
-	}
+	};
 	
 	var Template = function(oModelNode, oParent) {
 		gl.core.Element.call(this, oModelNode);
 		this._class = oParent;
-	}
+	};
 	this.Template = gl.Class.create(Template, gl.core.Element);
 	
 	Template.prototype.getTemplate = function() {
@@ -260,12 +260,12 @@ gl.templates = new function() {
 			oNode = oNode.nextSibling;
 		}
 		return null;
-	}
+	};
 	
 	var Constructor = function(oModelNode, oParent) {
 		gl.core.Element.call(this, oModelNode);
 		this._class = oParent;
-	}
+	};
 	this.Constructor = gl.Class.create(Constructor, gl.core.Element);
 	
 	Constructor.prototype.getConstructor = function() {
@@ -275,19 +275,19 @@ gl.templates = new function() {
 			return new Function(sArguments, sBody);
 		else
 			return new Function(sBody);
-	}
+	};
 	
 	var Method = function(oModelNode, oParent) {
 		gl.core.Element.call(this, oModelNode);
 		this._class = oParent;
-	}
+	};
 	this.Method = gl.Class.create(Method, gl.core.Element);
 	
 	Method.prototype.getMethod = Constructor.prototype.getConstructor;
 	
 	Method.prototype.getName = function() {
 		return this.modelNode.getAttribute('name') || null;
-	}
+	};
 	
 	var Resource = function(oModelNode, oParent) {
 		gl.core.Element.call(this, oModelNode);
@@ -310,12 +310,12 @@ gl.templates = new function() {
 			document.getElementsByTagName('head')[0].appendChild(oScript);
 			break;
 		}
-	}
+	};
 	this.Resource = gl.Class.create(Resource, gl.core.Element);
 	
 	Resource.prototype.getType = function() {
 		return this.modelNode.getAttribute('type') || null;
-	}
+	};
 	
 	var oTNamespace = new gl.core.Namespace('http://www.grauw.nl/templates');
 	oTNamespace.add(Namespace,   'namespace');

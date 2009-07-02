@@ -11,27 +11,27 @@
 
 Element.prototype.querySelector = function(sSelector) {
 	return parse(sSelector).query(this, true)[0] || null;
-}
+};
 
 Element.prototype.querySelectorAll = function(sSelector) {
 	return parse(sSelector).query(this, false);
-}
+};
 
 DocumentFragment.prototype.querySelector = function(sSelector) {
 	return parse(sSelector).query(this.firstChild, true)[0] || null;
-}
+};
 
 DocumentFragment.prototype.querySelectorAll = function(sSelector) {
 	return parse(sSelector).query(this.firstChild, false);
-}
+};
 
 document.querySelector = function(sSelector) {
 	return parse(sSelector).query(this.documentElement, true)[0] || null;
-}
+};
 
 document.querySelectorAll = function(sSelector) {
 	return parse(sSelector).query(this.documentElement, false);
-}
+};
 
 function parse(sSelector) {
 	if (!sSelector)

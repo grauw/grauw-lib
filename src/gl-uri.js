@@ -19,7 +19,7 @@ gl.uri.URI = function(sURI) {
 		this.query = c[4];
 		this.fragment = c[5];
 	}
-}
+};
 
 gl.uri.URI.prototype = new Object();
 
@@ -39,10 +39,10 @@ gl.uri.URI._regexp = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?
  * @param {String} baseURI the base URI (must be absolute) to resolve against
  */
 gl.uri.URI.resolve = function(sURI, sBaseURI) {
-	var oURI = gl.uri.URI._cache[sURI] || (gl.uri.URI._cache[sURI] = new gl.uri.URI(sURI))
+	var oURI = gl.uri.URI._cache[sURI] || (gl.uri.URI._cache[sURI] = new gl.uri.URI(sURI));
 	var oBaseURI = gl.uri.URI._cache[sBaseURI] || (gl.uri.URI._cache[sBaseURI] = new gl.uri.URI(sBaseURI));
 	return oURI.resolve(oBaseURI).toString();
-}
+};
 
 gl.uri.URI._cache = {};
 
@@ -57,14 +57,14 @@ gl.uri.URI.prototype.clone = function() {
 	oURI.query = this.query;
 	oURI.fragment = this.fragment;
 	return oURI;
-}
+};
 
 /**
  * Checks for the restriction described in RFC 3986 section 4.3
  */
 gl.uri.URI.prototype.isAbsolute = function() {
 	return this.scheme && !this.fragment;
-}
+};
 
 ///**
 //* Extensive validation of the URI against the ABNF in RFC 3986
@@ -82,7 +82,7 @@ gl.uri.URI.prototype.isSameDocumentAs = function(oURI) {
 	    oURI.authority == this.authority &&
 	         oURI.path == this.path &&
 	        oURI.query == this.query;
-}
+};
 
 /**
  * Simple String Comparison of two URIs
@@ -92,7 +92,7 @@ gl.uri.URI.prototype.isSameDocumentAs = function(oURI) {
  */
 gl.uri.URI.prototype.equals = function(oURI) {
 	return this.isSameDocumentAs(oURI) && oURI.fragment == this.fragment;
-}
+};
 
 /**
  * Normalizes the URI
@@ -111,7 +111,7 @@ gl.uri.URI.prototype.normalize = function() {
 		this.query = this.query.replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
 	if (this.fragment)
 		this.fragment = this.fragment.replace(gl.uri.URI._caseRegex, gl.uri.URI._caseFn);
-}
+};
 
 gl.uri.URI._caseRegex = /%[0-9a-z]{2}/gi;
 gl.uri.URI._percentRegex = /[a-zA-Z0-9\-\._~]/;
@@ -120,11 +120,11 @@ gl.uri.URI._authorityRegex = /(.*@)?([^@:]*)(:.*)?/;
 gl.uri.URI._caseFn = function(sStr) {
 	var sDec = unescape(sStr);
 	return gl.uri.URI._percentRegex.test(sDec) ? sDec : sStr.toUpperCase();
-}
+};
 
 gl.uri.URI._authorityFn = function(sStr, p1, p2, p3) {
 	return p1 + p2.toLowerCase() + p3;
-}
+};
 
 
 /**
@@ -167,7 +167,7 @@ gl.uri.URI.prototype.resolve = function(oBaseURI) {
 	}
 	oURI.fragment = this.fragment;
 	return oURI;
-}
+};
 
 /**
  * Remove dot segments from path.
@@ -194,7 +194,7 @@ gl.uri.URI.prototype.removeDotSegments = function() {
 	if (bAbsPath)
 		aOutput.unshift('');
 	this.path = aOutput.join('/');
-}
+};
 
 
 /**
@@ -212,4 +212,4 @@ gl.uri.URI.prototype.toString = function() {
 	if (this.fragment)
 		result += '#' + this.fragment;
 	return result;
-}
+};

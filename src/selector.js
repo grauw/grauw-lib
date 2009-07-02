@@ -952,7 +952,7 @@ gl.selector = new function() {
 							a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
 							b = b == '' ? 0 : parseInt(b, 10);
 						}
-						oSimpleSelector = new SimpleSelector(iType, a, b)
+						oSimpleSelector = new SimpleSelector(iType, a, b);
 					} else if (sIdentifier == 'not') {
 						var oTempGroup = this.parse(aParsedPseudo[2]);
 						var oTempCombinator = oTempGroup.selectors[0].combinators[0];
@@ -960,7 +960,7 @@ gl.selector = new function() {
 							throw new ParsingException(sSelector);
 						oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
 					} else {
-						oSimpleSelector = new SimpleSelector(iType)
+						oSimpleSelector = new SimpleSelector(iType);
 					}
 					oCombinator.add(oSimpleSelector);
 					break;
