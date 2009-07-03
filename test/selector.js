@@ -31,7 +31,18 @@ SelectorUnit.prototype.tests = [
 		['ul:lang(EN-gb)', ['t7']],
 		['ul:lang(en-US)', []],
 		['ul:lang(e)', []],
-		['li:lang(en-GB)', ['t1', 't2', 't3', 't4', 't5']]
+		['li:lang(en-GB)', ['t1', 't2', 't3', 't4', 't5']],
+		['ul:not(li)', ['t7', 't8']],
+		['ul:not(ul)', []],
+		['ul:not(.test1)', ['t8']],
+		['span:not(:empty)', ['t11', 't12']],
+		['ul:not(:lang(en))', ['t8']],
+		['ul.test1 *:not(#t2):not([id=t4])', ['t1', 't3', 't5']]
+	];
+
+// Selectors that should result in parsing errors
+SelectorUnit.prototype.parsingTests = [
+       	'ul:not(.test1.test2)'
 	];
 
 /**
@@ -55,7 +66,7 @@ SelectorUnit.prototype.unitTests = function() {
 			this.unitTestMatch(test[0], test[1]);
 		} catch(e) {
 			this.writelnError('Error: ' + String(e));
-			throw e;
+//			throw e;
 		}
 	}
 };
