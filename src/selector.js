@@ -790,7 +790,7 @@ gl.selector = new function() {
 	oPatterns.class_     = '\\.' + oPatterns.ident;
 	oPatterns.id         = '#' + oPatterns.ident;
 	oPatterns.attribute  = '\\[(' + oPatterns.ident + ')(?:([~|\\^\\$*]?=)(' + oPatterns.ident + '|' + oPatterns.string + '))?\\]';
-	oPatterns.pseudo     = ':(' + oPatterns.ident + ')(?:\\(([^)]+)\\))?';
+	oPatterns.pseudo     = ':' + oPatterns.ident + '(?:\\([^)]+\\))?';
 	oPatterns.universal  = '\\*';				// '(?:' + oPatterns.ident + '\\|)\\*'
 	oPatterns.element    = oPatterns.ident;		// oPatterns.ns_ident
 	// Combinators
@@ -826,7 +826,7 @@ gl.selector = new function() {
 			].join('|'), 'g');
 	Parser.regexp.attribute    = new RegExp(oPatterns.attribute);
 	Parser.regexp.nlescape     = new RegExp(oPatterns.nlescape, 'g');
-	Parser.regexp.pseudo       = new RegExp(oPatterns.pseudo);
+	Parser.regexp.pseudo       = new RegExp(':([^(]+)(?:\\((.+)\\))?');
 	Parser.regexp.trim         = /^\s+|\s+$/gm;
 	Parser.regexp.escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
 	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
