@@ -123,7 +123,7 @@ gl.uri.URI._caseFn = function(sStr) {
 };
 
 gl.uri.URI._authorityFn = function(sStr, p1, p2, p3) {
-	return p1 + p2.toLowerCase() + p3;
+	return (p1 || '') + p2.toLowerCase() + (p3 || '');
 };
 
 
