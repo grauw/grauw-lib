@@ -4,11 +4,10 @@ if (!gl.uri)
 	gl.uri = {};
 
 /**
- * Implementation of URI parsing and base URI resolving algorithm in RFC 3986.
- * 
- * Question: should it be URI.resolve(BaseURI) or BaseURI.resolve(URI)?
- *
- * @param {string} uri the relative URI to resolve
+ * Constructs a URI object.
+ * @constructor
+ * @class Implementation of URI parsing and base URI resolving algorithm in RFC 3986.
+ * @param {String} uri the relative URI to resolve
  */
 gl.uri.URI = function(sURI) {
 	if (sURI) {
@@ -34,7 +33,8 @@ gl.uri.URI.prototype.fragment  = null;
 gl.uri.URI._regexp = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?');
 
 /**
- * Convenience method
+ * Resolves a relative URI against an absolute base URI.
+ * Convenience method.
  * @param {String} uri the relative URI to resolve
  * @param {String} baseURI the base URI (must be absolute) to resolve against
  */
@@ -60,7 +60,8 @@ gl.uri.URI.prototype.clone = function() {
 };
 
 /**
- * Checks for the restriction described in RFC 3986 section 4.3
+ * Tests whether the URI is an absolute URI.
+ * See RFC 3986 section 4.3.
  */
 gl.uri.URI.prototype.isAbsolute = function() {
 	return this.scheme && !this.fragment;
@@ -72,8 +73,8 @@ gl.uri.URI.prototype.isAbsolute = function() {
 //gl.uri.URI.prototype.validate
 
 /**
- * Checks whether the URI is a same-document reference
- * See RFC 3986 section 4.4
+ * Tests whether the URI is a same-document reference.
+ * See RFC 3986 section 4.4.
  * 
  * To perform more thorough comparison, you can normalise the URI objects.
  */
@@ -85,8 +86,8 @@ gl.uri.URI.prototype.isSameDocumentAs = function(oURI) {
 };
 
 /**
- * Simple String Comparison of two URIs
- * See RFC 3986 section 6.2.1
+ * Simple String Comparison of two URIs.
+ * See RFC 3986 section 6.2.1.
  * 
  * To perform more thorough comparison, you can normalise the URI objects.
  */
@@ -95,8 +96,9 @@ gl.uri.URI.prototype.equals = function(oURI) {
 };
 
 /**
- * Normalizes the URI
- * See RFC 3986 section 6.2.2
+ * Normalizes the URI using syntax-based normalization.
+ * This includes case normalization, percent-encoding normalization and path segment normalization.
+ * See RFC 3986 section 6.2.2.
  */
 gl.uri.URI.prototype.normalize = function() {
 	this.removeDotSegments();
@@ -129,6 +131,7 @@ gl.uri.URI._authorityFn = function(sStr, p1, p2, p3) {
 
 /**
  * Resolve a relative URI (this) against a base URI.
+ * The base URI must be an absolute URI.
  * See RFC 3986 section 5.2
  */
 gl.uri.URI.prototype.resolve = function(oBaseURI) {
@@ -198,7 +201,7 @@ gl.uri.URI.prototype.removeDotSegments = function() {
 
 
 /**
- * Serialises the URI to a string
+ * Serialises the URI to a string.
  */
 gl.uri.URI.prototype.toString = function() {
 	var result = '';
