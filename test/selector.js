@@ -11,6 +11,10 @@ gl.Class.create(SelectorUnit, gl.unit.JSUnit);
  */
 SelectorUnit.prototype.tests = [
 		['li', ['t1', 't2', 't3', 't4', 't5', 't6']],
+		['ul#t7', ['t7']],
+		['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],
+		['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],
+		['body > li', []],
 		['span:empty', ['t10', 't13']],
 		['ul[lang=en-GB]', ['t7']],
 		['form[class]', ['t20']],
