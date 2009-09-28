@@ -475,7 +475,7 @@ gl.selector = new function() {
 			var aNodes,
 				oSimpleSelector = this.simpleSelectors[0],
 				iStart = 0;
-			if (oNode.children && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
+			if (oNode.children && oNode.children.tags && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
 				aNodes = oNode.children.tags(oSimpleSelector.arg1);
 				iStart++;
 			} else {
