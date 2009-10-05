@@ -3,7 +3,7 @@
  */
 URIUnit = function() {
 	gl.unit.JSUnit.call(this);
-}
+};
 gl.Class.create(URIUnit, gl.unit.JSUnit);
 
 /**
@@ -75,9 +75,7 @@ URIUnit.prototype.tests = [
  */
 URIUnit.prototype.test = function() {
 	this.performanceTest();
-	var html = this.unitTests();
-	var outputDiv = document.getElementById('output');
-	outputDiv.innerHTML = html;
+	this.unitTests();
 }
 
 /**
@@ -88,22 +86,12 @@ URIUnit.prototype.unitTests = function() {
 	// add:
 	// absolute URI tests: http://a
 	//
-	var html = '<table>';
-	html += '<tr><th>Base URI</th><th>URI</th><th>Result</th><th>Expected</th><th>Correct</th></tr>';
 	for (var i = 0; i < this.tests.length; i++) {
 		var test = this.tests[i];
+		this.writeln('Resolving "' + test[1] + '" with "' + test[0] + '"');
 		var sURI = gl.uri.URI.resolve(test[1], test[0]);
-		this.assertEquals(test[2], sURI, 'Resolving "' + test[1] + '" with "' + test[0] + '"');
-		html += '<tr style="background:' + (sURI == test[2] ? '#cfc' : '#fcc') + '">';
-		html += '<td>' + test[0] + '</td>';
-		html += '<td>' + test[1] + '</td>';
-		html += '<td>' + sURI + '</td>';
-		html += '<td>' + test[2] + '</td>';
-		html += '<td>' + (sURI == test[2] ? 'yes' : 'no') + '</td>';
-		html += '</tr>';
+		this.assertEquals(test[2], sURI, 'Result URI should match expected URI.');
 	}
-	html += '</table>';
-	return html;
 }
 
 /**
@@ -114,7 +102,7 @@ URIUnit.prototype.performanceTest = function() {
 	for (var i = 0; i < 10000; i++) {
 		gl.uri.URI.resolve('a/.././b', 'http://a/b/c/d;p?q');
 	}
-	this.writeln('Running 10000x, milliseconds needed: ' + this.timeEnd());
+	this.writeln('Running 10000x, milliseconds needed: ' + this.timeEnd() + ' ms');
 	
 	var oBaseURI = new gl.uri.URI('http://a/b/c/d;p?q');
 	var j = 0;
@@ -124,5 +112,5 @@ URIUnit.prototype.performanceTest = function() {
 //		var oURI = new gl.uri.URI('a/.././b' + j++);
 //		oURI.resolve(oBaseURI).toString();
 	}
-	this.writeln('Running 10000x w/ different URIs, milliseconds needed: ' + this.timeEnd());
+	this.writeln('Running 10000x w/ different URIs, milliseconds needed: ' + this.timeEnd() + ' ms');
 }
