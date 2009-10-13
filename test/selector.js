@@ -65,15 +65,40 @@ SelectorUnit.prototype.parsingTests = [
  * Main test function
  */
 SelectorUnit.prototype.test = function() {
-	this.performanceTest();
+	this.apiTests();
 	this.unitTests();
+	this.performanceTest();
+};
+
+/**
+ * Tests for the various objects
+ */
+SelectorUnit.prototype.apiTests = function() {
+	this.parserTest();
+};
+
+SelectorUnit.prototype.parserTest = function() {
+	this.writeln('Testing selector parsing.');
+	var oParser = new gl.selector.Parser();
+	var oCachingParser = new gl.selector.CachingParser();
+	for (var i = 0; i < this.tests.length; i++) {
+		try {
+			oParser.parse(this.tests[i][0]);
+			oCachingParser.parse(this.tests[i][0]);
+		} catch(e) {
+			if (e instanceof gl.selector.ParsingException)
+				this.assert(false, 'Selector “' + this.tests[i][0] + '” should not cause a parse error.')
+			else
+				throw e;
+		}
+	}
 };
 
 /**
  * Unit tests
- * See RFC 3986 appendix C
  */
 SelectorUnit.prototype.unitTests = function() {
+	this.writeln('Testing selector querying and matching.');
 	for (var i = 0; i < this.tests.length; i++) {
 		var test = this.tests[i];
 		this.writeln('Testing selector “' + test[0] + '”.');
