@@ -100,69 +100,76 @@ gl.Prototype.extend = function(cBase) {
 /**
  * Dependency system
  */
-(function() {
+gl.depsys = new function() {
 	
-	gl.require = function(sURL) {
-		var sAbsoluteURL = gl.uri.URI.resolve(sURL, getScriptURL());
-		gl.requireAbsolute(sAbsoluteURL);
-	};
-
-	// like require, but with absolute URI
-	gl.requireAbsolute = function(sURL) {
-		if (isLoaded(sURL))
-			return;
-		
-		var sScript = gl.loadScriptFromURL(sURL);
-		var oHead = document.getElementsByTagName('head')[0];
-		var oScript = document.createElement('script');
-		oScript.type = 'text/javascript';
-		oScript.textContent = sScript;
-		oScript._gl_src = sURL;
-		oHead.appendChild(oScript);
-	};
-
-	gl.loadScriptFromURL = function(sURL) {
-		var oXHR = new XMLHttpRequest();
-		oXHR.open('GET', sURL, false);
-		oXHR.setRequestHeader('Accept', 'text/javascript');
-		oXHR.send();
-		return oXHR.responseText;
-	};
-
-	gl.requireXML = function(sURL) {
-		var sScriptURL = getScriptURL();
-		var sAbsoluteURL = gl.uri.URI.resolve(sURL, sScriptURL);
-		loadTFile(sAbsoluteURL);
-	};
-	
-	var hRequiredFiles = {};
-	
-	function isLoaded(sURL) {
-		if (hRequiredFiles.hasOwnProperty(sURL))
-			return true;
-		hRequiredFiles[sURL] = true;
-		var aScripts = document.getElementsByTagName('script');
-		for (var i = 0; i < aScripts.length; i++) {
-			if ((aScripts[i]._gl_src || aScripts[i].src) == sURL)
-				return true;
-		}
-		return false;
-	}
-
+	/**
+	 * Returns the URL of the last script tag, which is presumed to be this script.
+	 * Will probably not work for deferred scripts or certain dynamically inserted scripts...
+	 * (But good enough for now.)
+	 */
 	function getScriptURL() {
 		var aScripts = document.getElementsByTagName('script');
 		var oScript = aScripts[aScripts.length - 1];
-		return oScript._gl_src || oScript.src;
+		return oScript.src || oScript._gl_src;
 	}
 	
-	var sLastScriptURL = getScriptURL();
-	var sURIURL = sLastScriptURL.substr(0, sLastScriptURL.lastIndexOf('/')) + '/gl-uri.js';
-	gl.requireAbsolute(sURIURL);
+	/**
+	 * Makes sure the specified libraries are loaded.
+	 * 
+	 * Accepts an infinite number of parameters in the following format:
+	 * {type: 'application/xml', src: 'jsunit.xml'}
+	 * 
+	 * The src field is a relative URI pointing to the file you want to load.
+	 * The type field specifies an optional MIME type which will influence how the
+	 * file is loaded, by default it is text/javascript.
+	 * 
+	 * Each script should have only one gl.require invocation, otherwise the
+	 * mechanism to determine the base URL will fail.
+	 * 
+	 * XXX: Maybe it should also accept plain strings (and then )
+	 */
+	gl.require = function() {
+		var sBaseURI = getScriptURL();
+		for (var i = 0; i < arguments.length; i++) {
+			var vDescriptor = arguments[i];
+			var bIsObject = typeof vDescriptor == 'object';
+			var sRelativeURL = bIsObject ? vDescriptor.src : vDescriptor;
+			var sType = bIsObject && vDescriptor.type || 'text/javascript';
+			var sURL = gl.uri.URI.resolve(sRelativeURL, sBaseURI);
+			if (oDependencyManager.isLoaded(sURL))
+				continue;
+			var oDependency = oDependencyManager.createDependency(sType, sURL);
+			oDependency.load();
+		}
+	};
 	
+	/**
+	 * Define a module, with package name and dependencies.
+	 * An object will be created from the module name, dependencies will be loaded,
+	 * and the implementation initialisation function will be invoked afterwards.
+	 * In the initialisation function, ‘this’ points to the module object.
+	 * 
+	 * Example:
+	 * gl.module(
+	 *     'gl.selector',
+	 *     [
+	 *         '../src/jsunit.js',
+	 *         '../src/selector.js'
+	 *     ],
+	 *     function() {
+	 *         var Parser = function(){};
+	 *         this.Parser = gl.Class.extend(Parser, Object);  // register on gl.selector object
+	 *     }
+	 * );
+	 */
 	gl.module = function(sName, aDependencies, fImplementation) {
-		return;
-		
-		var oModule = new Module(sName, aDependencies, fImplementation);
+		var sBaseURI = getScriptURL();
+		var oModule = new Module(sName, fImplementation);
+		for (var i = 0; i < aDependencies.length; i++) {
+			var sURL = gl.uri.URI.resolve(aDependencies[i], sBaseURI);
+			var oDependency = oDependencyManager.createDependency('text/javascript', sURL);
+			oModule.addDependency(oDependency);
+		}
 //		oModuleManager.register(oModule);
 		oModule.process();
 	};
@@ -173,19 +180,22 @@ gl.Prototype.extend = function(cBase) {
 	 * @param {Array} aDependencies
 	 * @param {Function} fInitialiser
 	 */
-	var Module = function(sName, aDependencies, fInitialiser) {
+	var Module = function(sName, fInitialiser) {
 		this.name = sName;
-		this.dependencies = aDependencies;
 		this.initialiser = fInitialiser;
+		this.dependencies = [];
 		this.moduleObject = null;
 	};
 	
-	gl.module.Module = gl.Class.create(Module, Object);
+	this.Module = Module;
+	
+	Module.prototype.addDependency = function(oDependency) {
+		this.dependencies.push(oDependency);
+	};
 	
 	Module.prototype.process = function() {
-		this.moduleObject = this.createModuleObject(this.name);
+		this.moduleObject = this.createModuleObject(this.name);	// XXX: maybe move to the constructor?
 		this.loadDependencies();
-		this.initialize();
 	};
 	
 	Module.prototype.createModuleObject = function() {
@@ -202,18 +212,212 @@ gl.Prototype.extend = function(cBase) {
 	
 	Module.prototype.loadDependencies = function() {
 		for (var i = 0; i < this.dependencies.length; i++) {
-			gl.require(this.dependencies[i]);
+			this.dependencies[i].addLoadListener(this);
+			this.dependencies[i].loadAsync();
 		}
+	};
+	
+	Module.prototype.dependencyLoaded = function(oDependency) {
+		if (this.allDependenciesLoaded()) {
+			this.initialize();
+		}
+	};
+	
+	Module.prototype.allDependenciesLoaded = function() {
+		// probably this can be implemented a little more efficiently
+		for (var i = 0; i < this.dependencies.length; i++) {
+			if (!this.dependencies[i].isLoaded())
+				return false;
+		}
+		return true;
 	};
 	
 	Module.prototype.initialize = function() {
 		this.initialiser.call(this.moduleObject);
 	};
 	
+	/**
+	 * A dependency object
+	 * @param {String} sURL The absolute URL of the dependency
+	 */
+	var Dependency = function(sURL) {
+		this.url = sURL;
+		this.loadListeners = [];
+		this.loaded = false;
+	};
+	
+	this.Dependency = Dependency;
+	
+	Dependency.prototype.getURL = function() {
+		return this.url;
+	};
+	
+	Dependency.prototype.load = function(bAsync) {
+		throw new Error('Abstract method must be implemented by subclass.');
+	};
+	
+	Dependency.prototype.loadAsync = function() {
+		throw new Error('Abstract method must be implemented by subclass.');
+	};
+	
+	Dependency.prototype.isLoaded = function() {
+		return this.loaded;
+	};
+	
+	Dependency.prototype.loadComplete = function() {
+		this.loaded = true;
+		this.fireLoadEvent();
+	};
+	
+	Dependency.prototype.addLoadListener = function(fLoadListener) {
+		this.loadListeners.push(fLoadListener);
+	};
+	
+	Dependency.prototype.fireLoadEvent = function() {
+		for (var i = 0; i < this.loadListeners.length; i++) {
+			this.loadListeners[i].dependencyLoaded(this);
+		}
+	};
+	
+	var ScriptDependency = function(sURL) {
+		Dependency.call(this, sURL);
+		this.scriptNode = null;
+	};
+
+	this.ScriptDependency = gl.Class.create(ScriptDependency, Dependency);
+	
+	ScriptDependency.prototype.load = function() {
+		this._load(false);
+	};
+	
+	ScriptDependency.prototype.loadAsync = function() {
+		this._load(true);
+	};
+	
+	ScriptDependency.prototype._load = function(bAsync) {
+		var oHead = document.getElementsByTagName('head')[0];
+		var oScript = document.createElement('script');
+		this.scriptNode = oScript;
+		oScript.type = 'text/javascript';
+		oScript._gl_dependency = this;
+		oScript._gl_src = this.url;
+		if (!bAsync) {
+			var oXHR = new XMLHttpRequest();
+			oXHR.open('GET', this.url, false);
+			oXHR.setRequestHeader('Accept', 'text/javascript');
+			oXHR.send();
+			var sScript = oXHR.responseText;
+			oScript.text = sScript;
+			oHead.appendChild(oScript);
+			this.loadComplete();
+		} else {
+			var oThis = this;
+			oScript.src = this.url;
+			oScript.onload = function(event) {
+				oThis.loadComplete();
+			};
+			// TODO: onerror?
+			oHead.appendChild(oScript);
+		}
+	};
+	
+	
+	var TXMLDependency = function(sURL) {
+		Dependency.call(this, sURL);
+	};
+	
+	this.TXMLDependency = gl.Class.create(TXMLDependency, Dependency);
+	
+	TXMLDependency.prototype.load = function() {
+		this._load(false);
+	};
+	
+	TXMLDependency.prototype.loadAsync = function() {
+		this._load(true);
+	};
+	
+	TXMLDependency.prototype._load = function(bAsync) {
+		var oXHR = new XMLHttpRequest();
+		if (bAsync) {
+			var oThis = this;
+			oXHR.onreadystatechange = function() {
+				oThis._loadComplete(oXHR);
+			}
+		}
+		oXHR.open('GET', this.url, bAsync);
+		oXHR.setRequestHeader('Accept', 'application/xml');
+		oXHR.send();
+		if (!bAsync)
+			this._loadComplete(oXHR);
+	};
+	
+	TXMLDependency.prototype._loadComplete = function(oXHR) {
+		if (oXHR.responseXML.documentElement) {
+			var oNamespace = gl.namespaces.build(oXHR.responseXML.documentElement);
+			oNamespace.init();
+			this.loadComplete();
+		}
+		// TODO: else error?
+	};
+
+//	var StyleDependency = function() {
+//		Dependency.call(this);
+//	};
+	
+	/**
+	 * Dependency manager
+	 */
+	var DependencyManager = function() {
+		this.dependencyMap = {};
+		this.handlers = {};
+	};
+	
+	this.DependencyManager = DependencyManager;
+	
+	DependencyManager.prototype.isLoaded = function(sURL) {
+		if (this.getDependencyByURL(sURL))
+			return true;
+		var aScripts = document.getElementsByTagName('script');
+		for (var i = 0; i < aScripts.length; i++) {
+			if ((aScripts[i].src || aScripts[i]._gl_src) == sURL)
+				return true;
+		}
+		return false;
+	};
+	
+	DependencyManager.prototype.getDependencyByURL = function(sURL) {
+		return this.dependencyMap.hasOwnProperty(sURL) && this.dependencyMap[sURL] || null;
+	};
+	
+	DependencyManager.prototype.registerDependencyHandler = function(sType, cDependency) {
+		this.handlers[sType] = cDependency;
+	};
+	
+	DependencyManager.prototype.createDependency = function(sType, sURL) {
+		return new this.handlers[sType](sURL);
+	};
+
+	
+	/**
+	 * Module manager
+	 */
 	var ModuleManager = function() {
 	};
 	
-})();
+	this.ModuleManager = ModuleManager;
+	
+	
+	// initialise dependency manager
+	var oDependencyManager = new DependencyManager();
+	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
+	oDependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
+	
+	// load URI library to do URI resolving (a bit of a paradox :))
+	var sBaseURI = getScriptURL();
+	var oURIDependency = new ScriptDependency(sBaseURI.substr(0, sBaseURI.lastIndexOf('/')) + '/gl-uri.js');
+	oURIDependency.load();
+	
+};
 
 
 

@@ -1,5 +1,7 @@
-gl.require('../src/jsunit.js');
-gl.require('../src/gl-uri.js');
+gl.require(
+		{type: 'text/javascript', src: '../src/jsunit.js'},
+		{type: 'text/javascript', src: '../src/gl-uri.js'}
+	);
 
 /**
  * Unit tests

@@ -1,4 +1,4 @@
-gl.requireXML('jsunit.xml');
+gl.require({type: 'application/xml', src: 'jsunit.xml'});
 
 gl.unit = function(module) {
 	

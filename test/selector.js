@@ -1,15 +1,22 @@
-gl.require('../src/jsunit.js');
-gl.require('../src/selector.js');
+gl.require(
+		{type: 'text/javascript', src: '../src/jsunit.js'},
+		{type: 'text/javascript', src: '../src/selector.js'}
+	);
 
+/*
 gl.module(
 	'unit.selector',
+//	{type: 'text/javascript', src: '../src/jsunit.js'},
+//	{type: 'text/javascript', src: '../src/selector.js'},
 	[
-   		'../src/jsunit.js',
-   		'../src/selector.js'
-   	],
-   	function() {
+		'../src/jsunit.js',
+		'../src/selector.js',
+		
+	],
+	function() {
 	}
 );
+*/
 
 
 
