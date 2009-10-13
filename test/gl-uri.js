@@ -1,3 +1,6 @@
+gl.require('../src/jsunit.js');
+gl.require('../src/gl-uri.js');
+
 /**
  * Unit tests
  */

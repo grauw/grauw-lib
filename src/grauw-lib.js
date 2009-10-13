@@ -7,7 +7,6 @@ gl = {};
 gl.boot = function() {
 };
 
-
 /**
  * Base object?
  * Just an experiment...
@@ -96,6 +95,131 @@ gl.Prototype.extend = function(cBase) {
 	cPrototype.prototype = (cBase || Object).prototype;
 	return new cPrototype;
 };
+
+
+/**
+ * Dependency system
+ */
+(function() {
+	
+	gl.require = function(sURL) {
+		var sAbsoluteURL = gl.uri.URI.resolve(sURL, getScriptURL());
+		gl.requireAbsolute(sAbsoluteURL);
+	};
+
+	// like require, but with absolute URI
+	gl.requireAbsolute = function(sURL) {
+		if (isLoaded(sURL))
+			return;
+		
+		var sScript = gl.loadScriptFromURL(sURL);
+		var oHead = document.getElementsByTagName('head')[0];
+		var oScript = document.createElement('script');
+		oScript.type = 'text/javascript';
+		oScript.textContent = sScript;
+		oScript._gl_src = sURL;
+		oHead.appendChild(oScript);
+	};
+
+	gl.loadScriptFromURL = function(sURL) {
+		var oXHR = new XMLHttpRequest();
+		oXHR.open('GET', sURL, false);
+		oXHR.setRequestHeader('Accept', 'text/javascript');
+		oXHR.send();
+		return oXHR.responseText;
+	};
+
+	gl.requireXML = function(sURL) {
+		var sScriptURL = getScriptURL();
+		var sAbsoluteURL = gl.uri.URI.resolve(sURL, sScriptURL);
+		loadTFile(sAbsoluteURL);
+	};
+	
+	var hRequiredFiles = {};
+	
+	function isLoaded(sURL) {
+		if (hRequiredFiles.hasOwnProperty(sURL))
+			return true;
+		hRequiredFiles[sURL] = true;
+		var aScripts = document.getElementsByTagName('script');
+		for (var i = 0; i < aScripts.length; i++) {
+			if ((aScripts[i]._gl_src || aScripts[i].src) == sURL)
+				return true;
+		}
+		return false;
+	}
+
+	function getScriptURL() {
+		var aScripts = document.getElementsByTagName('script');
+		var oScript = aScripts[aScripts.length - 1];
+		return oScript._gl_src || oScript.src;
+	}
+	
+	var sLastScriptURL = getScriptURL();
+	var sURIURL = sLastScriptURL.substr(0, sLastScriptURL.lastIndexOf('/')) + '/gl-uri.js';
+	gl.requireAbsolute(sURIURL);
+	
+	gl.module = function(sName, aDependencies, fImplementation) {
+		return;
+		
+		var oModule = new Module(sName, aDependencies, fImplementation);
+//		oModuleManager.register(oModule);
+		oModule.process();
+	};
+
+	/**
+	 * An object containing the information of a module.
+	 * @param {String} sName 
+	 * @param {Array} aDependencies
+	 * @param {Function} fInitialiser
+	 */
+	var Module = function(sName, aDependencies, fInitialiser) {
+		this.name = sName;
+		this.dependencies = aDependencies;
+		this.initialiser = fInitialiser;
+		this.moduleObject = null;
+	};
+	
+	gl.module.Module = gl.Class.create(Module, Object);
+	
+	Module.prototype.process = function() {
+		this.moduleObject = this.createModuleObject(this.name);
+		this.loadDependencies();
+		this.initialize();
+	};
+	
+	Module.prototype.createModuleObject = function() {
+		var oContext = window;
+		var aNameParts = this.name.split('.');
+		for (var i = 0; i < aNameParts.length; i++) {
+			if (!oContext.hasOwnProperty(aNameParts[i]))
+				oContext = oContext[aNameParts[i]] = {};
+			else
+				oContext = oContext[aNameParts[i]];
+		}
+		return oContext;
+	};
+	
+	Module.prototype.loadDependencies = function() {
+		for (var i = 0; i < this.dependencies.length; i++) {
+			gl.require(this.dependencies[i]);
+		}
+	};
+	
+	Module.prototype.initialize = function() {
+		this.initialiser.call(this.moduleObject);
+	};
+	
+	var ModuleManager = function() {
+	};
+	
+})();
+
+
+
+
+
+
 
 
 /* deal with inability of IE to set controller property on XML nodes */

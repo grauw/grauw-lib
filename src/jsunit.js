@@ -1,4 +1,4 @@
-//loadTFile('jsunit.xml');
+gl.requireXML('jsunit.xml');
 
 gl.unit = function(module) {
 	
@@ -40,6 +40,11 @@ gl.unit = function(module) {
 
 	JSUnit.prototype.writelnError = function(sString) {
 		this.log.writelnError(sString);
+	};
+
+	JSUnit.prototype.assert = function(bResult, sMessage) {
+		if (!bResult)
+			this.writelnError('Assertion failed. ' + sMessage);
 	};
 
 	JSUnit.prototype.assertEquals = function(oExpected, oResult, sMessage) {

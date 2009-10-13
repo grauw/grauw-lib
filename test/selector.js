@@ -1,3 +1,18 @@
+gl.require('../src/jsunit.js');
+gl.require('../src/selector.js');
+
+gl.module(
+	'unit.selector',
+	[
+   		'../src/jsunit.js',
+   		'../src/selector.js'
+   	],
+   	function() {
+	}
+);
+
+
+
 /**
  * Unit tests
  */
