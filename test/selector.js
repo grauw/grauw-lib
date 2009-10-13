@@ -19,6 +19,7 @@ SelectorUnit.prototype.tests = [
 		['ul[lang=en-GB]', ['t7']],
 		['form[class]', ['t20']],
 		['input[class]', []],
+		['form[className]', []],
 		['form[enctype]', ['t20']],
 		['form[enctype="text/plain"]', ['t20']],
 		['form[enctype="application/x-www-form-urlencoded"]', []],
