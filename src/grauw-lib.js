@@ -101,6 +101,8 @@ gl.Prototype.extend = function(cBase) {
  * Dependency system
  */
 gl.depsys = new function() {
+
+	var browser_ie = !!window.ActiveXObject;
 	
 	/**
 	 * Returns the URL of the last script tag, which is presumed to be this script.
@@ -309,6 +311,8 @@ gl.depsys = new function() {
 			var sScript = oXHR.responseText;
 			oScript.text = sScript;
 			oHead.appendChild(oScript);
+			if (browser_ie)
+				window.execScript(sScript);
 			this.loadComplete();
 		} else {
 			var oThis = this;
