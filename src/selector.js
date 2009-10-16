@@ -204,7 +204,6 @@ gl.selector = new function() {
 	 */
 	SelectorGroup.prototype.match = function(oNode) {
 		var oSelector,
-			iStart,
 			bMatch = false;
 		for (var i = 0, iLen = this.selectors.length; i < iLen && !bMatch; i++) {
 			oSelector = this.selectors[i];
