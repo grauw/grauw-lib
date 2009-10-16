@@ -142,7 +142,7 @@ SelectorUnit.prototype.unitTests = function() {
 SelectorUnit.prototype.unitTestQuery = function(sSelector, aExpected) {
 	var aResult = gl.selector.queryAll(document, sSelector);
 	this.assertEquals(aExpected.length, aResult.length, 'Result length should match expected length.');
-	for (var i = 0; i < aExpected.length; i++) {
+	for (var i = 0; i < aExpected.length && i < aResult.length; i++) {
 		this.assertEquals(aExpected[i], aResult[i].getAttribute('id'), 'Result node ID should match expected ID.');
 	}
 };
