@@ -103,7 +103,8 @@ gl.Prototype.extend = function(cBase) {
 gl.depsys = new function() {
 
 	var browser_ie = !!window.ActiveXObject;
-	var browser_ie_version = parseFloat(/MSIE (\d+(?:\.\d*)?)/.exec(navigator.appVersion)[1])
+	var browser_ie_version_match = /MSIE (\d+(?:\.\d*)?)/.exec(navigator.appVersion);
+	var browser_ie_version = parseFloat(browser_ie_version_match && browser_ie_version_match[1] || '0');
 	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
 	
 	/**
