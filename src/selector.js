@@ -881,8 +881,8 @@ gl.selector = new function() {
 	this.OnlyChildSelector = extend(OnlyChildSelector, SimpleSelector);
 	
 	OnlyChildSelector.prototype.match = function(oNode) {
-		return FirstChildSelector.prototype.match.call(this, oNode, null) &&
-				LastChildSelector.prototype.match.call(this, oNode, null);
+		return FirstChildSelector.prototype.match.call(this, oNode) &&
+				LastChildSelector.prototype.match.call(this, oNode);
 	};
 
 	/**
@@ -894,8 +894,8 @@ gl.selector = new function() {
 	this.OnlyOfTypeSelector = extend(OnlyOfTypeSelector, SimpleSelector);
 	
 	OnlyOfTypeSelector.prototype.match = function(oNode) {
-		return FirstOfTypeSelector.prototype.match.call(this, oNode, null) &&
-				LastOfTypeSelector.prototype.match.call(this, oNode, null);
+		return FirstOfTypeSelector.prototype.match.call(this, oNode) &&
+				LastOfTypeSelector.prototype.match.call(this, oNode);
 	};
 
 	/**
