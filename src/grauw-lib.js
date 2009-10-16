@@ -114,10 +114,9 @@ gl.depsys = new function() {
 	function getScriptURL() {
 		var aScripts = document.getElementsByTagName('script');
 		var oScript = aScripts[aScripts.length - 1];
-		var sURL = oScript.src || oScript._gl_src;
-		if (browser_ie && browser_ie_version < 8 && gl.uri) // src property is not absolute in IE6 and IE7 :/
-			sURL = gl.uri.URI.resolve(sURL, document.URL);
-		return sURL;
+		// src property is not absolute in IE6 and IE7
+		var sScriptSrc = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
+		return sScriptSrc || oScript._gl_src;
 	}
 	
 	/**
