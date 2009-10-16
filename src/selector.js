@@ -58,7 +58,7 @@ gl.selector = new function() {
 	 */
 	function hasAttribute(oNode, sName) {
 		if (browser_ie) {
-			var oAttr = oNode.attributes[sName];
+			var oAttr = oNode.getAttributeNode(sName);
 			return !!oAttr && oAttr.specified;
 		}
 		return oNode.hasAttribute(sName);
@@ -69,7 +69,7 @@ gl.selector = new function() {
 	 */
 	function getAttribute(oNode, sName) {
 		if (browser_ie) {
-			var oAttr = oNode.attributes[sName];
+			var oAttr = oNode.getAttributeNode(sName);
 			return oAttr ? oAttr.nodeValue : '';
 		}
 		return oNode.getAttribute(sName) || '';
