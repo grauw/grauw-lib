@@ -615,7 +615,7 @@ gl.selector = new function() {
 			return getAttribute(oNode, this.arg1) == this.arg2;
 		};
 		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
-			return this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
+			return !!this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
 		};
 		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
 			var sAttrValue = getAttribute(oNode, this.arg1);
@@ -623,14 +623,14 @@ gl.selector = new function() {
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
 		};
 		m[SimpleSelector.ATTRIBUTE_STARTS] = function(oNode) {
-			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
+			return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
 		};
 		m[SimpleSelector.ATTRIBUTE_ENDS] = function(oNode) {
 			var sAttrValue = getAttribute(oNode, this.arg1);
-			return this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
+			return !!this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
 		};
 		m[SimpleSelector.ATTRIBUTE_CONTAINS] = function(oNode) {
-			return this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
+			return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
 		};
 		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
 			return oNode.ownerDocument.documentElement == oNode;
