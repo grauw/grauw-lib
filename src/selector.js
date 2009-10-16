@@ -915,60 +915,10 @@ gl.selector = new function() {
 					oCombinator.add(new SimpleSelector(SimpleSelector.ID, Parser.decodeIdent(sSelectorPart.substr(1))));
 					break;
 				case '[':
-					var parsedAttr = regexp_attribute.exec(sSelectorPart);
-					if (!parsedAttr[2]) {
-						oCombinator.add(new SimpleSelector(SimpleSelector.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1])));
-					} else {
-						var oSimpleSelector = new SimpleSelector(
-								hAttrTypeMap[parsedAttr[2]],
-								Parser.decodeIdent(parsedAttr[1]),
-								parsedAttr[3].charAt(0) == '"' || parsedAttr[3].charAt(0) == "'" ?
-									Parser.decodeString(parsedAttr[3]) :
-									Parser.decodeIdent(parsedAttr[3])
-							);
-						if (oSimpleSelector.type == SimpleSelector.ATTRIBUTE_LIST) {
-							if (regexp_whiteSpace.test(oSimpleSelector.arg2))
-								oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
-							else
-								oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
-						}
-						oCombinator.add(oSimpleSelector);
-					}
+					oCombinator.add(this.parseAttributeSelector(sSelectorPart));
 					break;
 				case ':':
-					var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
-						sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
-						oSimpleSelector,
-						iType = hPseudoTypeMap[sIdentifier];
-					if (!iType)
-						throw new ParsingException(sSelector);
-					if (sIdentifier == 'lang') {
-						oSimpleSelector = new SimpleSelector(iType, aParsedPseudo[2]);
-					} else if (sIdentifier.indexOf('nth-') == 0) {
-						var nth = aParsedPseudo[2],
-							a, b, n;
-						if (nth == 'odd')
-							a = 2, b = 1;
-						else if (nth == 'even')
-							a = 2, b = 0;
-						else {
-							n = nth.indexOf('n');
-							a = nth.substring(0, n);
-							b = nth.substring(n + 1);
-							a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
-							b = b == '' ? 0 : parseInt(b, 10);
-						}
-						oSimpleSelector = new SimpleSelector(iType, a, b);
-					} else if (sIdentifier == 'not') {
-						var oTempGroup = this.parse(aParsedPseudo[2]);
-						var oTempCombinator = oTempGroup.selectors[0].combinators[0];
-						if (oTempCombinator.simpleSelectors.length != 1)
-							throw new ParsingException(sSelector);
-						oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
-					} else {
-						oSimpleSelector = new SimpleSelector(iType);
-					}
-					oCombinator.add(oSimpleSelector);
+					oCombinator.add(this.parsePseudoSelector(sSelectorPart));
 					break;
 				// combinators
 				case '':
@@ -997,6 +947,72 @@ gl.selector = new function() {
 			throw new ParsingException(sSelector);
 
 		return oSelectorGroup;
+	};
+
+	Parser.prototype.parseAttributeSelector = function(sSelectorPart) {
+		var parsedAttr = regexp_attribute.exec(sSelectorPart);
+		if (!parsedAttr[2]) {
+			return new SimpleSelector(SimpleSelector.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1]));
+		} else {
+			var oSimpleSelector = new SimpleSelector(
+					this.getAttrType(parsedAttr[2]),
+					Parser.decodeIdent(parsedAttr[1]),
+					parsedAttr[3].charAt(0) == '"' || parsedAttr[3].charAt(0) == "'" ?
+						Parser.decodeString(parsedAttr[3]) :
+						Parser.decodeIdent(parsedAttr[3])
+				);
+			if (oSimpleSelector.type == SimpleSelector.ATTRIBUTE_LIST) {
+				if (regexp_whiteSpace.test(oSimpleSelector.arg2))
+					oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
+				else
+					oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
+			}
+			return oSimpleSelector;
+		}
+	};
+	
+	Parser.prototype.getAttrType = function(sIdentifier) {
+		return hAttrTypeMap[sIdentifier];
+	}
+	
+	Parser.prototype.parsePseudoSelector = function(sSelectorPart) {
+		var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
+			sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
+			oSimpleSelector,
+			iType = this.getPseudoType(sIdentifier);
+		if (!iType)
+			throw new ParsingException(sSelector);
+		if (sIdentifier == 'lang') {
+			oSimpleSelector = new SimpleSelector(iType, aParsedPseudo[2]);
+		} else if (sIdentifier.indexOf('nth-') == 0) {
+			var nth = aParsedPseudo[2],
+				a, b, n;
+			if (nth == 'odd')
+				a = 2, b = 1;
+			else if (nth == 'even')
+				a = 2, b = 0;
+			else {
+				n = nth.indexOf('n');
+				a = nth.substring(0, n);
+				b = nth.substring(n + 1);
+				a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
+				b = b == '' ? 0 : parseInt(b, 10);
+			}
+			oSimpleSelector = new SimpleSelector(iType, a, b);
+		} else if (sIdentifier == 'not') {
+			var oTempGroup = this.parse(aParsedPseudo[2]);
+			var oTempCombinator = oTempGroup.selectors[0].combinators[0];
+			if (oTempCombinator.simpleSelectors.length != 1)
+				throw new ParsingException(sSelector);
+			oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
+		} else {
+			oSimpleSelector = new SimpleSelector(iType);
+		}
+		return oSimpleSelector;
+	};
+	
+	Parser.prototype.getPseudoType = function(sIdentifier) {
+		return hPseudoTypeMap[sIdentifier];
 	};
 
 	/**
