@@ -60,6 +60,7 @@ SelectorUnit.prototype.tests = [
 		['ul[class~="test2"]', ['t7']],
 		['ul[class~="test3"]', []],
 		['ul[class~="test1 test2"]', []],
+		['ul[class~=" "]', []],
 		['ul[lang~=""]', []],
 		['ul[lang|=en]', ['t7']],
 		['ul[lang|=en-GB]', ['t7']],
