@@ -266,8 +266,8 @@ gl.selector = new function() {
 			oCombinator;
 		for (var i = 0; i < iLen && bValid; i++) {
 			oCombinator = this.combinators[i];
-			bValid = ((i == 0 && oCombinator.type == Combinator.ROOT) ||
-					 (i > 0 && oCombinator.type != Combinator.ROOT)) &&
+			bValid = ((i == 0 && oCombinator instanceof RootCombinator) ||
+					 (i > 0 && !(oCombinator instanceof RootCombinator))) &&
 					oCombinator.validate();
 		}
 		return bValid;
@@ -300,20 +300,12 @@ gl.selector = new function() {
 	 * Combinator class
 	 * See: http://www.w3.org/TR/css3-selectors/#combinators
 	 */
-	var Combinator = function(iType) {
-		this.type = iType;
+	var Combinator = function() {
 		this.simpleSelectors = [];
 		this.nextCombinator = null;
 		this.previousCombinator = null;
 	};
 	this.Combinator = extend(Combinator, Object);
-
-	// type constants
-	Combinator.DESCENDANT = 1;
-	Combinator.CHILD      = 2;
-	Combinator.ADJACENT   = 3;
-	Combinator.SIBLING    = 4;
-	Combinator.ROOT       = 5;	// not a real combinator, but corresponds to self-or-descendant
 
 	/**
 	 * Add a simpleSelector to the combinator.
@@ -398,9 +390,7 @@ gl.selector = new function() {
 	 * Note: this method is replaced with a matcher function.
 	 */
 	Combinator.prototype.matchNext = function(oNode) {
-		this.matchNext = this.matchCombinator[this.type];
-		return this.matchNext(oNode);
-//		return this.matchCombinator[this.type].call(this, oNode);
+//		throw new Error('Must implement...');
 	};
 
 	/**
@@ -411,115 +401,148 @@ gl.selector = new function() {
 	 * @param singleResult If true, returns immediately when first match is found.
 	 */
 	Combinator.prototype.query = function(oNode, aResult, bSingleResult) {
-		this.query = this.queryCombinator[this.type];
-		return this.query(oNode, aResult, bSingleResult);
-//		return this.queryCombinator[this.type].call(this, oNode, aResult, bSingleResult);
+//		throw new Error('Must implement...');
 	};
-
+	
 	/**
-	 * Array of matching combinators
+	 * Descendant combinator (white space)
 	 */
-	Combinator.prototype.matchCombinator = function() {
-		var mc = [];
-		mc[Combinator.DESCENDANT] = function(oNode) {
-			var bMatch = false;
-			while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
-				bMatch = this.previousCombinator.match(oNode);
-			return bMatch;
-		};
-		mc[Combinator.CHILD] = function(oNode) {
-			return !!(oNode = oNode.parentNode) && oNode.nodeType == 1 && this.previousCombinator.match(oNode);
-		};
-		mc[Combinator.ADJACENT] = function(oNode) {
-			while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
-				;
-			return !!oNode && this.previousCombinator.match(oNode);
-		};
-		mc[Combinator.SIBLING] = function(oNode) {
-			var bMatch = false;
-			while (!bMatch && (oNode = oNode.previousSibling)) {
-				if (oNode.nodeType == 1)
-					bMatch = this.previousCombinator.match(oNode);
+	DescendantCombinator = function() {
+		Combinator.call(this);
+	};
+	this.DescendantCombinator = extend(DescendantCombinator, Combinator);
+	
+	DescendantCombinator.prototype.matchNext = function(oNode) {
+		var bMatch = false;
+		while (!bMatch && (oNode = oNode.parentNode) && oNode.nodeType == 1)
+			bMatch = this.previousCombinator.match(oNode);
+		return bMatch;
+	};
+	
+	DescendantCombinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		var aNodes,
+			oSimpleSelector = this.simpleSelectors[0],
+			iStart = 0;
+		// Note: possible Firefox optimisation: use .getElementsByClassName
+		if (oSimpleSelector.type == SimpleSelector.TYPE) {
+			aNodes = oNode.getElementsByTagName(oSimpleSelector.arg1);
+			iStart++;
+		} else {
+			if (oSimpleSelector.type == SimpleSelector.ID) {
+				var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
+				if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
+					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			}
-			return bMatch;
-		};
-		mc[Combinator.ROOT] = function(oNode) {
-			return true;
-		};
-		return mc;
-	}();
-
+			aNodes = oNode.all || oNode.getElementsByTagName('*');
+		}
+		var bMatch = false;
+		for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
+			bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
+		}
+		return bMatch;
+	};
+	
 	/**
-	 * Array of querying combinators
+	 * Child combinator (>)
 	 */
-	Combinator.prototype.queryCombinator = function() {
-		var qc = [];
-		qc[Combinator.DESCENDANT] = function(oNode, aResult, bSingleResult) {
-			var aNodes,
-				oSimpleSelector = this.simpleSelectors[0],
-				iStart = 0;
-			// Note: possible Firefox optimisation: use .getElementsByClassName
-			if (oSimpleSelector.type == SimpleSelector.TYPE) {
-				aNodes = oNode.getElementsByTagName(oSimpleSelector.arg1);
-				iStart++;
-			} else {
-				if (oSimpleSelector.type == SimpleSelector.ID) {
-					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
-					if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
-						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
-				}
-				aNodes = oNode.all || oNode.getElementsByTagName('*');
+	ChildCombinator = function() {
+		Combinator.call(this);
+	};
+	this.ChildCombinator = extend(ChildCombinator, Combinator);
+
+	ChildCombinator.prototype.matchNext = function(oNode) {
+		return !!(oNode = oNode.parentNode) && oNode.nodeType == 1 && this.previousCombinator.match(oNode);
+	};
+	
+	ChildCombinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		var aNodes,
+			oSimpleSelector = this.simpleSelectors[0],
+			iStart = 0;
+		if (oNode.children && oNode.children.tags && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
+			aNodes = oNode.children.tags(oSimpleSelector.arg1);
+			iStart++;
+		} else {
+			if (oSimpleSelector.type == SimpleSelector.ID) {
+				var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
+				if (oNode2.parentNode == oNode)
+					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			}
-			var bMatch = false;
-			for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
+			aNodes = oNode.childNodes;
+		}
+		var bMatch = false;
+		for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
+			if (aNodes[i].nodeType == 1)
 				bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
+		}
+		return bMatch;
+	};
+	
+	/**
+	 * Sibling combinator (+)
+	 */
+	AdjacentCombinator = function() {
+		Combinator.call(this);
+	};
+	this.AdjacentCombinator = extend(AdjacentCombinator, Combinator);
+
+	AdjacentCombinator.prototype.matchNext = function(oNode) {
+		while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
+			;
+		return !!oNode && this.previousCombinator.match(oNode);
+	};
+	
+	AdjacentCombinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		while (oNode = oNode.nextSibling) {
+			if (oNode.nodeType == 1) {
+				return this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
 			}
-			return bMatch;
-		};
-		qc[Combinator.CHILD] = function(oNode, aResult, bSingleResult) {
-			var aNodes,
-				oSimpleSelector = this.simpleSelectors[0],
-				iStart = 0;
-			if (oNode.children && oNode.children.tags && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
-				aNodes = oNode.children.tags(oSimpleSelector.arg1);
-				iStart++;
-			} else {
-				if (oSimpleSelector.type == SimpleSelector.ID) {
-					var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
-					if (oNode2.parentNode == oNode)
-						return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
-				}
-				aNodes = oNode.childNodes;
-			}
-			var bMatch = false;
-			for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
-				if (aNodes[i].nodeType == 1)
-					bMatch = this.querySimpleSelectors(aNodes[i], aResult, bSingleResult, iStart) || bMatch;
-			}
-			return bMatch;
-		};
-		qc[Combinator.ADJACENT] = function(oNode, aResult, bSingleResult) {
-			while (oNode = oNode.nextSibling) {
-				if (oNode.nodeType == 1) {
-					return this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
-				}
-			}
-			return false;
-		};
-		qc[Combinator.SIBLING] = function(oNode, aResult, bSingleResult) {
-			var bMatch = false;
-			while ((oNode = oNode.nextSibling) && !(bSingleResult && bMatch)) {
-				if (oNode.nodeType == 1)
-					bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0) || bMatch;
-			}
-			return bMatch;
-		};
-		qc[Combinator.ROOT] = function(oNode, aResult, bSingleResult) {
-			var bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
-			return qc[Combinator.DESCENDANT].call(this, oNode, aResult, bSingleResult) || bMatch;
-		};
-		return qc;
-	}();
+		}
+		return false;
+	};
+	
+	/**
+	 * Sibling combinator (~)
+	 */
+	SiblingCombinator = function() {
+		Combinator.call(this);
+	};
+	this.SiblingCombinator = extend(SiblingCombinator, Combinator);
+
+	SiblingCombinator.prototype.matchNext = function(oNode) {
+		var bMatch = false;
+		while (!bMatch && (oNode = oNode.previousSibling)) {
+			if (oNode.nodeType == 1)
+				bMatch = this.previousCombinator.match(oNode);
+		}
+		return bMatch;
+	};
+	
+	SiblingCombinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		var bMatch = false;
+		while ((oNode = oNode.nextSibling) && !(bSingleResult && bMatch)) {
+			if (oNode.nodeType == 1)
+				bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0) || bMatch;
+		}
+		return bMatch;
+	};
+	
+	/**
+	 * Root combinator
+	 * This combinator does not actually exist, it just contains the first set of simple selectors.
+	 */
+	RootCombinator = function() {
+		Combinator.call(this);
+	};
+	this.RootCombinator = extend(RootCombinator, Combinator);
+
+	RootCombinator.prototype.matchNext = function(oNode) {
+		return true;
+	};
+	
+	RootCombinator.prototype.query = function(oNode, aResult, bSingleResult) {
+		var bMatch = this.querySimpleSelectors(oNode, aResult, bSingleResult, 0);
+		return DescendantCombinator.prototype.query.call(this, oNode, aResult, bSingleResult) || bMatch;
+	};
 
 
 
@@ -886,7 +909,7 @@ gl.selector = new function() {
 		// instantiate initial object model
 		var oSelectorGroup = new SelectorGroup(),
 			oSelector = new Selector(),
-			oCombinator = new Combinator(Combinator.ROOT);
+			oCombinator = new RootCombinator();
 		oSelectorGroup.add(oSelector);
 		oSelector.add(oCombinator);
 
@@ -898,7 +921,7 @@ gl.selector = new function() {
 				// selector group
 				case ',':
 					oSelector = new Selector();
-					oCombinator = new Combinator(Combinator.ROOT);
+					oCombinator = new RootCombinator();
 					oSelectorGroup.add(oSelector);
 					oSelector.add(oCombinator);
 					break;
@@ -922,19 +945,19 @@ gl.selector = new function() {
 					break;
 				// combinators
 				case '':
-					oCombinator = new Combinator(Combinator.DESCENDANT);
+					oCombinator = new DescendantCombinator();
 					oSelector.add(oCombinator);
 					break;
 				case '>':
-					oCombinator = new Combinator(Combinator.CHILD);
+					oCombinator = new ChildCombinator();
 					oSelector.add(oCombinator);
 					break;
 				case '+':
-					oCombinator = new Combinator(Combinator.ADJACENT);
+					oCombinator = new AdjacentCombinator();
 					oSelector.add(oCombinator);
 					break;
 				case '~':
-					oCombinator = new Combinator(Combinator.SIBLING);
+					oCombinator = new SiblingCombinator();
 					oSelector.add(oCombinator);
 					break;
 				// element selector (no single prefix)
