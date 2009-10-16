@@ -388,8 +388,6 @@ gl.selector = new function() {
 		var bMatch = this.matchSimpleSelectors(oNode);
 		if (!bMatch)
 			return false;
-		if (this.type == Combinator.ROOT)
-			return true;
 
 		return this.matchNext(oNode);
 	};
@@ -445,7 +443,9 @@ gl.selector = new function() {
 			}
 			return bMatch;
 		};
-		mc[Combinator.ROOT] = null;
+		mc[Combinator.ROOT] = function(oNode) {
+			return true;
+		};
 		return mc;
 	}();
 
