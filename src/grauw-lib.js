@@ -103,6 +103,8 @@ gl.Prototype.extend = function(cBase) {
 gl.depsys = new function() {
 
 	var browser_ie = !!window.ActiveXObject;
+	var browser_ie_version = parseFloat(/MSIE (\d+(?:\.\d*)?)/.exec(navigator.appVersion)[1])
+	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
 	
 	/**
 	 * Returns the URL of the last script tag, which is presumed to be this script.
@@ -112,7 +114,10 @@ gl.depsys = new function() {
 	function getScriptURL() {
 		var aScripts = document.getElementsByTagName('script');
 		var oScript = aScripts[aScripts.length - 1];
-		return oScript.src || oScript._gl_src;
+		var sURL = oScript.src || oScript._gl_src;
+		if (browser_ie && browser_ie_version < 8 && gl.uri) // src property is not absolute in IE6 and IE7 :/
+			sURL = gl.uri.URI.resolve(sURL, document.URL);
+		return sURL;
 	}
 	
 	/**
