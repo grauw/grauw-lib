@@ -54,7 +54,9 @@ gl.selector = new function() {
 	}
 
 	/**
-	 * Helper function for cross-browser hasAttribute
+	 * Helper function for cross-browser hasAttribute that ignores default values
+	 * Note: IE’s hasAttribute has issues with ‘class’ vs. ‘className’, ‘for’ vs. ‘htmlFor’, and ‘enctype’ vs. ‘encType’.
+	 * Note: other browsers ignore attribute default values, even though spec says they shouldn’t
 	 */
 	function hasAttribute(oNode, sName) {
 		if (browser_ie) {
@@ -65,12 +67,14 @@ gl.selector = new function() {
 	}
 
 	/**
-	 * Helper function for cross-browser getAttribute
+	 * Helper function for cross-browser getAttribute that ignores default values
+	 * Note: IE’s getAttribute has issues with ‘class’ vs. ‘className’, ‘for’ vs. ‘htmlFor’, and ‘enctype’ vs. ‘encType’.
+	 * Note: other browsers ignore attribute default values, even though spec says they shouldn’t
 	 */
 	function getAttribute(oNode, sName) {
 		if (browser_ie) {
 			var oAttr = oNode.getAttributeNode(sName);
-			return oAttr ? oAttr.nodeValue : '';
+			return oAttr && oAttr.specified ? oAttr.nodeValue : '';
 		}
 		return oNode.getAttribute(sName) || '';
 	}
