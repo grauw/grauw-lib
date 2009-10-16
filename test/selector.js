@@ -37,7 +37,7 @@ SelectorUnit.prototype.tests = [
 		['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],
 		['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],
 		['body > li', []],
-		['span:empty', ['t10', 't13', 't14']],
+		['span:empty', ['t10', 't13']],
 		['ul[lang=en-GB]', ['t7']],
 		['form[class]', ['t20']],
 		['input[class]', []],
@@ -78,7 +78,7 @@ SelectorUnit.prototype.tests = [
 		['ul:not(li)', ['t7', 't8']],
 		['ul:not(ul)', []],
 		['ul:not(.test1)', ['t8']],
-		['span:not(:empty)', ['t11', 't12']],
+		['span:not(:empty)', ['t11', 't12', 't14']],
 		['ul:not(:lang(en))', ['t8']],
 		['ul.test1 *:not(#t2):not([id=t4])', ['t1', 't3', 't5']]
 	];
