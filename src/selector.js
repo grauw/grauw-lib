@@ -783,65 +783,62 @@ gl.selector = new function() {
 	 * Parser regexp macros and patterns for the tokenizer
 	 * See: http://www.w3.org/TR/CSS21/syndata.html#tokenization
 	 */
-	var oPatterns = {};
 	// Macros
-	oPatterns.w        = '[ \t\r\n\f]*';
-	oPatterns.S        = '[ \t\r\n\f]+';
-	oPatterns.escape_  = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|[ \\n\\r\\t\\f])?|\\\\[^\\n\\r\\f0-9a-fA-F]';
-	oPatterns.nlescape = '\\\\(?:\\r\\n|[\\n\\r\\f])';
-	oPatterns.ident    = '(?:[-]?(?:[_a-zA-Z]|[^\\0-\\177]|' + oPatterns.escape_ + ')(?:[_a-zA-Z0-9-]|[^\\0-\\177]|' + oPatterns.escape_ + ')*)';
-//	oPatterns.ns_ident = '(?:(?:' + oPatterns.ident + '|\\*)?\\|)?' + oPatterns.ident;
-	oPatterns.string1  = '\\"(?:[^\\n\\r\\f\\\\"]|' + oPatterns.nlescape + '|' + oPatterns.escape_ + ')*\\"';
-	oPatterns.string2  = "\\'(?:[^\\n\\r\\f\\\\']|" + oPatterns.nlescape + "|" + oPatterns.escape_ + ")*\\'";
-	oPatterns.string   = '(?:' + oPatterns.string1 + '|' + oPatterns.string2 + ')';
-//	oPatterns.nth      = '(?:-?[0-9]*n)?(?:[+\\-][0-9]+)?|odd|even';
-	// Simple selectors
-	oPatterns.class_     = '\\.' + oPatterns.ident;
-	oPatterns.id         = '#' + oPatterns.ident;
-	oPatterns.attribute  = '\\[(' + oPatterns.ident + ')(?:([~|\\^\\$*]?=)(' + oPatterns.ident + '|' + oPatterns.string + '))?\\]';
-	oPatterns.pseudo     = ':' + oPatterns.ident + '(?:\\([^)]+\\))?';
-	oPatterns.universal  = '\\*';				// '(?:' + oPatterns.ident + '\\|)\\*'
-	oPatterns.element    = oPatterns.ident;		// oPatterns.ns_ident
-	// Combinators
-	// Note: combinators must be placed inbetween two \s* patterns
-	oPatterns.child      = oPatterns.w + '>' + oPatterns.w;
-	oPatterns.adjacent   = oPatterns.w + '\\+' + oPatterns.w;
-	oPatterns.sibling    = oPatterns.w + '~' + oPatterns.w;
-	oPatterns.comma      = oPatterns.w + ',' + oPatterns.w;
-	oPatterns.descendant = oPatterns.S;
-	oPatterns.negation   = ':not\\((?:' + [oPatterns.class_, oPatterns.id, oPatterns.attribute, 
-	                                       oPatterns.pseudo, oPatterns.universal,
-	                                       oPatterns.element].join('|') + ')\\)';
-	Parser.pattern = oPatterns;
+	var pattern_w          = '[ \t\r\n\f]*',
+		pattern_S          = '[ \t\r\n\f]+',
+		pattern_escape     = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|[ \\n\\r\\t\\f])?|\\\\[^\\n\\r\\f0-9a-fA-F]',
+		pattern_nlescape   = '\\\\(?:\\r\\n|[\\n\\r\\f])',
+		pattern_ident      = '(?:[-]?(?:[_a-zA-Z]|[^\\0-\\177]|' + pattern_escape + ')(?:[_a-zA-Z0-9-]|[^\\0-\\177]|' + pattern_escape + ')*)',
+//		pattern_ns_ident   = '(?:(?:' + pattern_ident + '|\\*)?\\|)?' + pattern_ident,
+		pattern_string1    = '\\"(?:[^\\n\\r\\f\\\\"]|' + pattern_nlescape + '|' + pattern_escape + ')*\\"',
+		pattern_string2    = "\\'(?:[^\\n\\r\\f\\\\']|" + pattern_nlescape + "|" + pattern_escape + ")*\\'",
+		pattern_string     = '(?:' + pattern_string1 + '|' + pattern_string2 + ')',
+//		pattern_nth        = '(?:-?[0-9]*n)?(?:[+\\-][0-9]+)?|odd|even',
+		// Simple selectors
+		pattern_class      = '\\.' + pattern_ident,
+		pattern_id         = '#' + pattern_ident,
+		pattern_attribute  = '\\[(' + pattern_ident + ')(?:([~|\\^\\$*]?=)(' + pattern_ident + '|' + pattern_string + '))?\\]',
+		pattern_pseudo     = ':' + pattern_ident + '(?:\\([^)]+\\))?',
+		pattern_universal  = '\\*',				// '(?:' + pattern_ident + '\\|)\\*'
+		pattern_element    = pattern_ident,		// pattern_ns_ident
+		// Combinators
+		// Note: combinators must be placed inbetween two \s* patterns
+		pattern_child      = pattern_w + '>' + pattern_w,
+		pattern_adjacent   = pattern_w + '\\+' + pattern_w,
+		pattern_sibling    = pattern_w + '~' + pattern_w,
+		pattern_comma      = pattern_w + ',' + pattern_w,
+		pattern_descendant = pattern_S,
+		pattern_negation   = ':not\\((?:' + [pattern_class, pattern_id, pattern_attribute, 
+		                                       pattern_pseudo, pattern_universal,
+		                                       pattern_element].join('|') + ')\\)';
 
 
 	/**
 	 * Regular expression objects for patterns
 	 */
-	Parser.regexp = {};
-	Parser.regexp.selector = new RegExp([
-				oPatterns.class_,		// first all selectors
-				oPatterns.id,
-				oPatterns.attribute,
-				oPatterns.negation,
-				oPatterns.pseudo,
-				oPatterns.universal,
-				oPatterns.element,
-				oPatterns.child,		// then the combinators
-				oPatterns.adjacent,
-				oPatterns.sibling,
-				oPatterns.comma,
-				oPatterns.descendant	// descendant combinator must be last
+	var regexp_selector = new RegExp([
+				pattern_class,		// first all selectors
+				pattern_id,
+				pattern_attribute,
+				pattern_negation,
+				pattern_pseudo,
+				pattern_universal,
+				pattern_element,
+				pattern_child,		// then the combinators
+				pattern_adjacent,
+				pattern_sibling,
+				pattern_comma,
+				pattern_descendant	// descendant combinator must be last
 			].join('|'), 'g');
-	Parser.regexp.attribute    = new RegExp(oPatterns.attribute);
-	Parser.regexp.nlescape     = new RegExp(oPatterns.nlescape, 'g');
-	Parser.regexp.pseudo       = new RegExp(':([^(]+)(?:\\((.+)\\))?');
-	Parser.regexp.trim         = /^\s+|\s+$/gm;
-	Parser.regexp.escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
-	Parser.regexp.escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
-	Parser.regexp.whiteSpace   = /\s/;
+		regexp_attribute    = new RegExp(pattern_attribute);
+		regexp_nlescape     = new RegExp(pattern_nlescape, 'g');
+		regexp_pseudo       = new RegExp(':([^(]+)(?:\\((.+)\\))?');
+		regexp_trim         = /^\s+|\s+$/gm;
+		regexp_escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
+		regexp_escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
+		regexp_whiteSpace   = /\s/;
 
-	Parser.attrTypeMap = {
+	var hAttrTypeMap = {
 			'=' : SimpleSelector.ATTRIBUTE_EQUALS,
 			'~=': SimpleSelector.ATTRIBUTE_LIST,
 			'|=': SimpleSelector.ATTRIBUTE_LANG,
@@ -850,7 +847,7 @@ gl.selector = new function() {
 			'*=': SimpleSelector.ATTRIBUTE_CONTAINS
 		};
 
-	Parser.pseudoTypeMap = {
+	var hPseudoTypeMap = {
 			'root'            : SimpleSelector.PSEUDO_ROOT,
 			'nth-child'       : SimpleSelector.PSEUDO_NTH_CHILD,
 			'nth-last-child'  : SimpleSelector.PSEUDO_NTH_LAST_CHILD,
@@ -881,7 +878,7 @@ gl.selector = new function() {
 	 */
 	Parser.prototype.parse = function(sSelector) {
 		// segment selector
-		var aSelectorParts = sSelector.match(Parser.regexp.selector);
+		var aSelectorParts = sSelector.match(regexp_selector);
 		// check whether selector was parsed completely...
 		if (sSelector != aSelectorParts.join(''))
 			throw new ParsingException(sSelector);
@@ -896,7 +893,7 @@ gl.selector = new function() {
 		// post-process segments
 		for (var i = 0, iLen = aSelectorParts.length; i < iLen; i++) {
 			// trim combinators with excessive space, note that descendant combinator becomes ''
-			var sSelectorPart = aSelectorParts[i].replace(Parser.regexp.trim, '');
+			var sSelectorPart = aSelectorParts[i].replace(regexp_trim, '');
 			switch (sSelectorPart.charAt(0)) {
 				// selector group
 				case ',':
@@ -918,19 +915,19 @@ gl.selector = new function() {
 					oCombinator.add(new SimpleSelector(SimpleSelector.ID, Parser.decodeIdent(sSelectorPart.substr(1))));
 					break;
 				case '[':
-					var parsedAttr = Parser.regexp.attribute.exec(sSelectorPart);
+					var parsedAttr = regexp_attribute.exec(sSelectorPart);
 					if (!parsedAttr[2]) {
 						oCombinator.add(new SimpleSelector(SimpleSelector.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1])));
 					} else {
 						var oSimpleSelector = new SimpleSelector(
-								Parser.attrTypeMap[parsedAttr[2]],
+								hAttrTypeMap[parsedAttr[2]],
 								Parser.decodeIdent(parsedAttr[1]),
 								parsedAttr[3].charAt(0) == '"' || parsedAttr[3].charAt(0) == "'" ?
 									Parser.decodeString(parsedAttr[3]) :
 									Parser.decodeIdent(parsedAttr[3])
 							);
 						if (oSimpleSelector.type == SimpleSelector.ATTRIBUTE_LIST) {
-							if (Parser.regexp.whiteSpace.test(oSimpleSelector.arg2))
+							if (regexp_whiteSpace.test(oSimpleSelector.arg2))
 								oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
 							else
 								oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
@@ -939,10 +936,10 @@ gl.selector = new function() {
 					}
 					break;
 				case ':':
-					var aParsedPseudo = Parser.regexp.pseudo.exec(sSelectorPart),
+					var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
 						sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
 						oSimpleSelector,
-						iType = Parser.pseudoTypeMap[sIdentifier];
+						iType = hPseudoTypeMap[sIdentifier];
 					if (!iType)
 						throw new ParsingException(sSelector);
 					if (sIdentifier == 'lang') {
@@ -1008,7 +1005,7 @@ gl.selector = new function() {
 	 * @return Decoded string
 	 */
 	Parser.decodeIdent = function(sIdentifier) {
-		sIdentifier = sIdentifier.replace(Parser.regexp.escapeCSS,
+		sIdentifier = sIdentifier.replace(regexp_escapeCSS,
 				function(sEsc, sCharacter, sUnicode) {
 					if (sCharacter)
 						return sCharacter;
@@ -1035,7 +1032,7 @@ gl.selector = new function() {
 			throw new ParsingException(sString);
 		*/
 		sString = sString.substring(1, sString.length - 1);
-		sString = sString.replace(Parser.regexp.nlescape, '');
+		sString = sString.replace(regexp_nlescape, '');
 		return Parser.decodeIdent(sString);
 	};
 
@@ -1045,7 +1042,7 @@ gl.selector = new function() {
 	 * @return The escaped string.
 	 */
 	Parser.escapeRegexp = function(sString) {
-		return sString.replace(Parser.regexp.escapeRegexp, '\\$1');
+		return sString.replace(regexp_escapeRegexp, '\\$1');
 	};
 
 
