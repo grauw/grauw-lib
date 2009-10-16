@@ -298,6 +298,7 @@ gl.selector = new function() {
 
 	/**
 	 * Combinator class
+	 * Abstract base class for combinator implementations
 	 * See: http://www.w3.org/TR/css3-selectors/#combinators
 	 */
 	var Combinator = function() {
@@ -327,8 +328,8 @@ gl.selector = new function() {
 			oSimpleSelector;
 		for (var i = 0; i < iLen && bValid; i++) {
 			oSimpleSelector = this.simpleSelectors[i];
-			bValid = (i == 0 || oSimpleSelector.type != SimpleSelector.UNIVERSAL) &&
-					(i == 0 || oSimpleSelector.type != SimpleSelector.TYPE) &&
+			bValid = (i == 0 || !(oSimpleSelector instanceof UniversalSelector)) &&
+					(i == 0 || !(oSimpleSelector instanceof TypeSelector)) &&
 					oSimpleSelector.validate();
 		}
 		return bValid;
@@ -424,11 +425,11 @@ gl.selector = new function() {
 			oSimpleSelector = this.simpleSelectors[0],
 			iStart = 0;
 		// Note: possible Firefox optimisation: use .getElementsByClassName
-		if (oSimpleSelector.type == SimpleSelector.TYPE) {
+		if (oSimpleSelector instanceof TypeSelector) {
 			aNodes = oNode.getElementsByTagName(oSimpleSelector.arg1);
 			iStart++;
 		} else {
-			if (oSimpleSelector.type == SimpleSelector.ID) {
+			if (oSimpleSelector instanceof IdSelector) {
 				var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 				if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
 					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
@@ -458,11 +459,11 @@ gl.selector = new function() {
 		var aNodes,
 			oSimpleSelector = this.simpleSelectors[0],
 			iStart = 0;
-		if (oNode.children && oNode.children.tags && !browser_webkit && oSimpleSelector.type == SimpleSelector.TYPE) {
+		if (oNode.children && oNode.children.tags && !browser_webkit && oSimpleSelector instanceof TypeSelector) {
 			aNodes = oNode.children.tags(oSimpleSelector.arg1);
 			iStart++;
 		} else {
-			if (oSimpleSelector.type == SimpleSelector.ID) {
+			if (oSimpleSelector instanceof IdSelector) {
 				var oNode2 = oNode.ownerDocument.getElementById(oSimpleSelector.arg1);
 				if (oNode2.parentNode == oNode)
 					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
@@ -550,47 +551,14 @@ gl.selector = new function() {
 
 	/**
 	 * Simple selector class
+	 * Abstract base class for selector implementations
 	 * See: http://www.w3.org/TR/css3-selectors/#simple-selectors
 	 */
-	var SimpleSelector = function(iType, sArg1, sArg2) {
-		this.type = iType;
+	var SimpleSelector = function(sArg1, sArg2) {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
 	this.SimpleSelector = extend(SimpleSelector, Object);
-
-	// type constants
-	SimpleSelector.UNIVERSAL               = 1;
-	SimpleSelector.TYPE                    = 2;
-	SimpleSelector.ATTRIBUTE_EXIST         = 3;
-	SimpleSelector.ATTRIBUTE_EQUALS        = 4;
-	SimpleSelector.ATTRIBUTE_LIST          = 5;
-	SimpleSelector.ATTRIBUTE_LANG          = 6;
-	SimpleSelector.ATTRIBUTE_STARTS        = 7;
-	SimpleSelector.ATTRIBUTE_ENDS          = 8;
-	SimpleSelector.ATTRIBUTE_CONTAINS      = 9;
-	SimpleSelector.CLASS                   = 10;
-	SimpleSelector.ID                      = 11;
-	SimpleSelector.PSEUDO_ROOT             = 12;
-	SimpleSelector.PSEUDO_NTH_CHILD        = 13;
-	SimpleSelector.PSEUDO_NTH_LAST_CHILD   = 14;
-	SimpleSelector.PSEUDO_NTH_OF_TYPE      = 15;
-	SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE = 16;
-	SimpleSelector.PSEUDO_FIRST_CHILD      = 17;
-	SimpleSelector.PSEUDO_LAST_CHILD       = 18;
-	SimpleSelector.PSEUDO_FIRST_OF_TYPE    = 19;
-	SimpleSelector.PSEUDO_LAST_OF_TYPE     = 20;
-	SimpleSelector.PSEUDO_ONLY_CHILD       = 21;
-	SimpleSelector.PSEUDO_ONLY_OF_TYPE     = 22;
-	SimpleSelector.PSEUDO_EMPTY            = 23;
-	SimpleSelector.PSEUDO_LANG             = 24;
-	SimpleSelector.PSEUDO_ENABLED          = 25;
-	SimpleSelector.PSEUDO_DISABLED         = 26;
-	SimpleSelector.PSEUDO_CHECKED          = 27;
-	SimpleSelector.PSEUDO_READ_ONLY        = 28;
-	SimpleSelector.PSEUDO_READ_WRITE       = 29;
-	SimpleSelector.PSEUDO_TARGET           = 30;
-	SimpleSelector.PSEUDO_NOT              = 31;
 
 	/**
 	 * Check whether the simpleSelector is in a valid final state.
@@ -607,187 +575,453 @@ gl.selector = new function() {
 	 * @return true if the selector matches.
 	 */
 	SimpleSelector.prototype.match = function(oNode) {
-		this.match = this.matcher[this.type];
-		return this.match(oNode);
-//		return this.matcher[this.type].call(this, oNode);
+//		throw new Error('Must implement...');
 	};
 
 	/**
-	 * Array of simple selector matching functions
+	 * Universal selector (*)
 	 */
-	SimpleSelector.prototype.matcher = function() {
-		var m = [];
-		m[SimpleSelector.UNIVERSAL] = function(oNode) {
+	var UniversalSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.UniversalSelector = extend(UniversalSelector, SimpleSelector);
+	
+	UniversalSelector.prototype.match = function(oNode) {
+		return true;
+	};
+
+	/**
+	 * Type selector (elementName)
+	 */
+	var TypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.TypeSelector = extend(TypeSelector, SimpleSelector);
+	
+	TypeSelector.prototype.match = function(oNode) {
+		var bXHTML = oNode.namespaceURI && oNode.namespaceURI != 'http://www.w3.org/1999/xhtml';
+		var sNodeName =  bXHTML ? oNode.nodeName : oNode.nodeName.toLowerCase();
+		var sSelectorName = bXHTML ? this.arg1 : this.arg1.toLowerCase();
+		return sNodeName == sSelectorName;
+	};
+
+	/**
+	 * Class selector (.className)
+	 */
+	var ClassSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+		
+		this.classRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(sArg1) + '($|\\s)');
+	};
+	this.ClassSelector = extend(ClassSelector, SimpleSelector);
+	
+	ClassSelector.prototype.match = function(oNode) {
+		return this.classRegexp.test(oNode.className);
+	};
+
+	/**
+	 * ID selector (#id)
+	 */
+	var IdSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.IdSelector = extend(IdSelector, SimpleSelector);
+	
+	IdSelector.prototype.match = function(oNode) {
+		return oNode.getAttribute('id') == this.arg1;
+	};
+
+	/**
+	 * Attribute exist selector ([name])
+	 */
+	var AttributeExistSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeExistSelector = extend(AttributeExistSelector, SimpleSelector);
+	
+	AttributeExistSelector.prototype.match = function(oNode) {
+		return hasAttribute(oNode, this.arg1);
+	};
+
+	/**
+	 * Attribute equals selector ([name=value])
+	 */
+	var AttributeEqualsSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeEqualsSelector = extend(AttributeEqualsSelector, SimpleSelector);
+	
+	AttributeEqualsSelector.prototype.match = function(oNode) {
+		if (!hasAttribute(oNode, this.arg1))
+			return false;
+		return getAttribute(oNode, this.arg1) == this.arg2;
+	};
+
+	/**
+	 * Attribute list selector ([name~=value])
+	 */
+	var AttributeListSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+		
+		this.attrListRegexp = regexp_whiteSpace.test(sArg2) ?
+				/$x^/ : // regexp that doesn’t match anything
+				new RegExp('(^|\\s)' + Parser.escapeRegexp(sArg2) + '($|\\s)');
+	};
+	this.AttributeListSelector = extend(AttributeListSelector, SimpleSelector);
+	
+	AttributeListSelector.prototype.match = function(oNode) {
+		return !!this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
+	};
+
+	/**
+	 * Attribute language selector ([name!=en-US])
+	 */
+	var AttributeLangSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeLangSelector = extend(AttributeLangSelector, SimpleSelector);
+	
+	AttributeLangSelector.prototype.match = function(oNode) {
+		if (!hasAttribute(oNode, this.arg1))
+			return false;
+		var sAttrValue = getAttribute(oNode, this.arg1);
+		return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
+				(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
+	};
+
+	/**
+	 * Attribute start selector ([name^=val])
+	 */
+	var AttributeStartsSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeStartsSelector = extend(AttributeStartsSelector, SimpleSelector);
+	
+	AttributeStartsSelector.prototype.match = function(oNode) {
+		return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
+	};
+
+	/**
+	 * Attribute end selector ([name$=lue])
+	 */
+	var AttributeEndsSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeEndsSelector = extend(AttributeEndsSelector, SimpleSelector);
+	
+	AttributeEndsSelector.prototype.match = function(oNode) {
+		var sAttrValue = getAttribute(oNode, this.arg1);
+		return !!this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
+	};
+
+	/**
+	 * Attribute contains selector ([name*=alu])
+	 */
+	var AttributeContainsSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.AttributeContainsSelector = extend(AttributeContainsSelector, SimpleSelector);
+	
+	AttributeContainsSelector.prototype.match = function(oNode) {
+		return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
+	};
+
+	/**
+	 * Root pseudo-class selector (:root)
+	 */
+	var RootSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.RootSelector = extend(RootSelector, SimpleSelector);
+	
+	RootSelector.prototype.match = function(oNode) {
+		return oNode.ownerDocument.documentElement == oNode;
+	};
+
+	/**
+	 * Nth-child pseudo-class selector (:nth-child(3n+1))
+	 */
+	var NthChildSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.NthChildSelector = extend(NthChildSelector, SimpleSelector);
+	
+	NthChildSelector.prototype.match = function(oNode) {
+		var iCount = 1, a = this.arg1, b = this.arg2;
+		if (a == 1 && b == 0)
 			return true;
-		};
-		m[SimpleSelector.TYPE] = function(oNode) {
-			var bXHTML = oNode.namespaceURI && oNode.namespaceURI != 'http://www.w3.org/1999/xhtml';
-			var sNodeName =  bXHTML ? oNode.nodeName : oNode.nodeName.toLowerCase();
-			var sSelectorName = bXHTML ? this.arg1 : this.arg1.toLowerCase();
-			return sNodeName == sSelectorName;
-		};
-		m[SimpleSelector.CLASS] = function(oNode) {
-			return this.classRegexp.test(oNode.className);
-		};
-		m[SimpleSelector.ID] = function(oNode) {
-			return oNode.getAttribute('id') == this.arg1;
-		};
-		m[SimpleSelector.ATTRIBUTE_EXIST] = function(oNode) {
-			return hasAttribute(oNode, this.arg1);
-		};
-		m[SimpleSelector.ATTRIBUTE_EQUALS] = function(oNode) {
-			if (!hasAttribute(oNode, this.arg1))
-				return false;
-			return getAttribute(oNode, this.arg1) == this.arg2;
-		};
-		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
-			return !!this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
-		};
-		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
-			if (!hasAttribute(oNode, this.arg1))
-				return false;
-			var sAttrValue = getAttribute(oNode, this.arg1);
-			return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
-					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
-		};
-		m[SimpleSelector.ATTRIBUTE_STARTS] = function(oNode) {
-			return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
-		};
-		m[SimpleSelector.ATTRIBUTE_ENDS] = function(oNode) {
-			var sAttrValue = getAttribute(oNode, this.arg1);
-			return !!this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
-		};
-		m[SimpleSelector.ATTRIBUTE_CONTAINS] = function(oNode) {
-			return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
-		};
-		m[SimpleSelector.PSEUDO_ROOT] = function(oNode) {
-			return oNode.ownerDocument.documentElement == oNode;
-		};
-		m[SimpleSelector.PSEUDO_NTH_CHILD] = function(oNode) {
-			var iCount = 1, a = this.arg1, b = this.arg2;
-			if (a == 1 && b == 0)
-				return true;
-			while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
-				if (oNode.nodeType == 1)
-					iCount++;
-			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		};
-		m[SimpleSelector.PSEUDO_NTH_LAST_CHILD] = function(oNode) {
-			var iCount = 1, a = this.arg1, b = this.arg2;
-			if (a == 1 && b == 0)
-				return true;
-			while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
-				if (oNode.nodeType == 1)
-					iCount++;
-			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		};
-		m[SimpleSelector.PSEUDO_NTH_OF_TYPE] = function(oNode) {
-			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
-			if (a == 1 && b == 0)
-				return true;
-			while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
-				if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
-					iCount++;
-			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		};
-		m[SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE] = function(oNode) {
-			var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
-			if (a == 1 && b == 0)
-				return true;
-			while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
-				if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
-					iCount++;
-			return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
-		};
-		m[SimpleSelector.PSEUDO_FIRST_CHILD] = function(oNode) {
-			do
-				oNode = oNode.previousSibling;
-			while (oNode && oNode.nodeType != 1);
-			return !oNode;
-		};
-		m[SimpleSelector.PSEUDO_LAST_CHILD] = function(oNode) {
-			do
-				oNode = oNode.nextSibling;
-			while (oNode && oNode.nodeType != 1);
-			return !oNode;
-		};
-		m[SimpleSelector.PSEUDO_FIRST_OF_TYPE] = function(oNode) {
-			var sNodeName = oNode.nodeName;
-			do
-				oNode = oNode.previousSibling;
-			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
-			return !oNode;
-		};
-		m[SimpleSelector.PSEUDO_LAST_OF_TYPE] = function(oNode) {
-			var sNodeName = oNode.nodeName;
-			do
-				oNode = oNode.nextSibling;
-			while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
-			return !oNode;
-		};
-		m[SimpleSelector.PSEUDO_ONLY_CHILD] = function(oNode) {
-			return m[SimpleSelector.PSEUDO_FIRST_CHILD].call(this, oNode, null) &&
-					m[SimpleSelector.PSEUDO_LAST_CHILD].call(this, oNode, null);
-		};
-		m[SimpleSelector.PSEUDO_ONLY_OF_TYPE] = function(oNode) {
-			return m[SimpleSelector.PSEUDO_FIRST_OF_TYPE].call(this, oNode, null) &&
-					m[SimpleSelector.PSEUDO_LAST_OF_TYPE].call(this, oNode, null);
-		};
-		m[SimpleSelector.PSEUDO_EMPTY] = function(oNode) {
-			oNode = oNode.firstChild;
-			while (oNode && oNode.nodeType != 1 && (oNode.nodeType != 3 || oNode.length == 0))
-				oNode = oNode.nextSibling;
-			return !oNode;
-		};
-		m[SimpleSelector.PSEUDO_LANG] = function(oNode) {
-			var sLang;
-			do {
-				sLang = oNode.lang || '';
-				oNode = oNode.parentNode;
-			} while (!sLang && oNode && oNode.nodeType == 1);
-			// TODO: add support for language from META element (Content-Language)
-			return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
-					(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
-		};
-		m[SimpleSelector.PSEUDO_ENABLED] = function(oNode) {
-			var sTagName = oNode.tagName.toUpperCase();
-			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && !oNode.disabled;
-		};
-		m[SimpleSelector.PSEUDO_DISABLED] = function(oNode) {
-			var sTagName = oNode.tagName.toUpperCase();
-			return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && oNode.disabled;
-		};
-		m[SimpleSelector.PSEUDO_CHECKED] = function(oNode) {
-			var sTagName = oNode.tagName.toUpperCase();
-			return sTagName == 'INPUT' && oNode.checked || sTagName == 'OPTION' && oNode.selected;
-		};
-		m[SimpleSelector.PSEUDO_READ_ONLY] = function(oNode) {
-			return !('readOnly' in oNode) || oNode.readOnly;
-		};
-		m[SimpleSelector.PSEUDO_READ_WRITE] = function(oNode) {
-			return 'readOnly' in oNode && !oNode.readOnly;
-		};
-		m[SimpleSelector.PSEUDO_TARGET] = function(oNode) {
-			return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
-		};
-		return m;
-	}();
+		while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
+			if (oNode.nodeType == 1)
+				iCount++;
+		return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
+	};
 
+	/**
+	 * Nth-last-child pseudo-class selector (:nth-last-child(3n+1))
+	 */
+	var NthLastChildSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.NthLastChildSelector = extend(NthLastChildSelector, SimpleSelector);
+	
+	NthLastChildSelector.prototype.match = function(oNode) {
+		var iCount = 1, a = this.arg1, b = this.arg2;
+		if (a == 1 && b == 0)
+			return true;
+		while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
+			if (oNode.nodeType == 1)
+				iCount++;
+		return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
+	};
 
+	/**
+	 * Nth of type pseudo-class selector (:nth-of-type(3n+1))
+	 */
+	var NthOfTypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.NthOfTypeSelector = extend(NthOfTypeSelector, SimpleSelector);
+	
+	NthOfTypeSelector.prototype.match = function(oNode) {
+		var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
+		if (a == 1 && b == 0)
+			return true;
+		while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
+			if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
+				iCount++;
+		return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
+	};
 
-	var NotSimpleSelector = function(oSimpleSelector) {
-		this.type = SimpleSelector.PSEUDO_NOT;
+	/**
+	 * Nth last of type pseudo-class selector (:nth-last-of-type(3n+1))
+	 */
+	var NthLastOfTypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.NthLastOfTypeSelector = extend(NthLastOfTypeSelector, SimpleSelector);
+	
+	NthLastOfTypeSelector.prototype.match = function(oNode) {
+		var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
+		if (a == 1 && b == 0)
+			return true;
+		while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
+			if (oNode.nodeType == 1 && oNode.nodeName == sNodeName)
+				iCount++;
+		return a > 0 ? (iCount - b) % a == 0 : a < 0 ? iCount <= b && iCount % a == 0 : iCount - b == 0;
+	};
+
+	/**
+	 * First child pseudo-class selector (:first-child)
+	 */
+	var FirstChildSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.FirstChildSelector = extend(FirstChildSelector, SimpleSelector);
+	
+	FirstChildSelector.prototype.match = function firstChildMatch(oNode) {
+		do
+			oNode = oNode.previousSibling;
+		while (oNode && oNode.nodeType != 1);
+		return !oNode;
+	};
+
+	/**
+	 * Last child pseudo-class selector (:last-child)
+	 */
+	var LastChildSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.LastChildSelector = extend(LastChildSelector, SimpleSelector);
+	
+	LastChildSelector.prototype.match = function lastChildMatch(oNode) {
+		do
+			oNode = oNode.nextSibling;
+		while (oNode && oNode.nodeType != 1);
+		return !oNode;
+	};
+
+	/**
+	 * First of type pseudo-class selector (:first-of-type)
+	 */
+	var FirstOfTypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.FirstOfTypeSelector = extend(FirstOfTypeSelector, SimpleSelector);
+	
+	FirstOfTypeSelector.prototype.match = function firstOfTypeMatch(oNode) {
+		var sNodeName = oNode.nodeName;
+		do
+			oNode = oNode.previousSibling;
+		while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
+		return !oNode;
+	};
+
+	/**
+	 * Last of type pseudo-class selector (:last-of-type)
+	 */
+	var LastOfTypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.LastOfTypeSelector = extend(LastOfTypeSelector, SimpleSelector);
+	
+	LastOfTypeSelector.prototype.match = function lastOfTypeMatch(oNode) {
+		var sNodeName = oNode.nodeName;
+		do
+			oNode = oNode.nextSibling;
+		while (oNode && (oNode.nodeType != 1 || oNode.nodeName != sNodeName));
+		return !oNode;
+	};
+
+	/**
+	 * Only child pseudo-class selector (:only-child)
+	 */
+	var OnlyChildSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.OnlyChildSelector = extend(OnlyChildSelector, SimpleSelector);
+	
+	OnlyChildSelector.prototype.match = function(oNode) {
+		return FirstChildSelector.prototype.match.call(this, oNode, null) &&
+				LastChildSelector.prototype.match.call(this, oNode, null);
+	};
+
+	/**
+	 * Only of type pseudo-class selector (:only-of-type)
+	 */
+	var OnlyOfTypeSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.OnlyOfTypeSelector = extend(OnlyOfTypeSelector, SimpleSelector);
+	
+	OnlyOfTypeSelector.prototype.match = function(oNode) {
+		return FirstOfTypeSelector.prototype.match.call(this, oNode, null) &&
+				LastOfTypeSelector.prototype.match.call(this, oNode, null);
+	};
+
+	/**
+	 * Empty pseudo-class selector (:empty)
+	 */
+	var EmptySelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.EmptySelector = extend(EmptySelector, SimpleSelector);
+	
+	EmptySelector.prototype.match = function(oNode) {
+		oNode = oNode.firstChild;
+		while (oNode && oNode.nodeType != 1 && (oNode.nodeType != 3 || oNode.length == 0))
+			oNode = oNode.nextSibling;
+		return !oNode;
+	};
+
+	/**
+	 * Language pseudo-class selector (:lang(nl))
+	 */
+	var LangSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.LangSelector = extend(LangSelector, SimpleSelector);
+	
+	LangSelector.prototype.match = function(oNode) {
+		var sLang;
+		do {
+			sLang = oNode.lang || '';
+			oNode = oNode.parentNode;
+		} while (!sLang && oNode && oNode.nodeType == 1);
+		// TODO: add support for language from META element (Content-Language)
+		return sLang.toLowerCase().indexOf(this.arg1.toLowerCase()) == 0 &&
+				(this.arg1.length == sLang.length || sLang.charAt(this.arg1.length) == '-');
+	};
+
+	/**
+	 * Enabled pseudo-class selector (:enabled)
+	 */
+	var EnabledSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.EnabledSelector = extend(EnabledSelector, SimpleSelector);
+	
+	EnabledSelector.prototype.match = function(oNode) {
+		var sTagName = oNode.tagName.toUpperCase();
+		return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && !oNode.disabled;
+	};
+
+	/**
+	 * Disabled pseudo-class selector (:disabled)
+	 */
+	var DisabledSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.DisabledSelector = extend(DisabledSelector, SimpleSelector);
+	
+	DisabledSelector.prototype.match = function(oNode) {
+		var sTagName = oNode.tagName.toUpperCase();
+		return sTagName != 'LINK' && sTagName != 'STYLE' && 'disabled' in oNode && oNode.disabled;
+	};
+
+	/**
+	 * Checked pseudo-class selector (:checked)
+	 */
+	var CheckedSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.CheckedSelector = extend(CheckedSelector, SimpleSelector);
+	
+	CheckedSelector.prototype.match = function(oNode) {
+		var sTagName = oNode.tagName.toUpperCase();
+		return sTagName == 'INPUT' && oNode.checked || sTagName == 'OPTION' && oNode.selected;
+	};
+
+	/**
+	 * Read-only pseudo-class selector (:read-only)
+	 */
+	var ReadOnlySelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.ReadOnlySelector = extend(ReadOnlySelector, SimpleSelector);
+	
+	ReadOnlySelector.prototype.match = function(oNode) {
+		return !('readOnly' in oNode) || oNode.readOnly;
+	};
+
+	/**
+	 * Read-write pseudo-class selector (:read-write)
+	 */
+	var ReadWriteSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.ReadWriteSelector = extend(ReadWriteSelector, SimpleSelector);
+	
+	ReadWriteSelector.prototype.match = function(oNode) {
+		return 'readOnly' in oNode && !oNode.readOnly;
+	};
+
+	/**
+	 * Target pseudo-class selector (:target)
+	 */
+	var TargetSelector = function(sArg1, sArg2) {
+		SimpleSelector.call(this, sArg1, sArg2);
+	};
+	this.TargetSelector = extend(TargetSelector, SimpleSelector);
+	
+	TargetSelector.prototype.match = function(oNode) {
+		return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
+	};
+
+	/**
+	 * Negation pseudo-class selector (:not)
+	 */
+	var NotSelector = function(oSimpleSelector) {
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
 	};
-	this.NotSimpleSelector = extend(NotSimpleSelector, SimpleSelector);
+	this.NotSelector = extend(NotSelector, SimpleSelector);
 
-	NotSimpleSelector.prototype.validate = function() {
-		return !(this.simpleSelector instanceof NotSimpleSelector);
+	NotSelector.prototype.validate = function() {
+		return !(this.simpleSelector instanceof NotSelector);
 	};
 
-	NotSimpleSelector.prototype.match = function(oNode) {
+	NotSelector.prototype.match = function(oNode) {
 		return !this.simpleSelector.match(oNode);
 	};
 
@@ -862,35 +1096,35 @@ gl.selector = new function() {
 		regexp_whiteSpace   = /\s/;
 
 	var hAttrTypeMap = {
-			'=' : SimpleSelector.ATTRIBUTE_EQUALS,
-			'~=': SimpleSelector.ATTRIBUTE_LIST,
-			'|=': SimpleSelector.ATTRIBUTE_LANG,
-			'^=': SimpleSelector.ATTRIBUTE_STARTS,
-			'$=': SimpleSelector.ATTRIBUTE_ENDS,
-			'*=': SimpleSelector.ATTRIBUTE_CONTAINS
+			'=' : AttributeEqualsSelector,
+			'~=': AttributeListSelector,
+			'|=': AttributeLangSelector,
+			'^=': AttributeStartsSelector,
+			'$=': AttributeEndsSelector,
+			'*=': AttributeContainsSelector
 		};
 
 	var hPseudoTypeMap = {
-			'root'            : SimpleSelector.PSEUDO_ROOT,
-			'nth-child'       : SimpleSelector.PSEUDO_NTH_CHILD,
-			'nth-last-child'  : SimpleSelector.PSEUDO_NTH_LAST_CHILD,
-			'nth-of-type'     : SimpleSelector.PSEUDO_NTH_OF_TYPE,
-			'nth-last-of-type': SimpleSelector.PSEUDO_NTH_LAST_OF_TYPE,
-			'first-child'     : SimpleSelector.PSEUDO_FIRST_CHILD,
-			'last-child'      : SimpleSelector.PSEUDO_LAST_CHILD,
-			'first-of-type'   : SimpleSelector.PSEUDO_FIRST_OF_TYPE,
-			'last-of-type'    : SimpleSelector.PSEUDO_LAST_OF_TYPE,
-			'only-child'      : SimpleSelector.PSEUDO_ONLY_CHILD,
-			'only-of-type'    : SimpleSelector.PSEUDO_ONLY_OF_TYPE,
-			'empty'           : SimpleSelector.PSEUDO_EMPTY,
-			'lang'            : SimpleSelector.PSEUDO_LANG,
-			'enabled'         : SimpleSelector.PSEUDO_ENABLED,
-			'disabled'        : SimpleSelector.PSEUDO_DISABLED,
-			'checked'         : SimpleSelector.PSEUDO_CHECKED,
-			'read-only'       : SimpleSelector.PSEUDO_READ_ONLY,
-			'read-write'      : SimpleSelector.PSEUDO_READ_WRITE,
-			'target'          : SimpleSelector.PSEUDO_TARGET,
-			'not'             : SimpleSelector.PSEUDO_NOT
+			'root'            : RootSelector,
+			'nth-child'       : NthChildSelector,
+			'nth-last-child'  : NthLastChildSelector,
+			'nth-of-type'     : NthOfTypeSelector,
+			'nth-last-of-type': NthLastOfTypeSelector,
+			'first-child'     : FirstChildSelector,
+			'last-child'      : LastChildSelector,
+			'first-of-type'   : FirstOfTypeSelector,
+			'last-of-type'    : LastOfTypeSelector,
+			'only-child'      : OnlyChildSelector,
+			'only-of-type'    : OnlyOfTypeSelector,
+			'empty'           : EmptySelector,
+			'lang'            : LangSelector,
+			'enabled'         : EnabledSelector,
+			'disabled'        : DisabledSelector,
+			'checked'         : CheckedSelector,
+			'read-only'       : ReadOnlySelector,
+			'read-write'      : ReadWriteSelector,
+			'target'          : TargetSelector,
+			'not'             : NotSelector
 		};
 
 	/**
@@ -927,21 +1161,19 @@ gl.selector = new function() {
 					break;
 				// selectors
 				case '*':
-					oCombinator.add(new SimpleSelector(SimpleSelector.UNIVERSAL));
+					oCombinator.add(new UniversalSelector());
 					break;
 				case '.':
-					var oSimpleSelector = new SimpleSelector(SimpleSelector.CLASS, Parser.decodeIdent(sSelectorPart.substr(1)));
-					oSimpleSelector.classRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg1) + '($|\\s)');
-					oCombinator.add(oSimpleSelector);
+					oCombinator.add(new ClassSelector(Parser.decodeIdent(sSelectorPart.substr(1))));
 					break;
 				case '#':
-					oCombinator.add(new SimpleSelector(SimpleSelector.ID, Parser.decodeIdent(sSelectorPart.substr(1))));
+					oCombinator.add(new IdSelector(Parser.decodeIdent(sSelectorPart.substr(1))));
 					break;
 				case '[':
 					oCombinator.add(this.parseAttributeSelector(sSelectorPart));
 					break;
 				case ':':
-					oCombinator.add(this.parsePseudoSelector(sSelectorPart));
+					oCombinator.add(this.parsePseudoSelector(sSelectorPart, sSelector));
 					break;
 				// combinators
 				case '':
@@ -962,7 +1194,7 @@ gl.selector = new function() {
 					break;
 				// element selector (no single prefix)
 				default:
-					oCombinator.add(new SimpleSelector(SimpleSelector.TYPE, Parser.decodeIdent(sSelectorPart)));
+					oCombinator.add(new TypeSelector(Parser.decodeIdent(sSelectorPart)));
 					break;
 			}
 		}
@@ -973,40 +1205,41 @@ gl.selector = new function() {
 	};
 
 	Parser.prototype.parseAttributeSelector = function(sSelectorPart) {
-		var parsedAttr = regexp_attribute.exec(sSelectorPart);
-		if (!parsedAttr[2]) {
-			return new SimpleSelector(SimpleSelector.ATTRIBUTE_EXIST, Parser.decodeIdent(parsedAttr[1]));
+		var aParsedValues = regexp_attribute.exec(sSelectorPart);
+		var sName = Parser.decodeIdent(aParsedValues[1]);
+		if (!aParsedValues[2]) {
+			return new AttributeExistSelector(sName);
 		} else {
-			var oSimpleSelector = new SimpleSelector(
-					this.getAttrType(parsedAttr[2]),
-					Parser.decodeIdent(parsedAttr[1]),
-					parsedAttr[3].charAt(0) == '"' || parsedAttr[3].charAt(0) == "'" ?
-						Parser.decodeString(parsedAttr[3]) :
-						Parser.decodeIdent(parsedAttr[3])
-				);
-			if (oSimpleSelector.type == SimpleSelector.ATTRIBUTE_LIST) {
-				if (regexp_whiteSpace.test(oSimpleSelector.arg2))
-					oSimpleSelector.attrListRegexp = /$x^/; // regexp that doesn’t match anything
-				else
-					oSimpleSelector.attrListRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(oSimpleSelector.arg2) + '($|\\s)');
-			}
-			return oSimpleSelector;
+			var sValue = aParsedValues[3].charAt(0) == '"' || aParsedValues[3].charAt(0) == "'" ?
+						Parser.decodeString(aParsedValues[3]) :
+						Parser.decodeIdent(aParsedValues[3]);
+			return this.createAttributeSelector(aParsedValues[2], sName, sValue)
 		}
 	};
 	
-	Parser.prototype.getAttrType = function(sIdentifier) {
-		return hAttrTypeMap[sIdentifier];
+	/**
+	 * Returns a new Attribute*Selector instance that matches on name and value.
+	 * Note that the grammar parsing has already prevented any non-existant identifier
+	 * from occurring here, so no existence check needs to be done.
+	 * @param sIdentifier The bit between the name and value in the selector (e.g. ^=)
+	 * @param sName Name to match on
+	 * @param sValue Value to match on
+	 * @return A new Attribute*Selector instance.
+	 */
+	Parser.prototype.createAttributeSelector = function(sIdentifier, sName, sValue) {
+		return new hAttrTypeMap[sIdentifier](sName, sValue);
 	}
 	
-	Parser.prototype.parsePseudoSelector = function(sSelectorPart) {
+	Parser.prototype.parsePseudoSelector = function(sSelectorPart, sSelector) {
 		var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
 			sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
 			oSimpleSelector,
-			iType = this.getPseudoType(sIdentifier);
-		if (!iType)
+			cPseudoSelector = this.getPseudoSelectorClass(sIdentifier),
+			iType;
+		if (!cPseudoSelector)
 			throw new ParsingException(sSelector);
 		if (sIdentifier == 'lang') {
-			oSimpleSelector = new SimpleSelector(iType, aParsedPseudo[2]);
+			oSimpleSelector = new cPseudoSelector(aParsedPseudo[2]);
 		} else if (sIdentifier.indexOf('nth-') == 0) {
 			var nth = aParsedPseudo[2],
 				a, b, n;
@@ -1021,21 +1254,21 @@ gl.selector = new function() {
 				a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
 				b = b == '' ? 0 : parseInt(b, 10);
 			}
-			oSimpleSelector = new SimpleSelector(iType, a, b);
+			oSimpleSelector = new cPseudoSelector(a, b);
 		} else if (sIdentifier == 'not') {
 			var oTempGroup = this.parse(aParsedPseudo[2]);
 			var oTempCombinator = oTempGroup.selectors[0].combinators[0];
 			if (oTempCombinator.simpleSelectors.length != 1)
 				throw new ParsingException(sSelector);
-			oSimpleSelector = new NotSimpleSelector(oTempCombinator.simpleSelectors[0]);
+			oSimpleSelector = new NotSelector(oTempCombinator.simpleSelectors[0]);
 		} else {
-			oSimpleSelector = new SimpleSelector(iType);
+			oSimpleSelector = new cPseudoSelector();
 		}
 		return oSimpleSelector;
 	};
 	
-	Parser.prototype.getPseudoType = function(sIdentifier) {
-		return hPseudoTypeMap[sIdentifier];
+	Parser.prototype.getPseudoSelectorClass = function(sIdentifier) {
+		return hPseudoTypeMap[sIdentifier] || null;
 	};
 
 	/**
