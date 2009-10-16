@@ -55,6 +55,7 @@ gl.selector = new function() {
 
 	/**
 	 * Helper function for cross-browser hasAttribute that ignores default values
+	 * See: http://www.w3.org/TR/css3-selectors/#def-values
 	 * Note: IE’s hasAttribute has issues with ‘class’ vs. ‘className’, ‘for’ vs. ‘htmlFor’, and ‘enctype’ vs. ‘encType’.
 	 * Note: other browsers ignore attribute default values, even though spec says they shouldn’t
 	 */
@@ -68,6 +69,7 @@ gl.selector = new function() {
 
 	/**
 	 * Helper function for cross-browser getAttribute that ignores default values
+	 * See: http://www.w3.org/TR/css3-selectors/#def-values
 	 * Note: IE’s getAttribute has issues with ‘class’ vs. ‘className’, ‘for’ vs. ‘htmlFor’, and ‘enctype’ vs. ‘encType’.
 	 * Note: other browsers ignore attribute default values, even though spec says they shouldn’t
 	 */
@@ -612,12 +614,16 @@ gl.selector = new function() {
 			return hasAttribute(oNode, this.arg1);
 		};
 		m[SimpleSelector.ATTRIBUTE_EQUALS] = function(oNode) {
+			if (!hasAttribute(oNode, this.arg1))
+				return false;
 			return getAttribute(oNode, this.arg1) == this.arg2;
 		};
 		m[SimpleSelector.ATTRIBUTE_LIST] = function(oNode) {
 			return !!this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
 		};
 		m[SimpleSelector.ATTRIBUTE_LANG] = function(oNode) {
+			if (!hasAttribute(oNode, this.arg1))
+				return false;
 			var sAttrValue = getAttribute(oNode, this.arg1);
 			return sAttrValue.toLowerCase().indexOf(this.arg2.toLowerCase()) == 0 &&
 					(this.arg2.length == sAttrValue.length || sAttrValue.charAt(this.arg2.length) == '-');
