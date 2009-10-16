@@ -37,7 +37,7 @@ SelectorUnit.prototype.tests = [
 		['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],
 		['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],
 		['body > li', []],
-		['span:empty', ['t10', 't13']],
+		['span:empty', ['t10', 't13', 't14']],
 		['ul[lang=en-GB]', ['t7']],
 		['form[class]', ['t20']],
 		['input[class]', []],
