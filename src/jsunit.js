@@ -49,17 +49,17 @@ gl.unit = function(module) {
 
 	JSUnit.prototype.assertEquals = function(oExpected, oResult, sMessage) {
 		if (oExpected != oResult)
-			this.writelnError('AssertEquals failed. Expected: ' + oExpected + ', result: ' + oResult + ' — ' + sMessage);
+			this.writelnError('AssertEquals failed. ' + sMessage + ' (Expected: ' + oExpected + ', result: ' + oResult + ')');
 	};
 
 	JSUnit.prototype.assertTrue = function(bResult, sMessage) {
 		if (!bResult)
-			this.writelnError('AssertTrue failed. Result: ' + bResult + ' - ' + sMessage);
+			this.writelnError('AssertTrue failed. ' + sMessage);
 	};
 
 	JSUnit.prototype.assertFalse = function(bResult, sMessage) {
 		if (bResult)
-			this.writelnError('AssertFalse failed. Result: ' + bResult + ' - ' + sMessage);
+			this.writelnError('AssertFalse failed. ' + sMessage);
 	};
 
 	JSUnit.prototype.timeStart = function() {
