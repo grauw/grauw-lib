@@ -739,15 +739,36 @@ gl.selector = new function() {
 	};
 
 	/**
+	 * Abstract base class for nth-* selectors
+	 */
+	var NthSelector = function(sArg) {
+		var a, b, n;
+		if (sArg == 'odd') {
+			a = 2, b = 1;
+		} else if (sArg == 'even') {
+			a = 2, b = 0;
+		} else {
+			n = sArg.indexOf('n');
+			a = sArg.substring(0, n);
+			b = sArg.substring(n + 1);
+			a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
+			b = b == '' ? 0 : parseInt(b, 10);
+		}
+		this.a = a;
+		this.b = b;
+	};
+	this.NthSelector = extend(NthSelector, SimpleSelector);
+
+	/**
 	 * Nth-child pseudo-class selector (:nth-child(3n+1))
 	 */
-	var NthChildSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var NthChildSelector = function(sArg) {
+		NthSelector.call(this, sArg);
 	};
-	this.NthChildSelector = extend(NthChildSelector, SimpleSelector);
+	this.NthChildSelector = extend(NthChildSelector, NthSelector);
 	
 	NthChildSelector.prototype.match = function(oNode) {
-		var iCount = 1, a = this.arg1, b = this.arg2;
+		var iCount = 1, a = this.a, b = this.b;
 		if (a == 1 && b == 0)
 			return true;
 		while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
@@ -759,13 +780,13 @@ gl.selector = new function() {
 	/**
 	 * Nth-last-child pseudo-class selector (:nth-last-child(3n+1))
 	 */
-	var NthLastChildSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var NthLastChildSelector = function(sArg) {
+		NthSelector.call(this, sArg);
 	};
-	this.NthLastChildSelector = extend(NthLastChildSelector, SimpleSelector);
+	this.NthLastChildSelector = extend(NthLastChildSelector, NthSelector);
 	
 	NthLastChildSelector.prototype.match = function(oNode) {
-		var iCount = 1, a = this.arg1, b = this.arg2;
+		var iCount = 1, a = this.a, b = this.b;
 		if (a == 1 && b == 0)
 			return true;
 		while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
@@ -777,13 +798,13 @@ gl.selector = new function() {
 	/**
 	 * Nth of type pseudo-class selector (:nth-of-type(3n+1))
 	 */
-	var NthOfTypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var NthOfTypeSelector = function(sArg) {
+		NthSelector.call(this, sArg);
 	};
-	this.NthOfTypeSelector = extend(NthOfTypeSelector, SimpleSelector);
+	this.NthOfTypeSelector = extend(NthOfTypeSelector, NthSelector);
 	
 	NthOfTypeSelector.prototype.match = function(oNode) {
-		var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
+		var iCount = 1, a = this.a, b = this.b, sNodeName = oNode.nodeName;
 		if (a == 1 && b == 0)
 			return true;
 		while ((oNode = oNode.previousSibling) && (a > 0 || iCount <= b))
@@ -795,13 +816,13 @@ gl.selector = new function() {
 	/**
 	 * Nth last of type pseudo-class selector (:nth-last-of-type(3n+1))
 	 */
-	var NthLastOfTypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var NthLastOfTypeSelector = function(sArg) {
+		NthSelector.call(this, sArg);
 	};
-	this.NthLastOfTypeSelector = extend(NthLastOfTypeSelector, SimpleSelector);
+	this.NthLastOfTypeSelector = extend(NthLastOfTypeSelector, NthSelector);
 	
 	NthLastOfTypeSelector.prototype.match = function(oNode) {
-		var iCount = 1, a = this.arg1, b = this.arg2, sNodeName = oNode.nodeName;
+		var iCount = 1, a = this.a, b = this.b, sNodeName = oNode.nodeName;
 		if (a == 1 && b == 0)
 			return true;
 		while ((oNode = oNode.nextSibling) && (a > 0 || iCount <= b))
@@ -1238,23 +1259,8 @@ gl.selector = new function() {
 			iType;
 		if (!cPseudoSelector)
 			throw new ParsingException(sSelector);
-		if (sIdentifier == 'lang') {
+		if (sIdentifier == 'lang' || sIdentifier.indexOf('nth-') == 0) {
 			oSimpleSelector = new cPseudoSelector(aParsedPseudo[2]);
-		} else if (sIdentifier.indexOf('nth-') == 0) {
-			var nth = aParsedPseudo[2],
-				a, b, n;
-			if (nth == 'odd')
-				a = 2, b = 1;
-			else if (nth == 'even')
-				a = 2, b = 0;
-			else {
-				n = nth.indexOf('n');
-				a = nth.substring(0, n);
-				b = nth.substring(n + 1);
-				a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
-				b = b == '' ? 0 : parseInt(b, 10);
-			}
-			oSimpleSelector = new cPseudoSelector(a, b);
 		} else if (sIdentifier == 'not') {
 			var oTempGroup = this.parse(aParsedPseudo[2]);
 			var oTempCombinator = oTempGroup.selectors[0].combinators[0];
