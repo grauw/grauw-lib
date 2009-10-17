@@ -554,9 +554,7 @@ gl.selector = new function() {
 	 * Abstract base class for selector implementations
 	 * See: http://www.w3.org/TR/css3-selectors/#simple-selectors
 	 */
-	var SimpleSelector = function(sArg1, sArg2) {
-		this.arg1 = sArg1;
-		this.arg2 = sArg2;
+	var SimpleSelector = function() {
 	};
 	this.SimpleSelector = extend(SimpleSelector, Object);
 
@@ -581,8 +579,8 @@ gl.selector = new function() {
 	/**
 	 * Universal selector (*)
 	 */
-	var UniversalSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var UniversalSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.UniversalSelector = extend(UniversalSelector, SimpleSelector);
 	
@@ -593,8 +591,9 @@ gl.selector = new function() {
 	/**
 	 * Type selector (elementName)
 	 */
-	var TypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var TypeSelector = function(sArg1) {
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
 	};
 	this.TypeSelector = extend(TypeSelector, SimpleSelector);
 	
@@ -608,8 +607,9 @@ gl.selector = new function() {
 	/**
 	 * Class selector (.className)
 	 */
-	var ClassSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var ClassSelector = function(sArg1) {
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
 		
 		this.classRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(sArg1) + '($|\\s)');
 	};
@@ -622,8 +622,9 @@ gl.selector = new function() {
 	/**
 	 * ID selector (#id)
 	 */
-	var IdSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var IdSelector = function(sArg1) {
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
 	};
 	this.IdSelector = extend(IdSelector, SimpleSelector);
 	
@@ -634,8 +635,9 @@ gl.selector = new function() {
 	/**
 	 * Attribute exist selector ([name])
 	 */
-	var AttributeExistSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var AttributeExistSelector = function(sArg1) {
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
 	};
 	this.AttributeExistSelector = extend(AttributeExistSelector, SimpleSelector);
 	
@@ -647,7 +649,9 @@ gl.selector = new function() {
 	 * Attribute equals selector ([name=value])
 	 */
 	var AttributeEqualsSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 	};
 	this.AttributeEqualsSelector = extend(AttributeEqualsSelector, SimpleSelector);
 	
@@ -661,7 +665,9 @@ gl.selector = new function() {
 	 * Attribute list selector ([name~=value])
 	 */
 	var AttributeListSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 		
 		this.attrListRegexp = regexp_whiteSpace.test(sArg2) ?
 				/$x^/ : // regexp that doesn’t match anything
@@ -677,7 +683,9 @@ gl.selector = new function() {
 	 * Attribute language selector ([name!=en-US])
 	 */
 	var AttributeLangSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 	};
 	this.AttributeLangSelector = extend(AttributeLangSelector, SimpleSelector);
 	
@@ -693,7 +701,9 @@ gl.selector = new function() {
 	 * Attribute start selector ([name^=val])
 	 */
 	var AttributeStartsSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 	};
 	this.AttributeStartsSelector = extend(AttributeStartsSelector, SimpleSelector);
 	
@@ -705,7 +715,9 @@ gl.selector = new function() {
 	 * Attribute end selector ([name$=lue])
 	 */
 	var AttributeEndsSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 	};
 	this.AttributeEndsSelector = extend(AttributeEndsSelector, SimpleSelector);
 	
@@ -718,7 +730,9 @@ gl.selector = new function() {
 	 * Attribute contains selector ([name*=alu])
 	 */
 	var AttributeContainsSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
+		this.arg2 = sArg2;
 	};
 	this.AttributeContainsSelector = extend(AttributeContainsSelector, SimpleSelector);
 	
@@ -729,8 +743,8 @@ gl.selector = new function() {
 	/**
 	 * Root pseudo-class selector (:root)
 	 */
-	var RootSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var RootSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.RootSelector = extend(RootSelector, SimpleSelector);
 	
@@ -742,6 +756,8 @@ gl.selector = new function() {
 	 * Abstract base class for nth-* selectors
 	 */
 	var NthSelector = function(sArg) {
+//		SimpleSelector.call(this);
+		
 		var a, b, n;
 		if (sArg == 'odd') {
 			a = 2, b = 1;
@@ -834,8 +850,8 @@ gl.selector = new function() {
 	/**
 	 * First child pseudo-class selector (:first-child)
 	 */
-	var FirstChildSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var FirstChildSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.FirstChildSelector = extend(FirstChildSelector, SimpleSelector);
 	
@@ -849,8 +865,8 @@ gl.selector = new function() {
 	/**
 	 * Last child pseudo-class selector (:last-child)
 	 */
-	var LastChildSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var LastChildSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.LastChildSelector = extend(LastChildSelector, SimpleSelector);
 	
@@ -864,8 +880,8 @@ gl.selector = new function() {
 	/**
 	 * First of type pseudo-class selector (:first-of-type)
 	 */
-	var FirstOfTypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var FirstOfTypeSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.FirstOfTypeSelector = extend(FirstOfTypeSelector, SimpleSelector);
 	
@@ -880,8 +896,8 @@ gl.selector = new function() {
 	/**
 	 * Last of type pseudo-class selector (:last-of-type)
 	 */
-	var LastOfTypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var LastOfTypeSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.LastOfTypeSelector = extend(LastOfTypeSelector, SimpleSelector);
 	
@@ -896,8 +912,8 @@ gl.selector = new function() {
 	/**
 	 * Only child pseudo-class selector (:only-child)
 	 */
-	var OnlyChildSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var OnlyChildSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.OnlyChildSelector = extend(OnlyChildSelector, SimpleSelector);
 	
@@ -909,8 +925,8 @@ gl.selector = new function() {
 	/**
 	 * Only of type pseudo-class selector (:only-of-type)
 	 */
-	var OnlyOfTypeSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var OnlyOfTypeSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.OnlyOfTypeSelector = extend(OnlyOfTypeSelector, SimpleSelector);
 	
@@ -922,8 +938,8 @@ gl.selector = new function() {
 	/**
 	 * Empty pseudo-class selector (:empty)
 	 */
-	var EmptySelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var EmptySelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.EmptySelector = extend(EmptySelector, SimpleSelector);
 	
@@ -937,8 +953,9 @@ gl.selector = new function() {
 	/**
 	 * Language pseudo-class selector (:lang(nl))
 	 */
-	var LangSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var LangSelector = function(sArg1) {
+//		SimpleSelector.call(this);
+		this.arg1 = sArg1;
 	};
 	this.LangSelector = extend(LangSelector, SimpleSelector);
 	
@@ -956,8 +973,8 @@ gl.selector = new function() {
 	/**
 	 * Enabled pseudo-class selector (:enabled)
 	 */
-	var EnabledSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var EnabledSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.EnabledSelector = extend(EnabledSelector, SimpleSelector);
 	
@@ -969,8 +986,8 @@ gl.selector = new function() {
 	/**
 	 * Disabled pseudo-class selector (:disabled)
 	 */
-	var DisabledSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var DisabledSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.DisabledSelector = extend(DisabledSelector, SimpleSelector);
 	
@@ -982,8 +999,8 @@ gl.selector = new function() {
 	/**
 	 * Checked pseudo-class selector (:checked)
 	 */
-	var CheckedSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var CheckedSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.CheckedSelector = extend(CheckedSelector, SimpleSelector);
 	
@@ -995,8 +1012,8 @@ gl.selector = new function() {
 	/**
 	 * Read-only pseudo-class selector (:read-only)
 	 */
-	var ReadOnlySelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var ReadOnlySelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.ReadOnlySelector = extend(ReadOnlySelector, SimpleSelector);
 	
@@ -1007,8 +1024,8 @@ gl.selector = new function() {
 	/**
 	 * Read-write pseudo-class selector (:read-write)
 	 */
-	var ReadWriteSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var ReadWriteSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.ReadWriteSelector = extend(ReadWriteSelector, SimpleSelector);
 	
@@ -1019,8 +1036,8 @@ gl.selector = new function() {
 	/**
 	 * Target pseudo-class selector (:target)
 	 */
-	var TargetSelector = function(sArg1, sArg2) {
-		SimpleSelector.call(this, sArg1, sArg2);
+	var TargetSelector = function() {
+//		SimpleSelector.call(this);
 	};
 	this.TargetSelector = extend(TargetSelector, SimpleSelector);
 	
@@ -1032,6 +1049,7 @@ gl.selector = new function() {
 	 * Negation pseudo-class selector (:not)
 	 */
 	var NotSelector = function(oSimpleSelector) {
+//		SimpleSelector.call(this);
 		if (!oSimpleSelector instanceof SimpleSelector)
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
@@ -1234,7 +1252,7 @@ gl.selector = new function() {
 			var sValue = aParsedValues[3].charAt(0) == '"' || aParsedValues[3].charAt(0) == "'" ?
 						Parser.decodeString(aParsedValues[3]) :
 						Parser.decodeIdent(aParsedValues[3]);
-			return this.createAttributeSelector(aParsedValues[2], sName, sValue)
+			return this.createAttributeSelector(aParsedValues[2], sName, sValue);
 		}
 	};
 	
@@ -1255,8 +1273,7 @@ gl.selector = new function() {
 		var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
 			sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
 			oSimpleSelector,
-			cPseudoSelector = this.getPseudoSelectorClass(sIdentifier),
-			iType;
+			cPseudoSelector = this.getPseudoSelectorClass(sIdentifier);
 		if (!cPseudoSelector)
 			throw new ParsingException(sSelector);
 		if (sIdentifier == 'lang' || sIdentifier.indexOf('nth-') == 0) {
