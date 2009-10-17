@@ -1162,8 +1162,8 @@ gl.selector = new function() {
 			'checked'         : CheckedSelector,
 			'read-only'       : ReadOnlySelector,
 			'read-write'      : ReadWriteSelector,
-			'target'          : TargetSelector,
-			'not'             : NotSelector
+			'target'          : TargetSelector
+//			'not'             : NotSelector
 		};
 
 	/**
@@ -1212,7 +1212,13 @@ gl.selector = new function() {
 					oCombinator.add(this.parseAttributeSelector(sSelectorPart));
 					break;
 				case ':':
-					oCombinator.add(this.parsePseudoSelector(sSelectorPart, sSelector));
+					try {
+						oCombinator.add(this.parsePseudoSelector(sSelectorPart));
+					} catch(e) {
+						if (e instanceof ParsingException)
+							e.setSelector(sSelector);
+						throw e;
+					}
 					break;
 				// combinators
 				case '':
@@ -1269,29 +1275,31 @@ gl.selector = new function() {
 		return new hAttrTypeMap[sIdentifier](sName, sValue);
 	}
 	
-	Parser.prototype.parsePseudoSelector = function(sSelectorPart, sSelector) {
+	Parser.prototype.parsePseudoSelector = function(sSelectorPart) {
 		var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),
-			sIdentifier = Parser.decodeIdent(aParsedPseudo[1]),
-			oSimpleSelector,
-			cPseudoSelector = this.getPseudoSelectorClass(sIdentifier);
-		if (!cPseudoSelector)
-			throw new ParsingException(sSelector);
-		if (sIdentifier == 'lang' || sIdentifier.indexOf('nth-') == 0) {
-			oSimpleSelector = new cPseudoSelector(aParsedPseudo[2]);
-		} else if (sIdentifier == 'not') {
+			sIdentifier = Parser.decodeIdent(aParsedPseudo[1]);
+		if (sIdentifier == 'not') {
 			var oTempGroup = this.parse(aParsedPseudo[2]);
 			var oTempCombinator = oTempGroup.selectors[0].combinators[0];
 			if (oTempCombinator.simpleSelectors.length != 1)
-				throw new ParsingException(sSelector);
-			oSimpleSelector = new NotSelector(oTempCombinator.simpleSelectors[0]);
+				throw new ParsingException(sSelectorPart);
+			return new NotSelector(oTempCombinator.simpleSelectors[0]);
 		} else {
-			oSimpleSelector = new cPseudoSelector();
+			return this.createPseudoSelector(sIdentifier, aParsedPseudo[2]);
 		}
-		return oSimpleSelector;
 	};
 	
-	Parser.prototype.getPseudoSelectorClass = function(sIdentifier) {
-		return hPseudoTypeMap[sIdentifier] || null;
+	/**
+	 * Returns a SimpleSelector instance matching the passed pseudo-class name
+	 * @param sIdentifier Pseudo-class name
+	 * @param sArgument Argument to pass to the pseudo-class
+	 * @param sSelector to use by the 
+	 * @return A new SimpleSelector instance
+	 */
+	Parser.prototype.createPseudoSelector = function(sIdentifier, sArgument) {
+		if (!hPseudoTypeMap[sIdentifier])
+			throw new ParsingException(sIdentifier);
+		return new hPseudoTypeMap[sIdentifier](sArgument);
 	};
 
 	/**
@@ -1373,6 +1381,10 @@ gl.selector = new function() {
 		this.selector = sSelector;
 	};
 	this.ParsingException = extend(ParsingException, Error);
+	
+	ParsingException.prototype.setSelector = function(sSelector) {
+		this.selector = sSelector;
+	};
 
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
