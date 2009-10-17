@@ -700,28 +700,28 @@ gl.selector = new function() {
 	/**
 	 * Attribute start selector ([name^=val])
 	 */
-	var AttributeStartsSelector = function(sArg1, sArg2) {
+	var AttributeStartSelector = function(sArg1, sArg2) {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeStartsSelector = extend(AttributeStartsSelector, SimpleSelector);
+	this.AttributeStartSelector = extend(AttributeStartSelector, SimpleSelector);
 	
-	AttributeStartsSelector.prototype.match = function(oNode) {
+	AttributeStartSelector.prototype.match = function(oNode) {
 		return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
 	};
 
 	/**
 	 * Attribute end selector ([name$=lue])
 	 */
-	var AttributeEndsSelector = function(sArg1, sArg2) {
+	var AttributeEndSelector = function(sArg1, sArg2) {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeEndsSelector = extend(AttributeEndsSelector, SimpleSelector);
+	this.AttributeEndSelector = extend(AttributeEndSelector, SimpleSelector);
 	
-	AttributeEndsSelector.prototype.match = function(oNode) {
+	AttributeEndSelector.prototype.match = function(oNode) {
 		var sAttrValue = getAttribute(oNode, this.arg1);
 		return !!this.arg2 && sAttrValue.indexOf(this.arg2) == (sAttrValue.length - this.arg2.length);
 	};
@@ -1138,8 +1138,8 @@ gl.selector = new function() {
 			'=' : AttributeEqualsSelector,
 			'~=': AttributeListSelector,
 			'|=': AttributeLangSelector,
-			'^=': AttributeStartsSelector,
-			'$=': AttributeEndsSelector,
+			'^=': AttributeStartSelector,
+			'$=': AttributeEndSelector,
 			'*=': AttributeContainsSelector
 		};
 
