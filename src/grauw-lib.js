@@ -36,6 +36,7 @@ gl.Class.create = function(fConstructor, cBase) {
 	cPrototype.prototype = (cBase || Object).prototype;
 	fConstructor.prototype = new cPrototype;
 	fConstructor.prototype.constructor = fConstructor;
+	// fConstructor.parent = cBase? (or is that implicit from prototype?)
 	return fConstructor;
 };
 
