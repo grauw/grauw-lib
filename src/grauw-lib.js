@@ -277,8 +277,12 @@ gl.depsys = new function() {
 		this.fireLoadEvent();
 	};
 	
-	Dependency.prototype.addLoadListener = function(fLoadListener) {
-		this.loadListeners.push(fLoadListener);
+	/**
+	 * Registers an object as a load listener. When this dependency has loaded,
+	 * the ‘dependencyLoaded’ method on the loadListener will be invoked.
+	 */
+	Dependency.prototype.addLoadListener = function(oLoadListener) {
+		this.loadListeners.push(oLoadListener);
 	};
 	
 	Dependency.prototype.fireLoadEvent = function() {
