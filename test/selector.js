@@ -151,8 +151,6 @@ SelectorUnit.prototype.unitTestQuery = function(sSelector, aExpected) {
 };
 
 SelectorUnit.prototype.unitTestMatch = function(sSelector, aExpected) {
-	if (!aExpected.length)
-		return;
 	for (var i = 0; i < aExpected.length; i++) {
 		var oNode = document.getElementById(aExpected[i]);
 		var bMatch = gl.selector.match(oNode, sSelector);
