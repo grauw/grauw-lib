@@ -32,53 +32,54 @@ gl.Class.create(SelectorUnit, gl.unit.JSUnit);
  * Unit tests
  */
 SelectorUnit.prototype.tests = [
-		['li', ['t1', 't2', 't3', 't4', 't5', 't6']],
+		['li', ['t1', 't2', 't3', 't4', 't5', 't6']],	// type selector test	
+		['#t7', ['t7']],								// id selector tests
 		['ul#t7', ['t7']],
-		['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],
-		['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],
+		['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],	// descendant combinator test
+		['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],	// child combinator tests
 		['body > li', []],
-		['span:empty', ['t10', 't13']],
-		['ul[lang=en-GB]', ['t7']],
+		['span:empty', ['t10', 't13']],				// :empty test
+		['ul[lang=en-GB]', ['t7']],					// attribute exists / equals tests
 		['form[class]', ['t20']],
 		['input[class]', []],
-		['input[readonly]', ['t24']],
-		['input[readonly="readonly"]', ['t24']],
+		['input[readonly]', ['t24']],				// IE quirk test (readOnly)
+		['input[readonly="readonly"]', ['t24']],	// IE quirk test (readOnly=true)
 		['input[type]', ['t24']],
-		['input[type="text"]', []],
-		['label[for="t27"]', ['t28']],
-		['form[className]', []],
-		['form[enctype]', ['t20']],
+		['input[type="text"]', []],					// default value test
+		['label[for="t27"]', ['t28']],				// IE quirk test (htmlFor)
+		['form[className]', []],					// IE quirk test (class)
+		['form[enctype]', ['t20']],					// IE quirk test (encType)
 		['form[enctype="text/plain"]', ['t20']],
-		['form[enctype="application/x-www-form-urlencoded"]', []],
+		['form[enctype="application/x-www-form-urlencoded"]', []],	// default value test
 		['form[action]', ['t20']],
-		['form[action=""]', ['t20']],
+		['form[action=""]', ['t20']],				// empty attribute equals test
 		['form[method="GET"]', []],
 		['option[value="abc"]', []],
 		['option[value="xyz"]', ['t23']],
 		['button[value="xyz"]', ['t25']],
-		['ul[class~="test1"]', ['t7']],
+		['ul[class~="test1"]', ['t7']],				// attribute list selector tests
 		['ul[class~="test2"]', ['t7']],
 		['ul[class~="test3"]', []],
 		['ul[class~="test1 test2"]', []],
 		['ul[class~=" "]', []],
-		['ul[class~=""]', []],
-		['ul[lang|=en]', ['t7']],
+		['ul[class~=""]', []],						// empty attribute selector test
+		['ul[lang|=en]', ['t7']],					// language attribute selector tests
 		['ul[lang|=en-GB]', ['t7']],
 		['ul[lang|=en-US]', []],
 		['ul[lang|=e]', []],
-		['ul[lang|=""]', []],
+		['ul[lang|=""]', []],						// empty attribute selector tests
 		['ul[lang*=""]', []],
 		['ul[lang^=""]', []],
 		['ul[lang$=""]', []],
-		['ul:lang(en)', ['t7']],
+		['ul:lang(en)', ['t7']],					// :lang tests
 		['ul:lang(en-GB)', ['t7']],
 		['ul:lang(EN-gb)', ['t7']],
 		['ul:lang(en-US)', []],
 		['ul:lang(e)', []],
 		['li:lang(en-GB)', ['t1', 't2', 't3', 't4', 't5']],
-		['ul:not(li)', ['t7', 't8']],
+		['ul:not(li)', ['t7', 't8']],				// :not tests
 		['ul:not(ul)', []],
-		['ul:not(.test1)', ['t8']],
+		['ul:not(.test1)', ['t8']],					// :not parsing tests
 		['span:not(:empty)', ['t11', 't12', 't14']],
 		['ul:not(:lang(en))', ['t8']],
 		['ul.test1 *:not(#t2):not([id=t4])', ['t1', 't3', 't5']]
