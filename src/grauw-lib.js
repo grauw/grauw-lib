@@ -172,6 +172,13 @@ gl.depsys = new function() {
 	 *         this.Parser = gl.Class.extend(Parser, Object);  // register on gl.selector object
 	 *     }
 	 * );
+	 * 
+	 * The dependency URIs are accepted as plain strings and in the following format:
+	 * {type: 'application/xml', src: 'jsunit.xml'}
+	 * 
+	 * The src field is a relative URI pointing to the file you want to load.
+	 * The type field specifies an optional MIME type which will influence how the
+	 * file is loaded, by default it is text/javascript.
 	 */
 	gl.module = function(sName, aDependencies, fImplementation) {
 		var sBaseURI = getScriptURI();
