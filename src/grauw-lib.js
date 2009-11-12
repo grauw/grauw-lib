@@ -194,7 +194,7 @@ gl.depsys = new function() {
 		this.name = sName;
 		this.initialiser = fInitialiser;
 		this.dependencies = [];
-		this.moduleObject = null;
+		this.object = null;
 	};
 	
 	this.Module = Module;
@@ -204,7 +204,7 @@ gl.depsys = new function() {
 	};
 	
 	Module.prototype.process = function() {
-		this.moduleObject = this.createModuleObject(this.name);	// XXX: maybe move to the constructor?
+		this.object = this.createModuleObject(this.name);	// XXX: maybe move to the constructor?
 		this.loadDependencies();
 	};
 	
@@ -243,7 +243,7 @@ gl.depsys = new function() {
 	};
 	
 	Module.prototype.initialize = function() {
-		this.initialiser.call(this.moduleObject);
+		this.initialiser.call(this.object);
 	};
 	
 	/**
