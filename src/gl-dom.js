@@ -18,8 +18,6 @@ gl.dom.DOMImplementation = function() {
 	
 	var oRoot = oDocument.importNode(oDocument.modelNode.documentElement, true);
 	oDocument._appendChild(oRoot);
-	
-	console.log(oRoot);
 };
 gl.Class.create(gl.dom.DOMImplementation);
 
