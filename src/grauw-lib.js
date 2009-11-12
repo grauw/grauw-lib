@@ -109,11 +109,11 @@ gl.depsys = new function() {
 	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
 	
 	/**
-	 * Returns the URL of the last script tag, which is presumed to be this script.
+	 * Returns the URI of the last script tag, which is presumed to be this script.
 	 * Will probably not work for deferred scripts or certain dynamically inserted scripts...
 	 * (But good enough for now.)
 	 */
-	function getScriptURL() {
+	function getScriptURI() {
 		var aScripts = document.getElementsByTagName('script');
 		var oScript = aScripts[aScripts.length - 1];
 		// src property is not absolute in IE6 and IE7
@@ -123,10 +123,10 @@ gl.depsys = new function() {
 	
 	function createDependency(vDescriptor, sBaseURI) {
 		var bIsObject = typeof vDescriptor == 'object';
-		var sRelativeURL = bIsObject ? vDescriptor.src : vDescriptor;
+		var sRelativeURI = bIsObject ? vDescriptor.src : vDescriptor;
 		var sType = bIsObject && vDescriptor.type || 'text/javascript';
-		var sURL = gl.uri.URI.resolve(sRelativeURL, sBaseURI);
-		return oDependencyManager.createDependency(sType, sURL);
+		var sURI = gl.uri.URI.resolve(sRelativeURI, sBaseURI);
+		return oDependencyManager.createDependency(sType, sURI);
 	}
 	
 	/**
@@ -140,15 +140,15 @@ gl.depsys = new function() {
 	 * file is loaded, by default it is text/javascript.
 	 * 
 	 * Each script should have only one gl.require invocation, otherwise the
-	 * mechanism to determine the base URL will fail.
+	 * mechanism to determine the base URI will fail.
 	 * 
 	 * XXX: Maybe it should also accept plain strings (and then )
 	 */
 	gl.require = function() {
-		var sBaseURI = getScriptURL();
+		var sBaseURI = getScriptURI();
 		for (var i = 0; i < arguments.length; i++) {
 			var oDependency = createDependency(arguments[i], sBaseURI);
-			if (oDependencyManager.isLoaded(oDependency.getURL()))
+			if (oDependencyManager.isLoaded(oDependency.getURI()))
 				continue;
 			oDependency.load();
 		}
@@ -174,7 +174,7 @@ gl.depsys = new function() {
 	 * );
 	 */
 	gl.module = function(sName, aDependencies, fImplementation) {
-		var sBaseURI = getScriptURL();
+		var sBaseURI = getScriptURI();
 		var oModule = new Module(sName, fImplementation);
 		for (var i = 0; i < aDependencies.length; i++) {
 			var oDependency = createDependency(aDependencies[i], sBaseURI);
@@ -248,18 +248,18 @@ gl.depsys = new function() {
 	
 	/**
 	 * A dependency object
-	 * @param {String} sURL The absolute URL of the dependency
+	 * @param {String} sURI The absolute URI of the dependency
 	 */
-	var Dependency = function(sURL) {
-		this.url = sURL;
+	var Dependency = function(sURI) {
+		this.uri = sURI;
 		this.loadListeners = [];
 		this.loaded = false;
 	};
 	
 	this.Dependency = Dependency;
 	
-	Dependency.prototype.getURL = function() {
-		return this.url;
+	Dependency.prototype.getURI = function() {
+		return this.uri;
 	};
 	
 	Dependency.prototype.load = function(bAsync) {
@@ -293,8 +293,8 @@ gl.depsys = new function() {
 		}
 	};
 	
-	var ScriptDependency = function(sURL) {
-		Dependency.call(this, sURL);
+	var ScriptDependency = function(sURI) {
+		Dependency.call(this, sURI);
 		this.scriptNode = null;
 	};
 
@@ -314,10 +314,10 @@ gl.depsys = new function() {
 		this.scriptNode = oScript;
 		oScript.type = 'text/javascript';
 		oScript._gl_dependency = this;
-		oScript._gl_src = this.url;
+		oScript._gl_src = this.uri;
 		if (!bAsync) {
 			var oXHR = new XMLHttpRequest();
-			oXHR.open('GET', this.url, false);
+			oXHR.open('GET', this.uri, false);
 			oXHR.setRequestHeader('Accept', 'text/javascript');
 			oXHR.send();
 			var sScript = oXHR.responseText;
@@ -328,7 +328,7 @@ gl.depsys = new function() {
 			this.loadComplete();
 		} else {
 			var oThis = this;
-			oScript.src = this.url;
+			oScript.src = this.uri;
 			oScript.onload = function(event) {
 				oThis.loadComplete();
 			};
@@ -338,8 +338,8 @@ gl.depsys = new function() {
 	};
 	
 	
-	var TXMLDependency = function(sURL) {
-		Dependency.call(this, sURL);
+	var TXMLDependency = function(sURI) {
+		Dependency.call(this, sURI);
 	};
 	
 	this.TXMLDependency = gl.Class.create(TXMLDependency, Dependency);
@@ -360,7 +360,7 @@ gl.depsys = new function() {
 				oThis._loadComplete(oXHR);
 			}
 		}
-		oXHR.open('GET', this.url, bAsync);
+		oXHR.open('GET', this.uri, bAsync);
 		oXHR.setRequestHeader('Accept', 'application/xml');
 		oXHR.send();
 		if (!bAsync)
@@ -390,27 +390,27 @@ gl.depsys = new function() {
 	
 	this.DependencyManager = DependencyManager;
 	
-	DependencyManager.prototype.isLoaded = function(sURL) {
-		if (this.getDependencyByURL(sURL))
+	DependencyManager.prototype.isLoaded = function(sURI) {
+		if (this.getDependencyByURI(sURI))
 			return true;
 		var aScripts = document.getElementsByTagName('script');
 		for (var i = 0; i < aScripts.length; i++) {
-			if ((aScripts[i].src || aScripts[i]._gl_src) == sURL)
+			if ((aScripts[i].src || aScripts[i]._gl_src) == sURI)
 				return true;
 		}
 		return false;
 	};
 	
-	DependencyManager.prototype.getDependencyByURL = function(sURL) {
-		return this.dependencyMap.hasOwnProperty(sURL) && this.dependencyMap[sURL] || null;
+	DependencyManager.prototype.getDependencyByURI = function(sURI) {
+		return this.dependencyMap.hasOwnProperty(sURI) && this.dependencyMap[sURI] || null;
 	};
 	
 	DependencyManager.prototype.registerDependencyHandler = function(sType, cDependency) {
 		this.handlers[sType] = cDependency;
 	};
 	
-	DependencyManager.prototype.createDependency = function(sType, sURL) {
-		return new this.handlers[sType](sURL);
+	DependencyManager.prototype.createDependency = function(sType, sURI) {
+		return new this.handlers[sType](sURI);
 	};
 
 	
@@ -429,7 +429,7 @@ gl.depsys = new function() {
 	oDependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
 	
 	// load URI library to do URI resolving (a bit of a paradox :))
-	var sBaseURI = getScriptURL();
+	var sBaseURI = getScriptURI();
 	var oURIDependency = new ScriptDependency(sBaseURI.substr(0, sBaseURI.lastIndexOf('/')) + '/gl-uri.js');
 	oURIDependency.load();
 	
