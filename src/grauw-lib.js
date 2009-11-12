@@ -255,6 +255,9 @@ gl.depsys = new function() {
 		this.initialiser.call(this.object);
 	};
 	
+	
+	
+	
 	/**
 	 * A dependency object
 	 * @param {String} sURI The absolute URI of the dependency
@@ -302,6 +305,13 @@ gl.depsys = new function() {
 		}
 	};
 	
+	
+	
+	
+	/**
+	 * Dependency implementation for the script type.
+	 * Uses MIME-type ‘application/javascript’.
+	 */
 	var ScriptDependency = function(sURI) {
 		Dependency.call(this, sURI);
 		this.scriptNode = null;
@@ -347,8 +357,15 @@ gl.depsys = new function() {
 	};
 	
 	
+	
+	
+	/**
+	 * Dependency implementation for the ‘TXML’ type.
+	 * Uses MIME-type ‘application/xml’.
+	 */
 	var TXMLDependency = function(sURI) {
 		Dependency.call(this, sURI);
+		this.xml = null;
 	};
 	
 	this.TXMLDependency = gl.Class.create(TXMLDependency, Dependency);
@@ -378,13 +395,17 @@ gl.depsys = new function() {
 	
 	TXMLDependency.prototype._loadComplete = function(oXHR) {
 		if (oXHR.responseXML.documentElement) {
-			var oNamespace = gl.namespaces.build(oXHR.responseXML.documentElement);
+			this.xml = oXHR.responseXML;
+			var oNamespace = gl.namespaces.build(this.xml.documentElement);
 			oNamespace.init();
 			this.loadComplete();
 		}
 		// TODO: else error?
 	};
-
+	
+	
+	
+	
 //	var StyleDependency = function() {
 //		Dependency.call(this);
 //	};
