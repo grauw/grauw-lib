@@ -121,6 +121,14 @@ gl.depsys = new function() {
 		return sScriptSrc || oScript._gl_src;
 	}
 	
+	function createDependency(vDescriptor, sBaseURI) {
+		var bIsObject = typeof vDescriptor == 'object';
+		var sRelativeURL = bIsObject ? vDescriptor.src : vDescriptor;
+		var sType = bIsObject && vDescriptor.type || 'text/javascript';
+		var sURL = gl.uri.URI.resolve(sRelativeURL, sBaseURI);
+		return oDependencyManager.createDependency(sType, sURL);
+	}
+	
 	/**
 	 * Makes sure the specified libraries are loaded.
 	 * 
@@ -139,14 +147,9 @@ gl.depsys = new function() {
 	gl.require = function() {
 		var sBaseURI = getScriptURL();
 		for (var i = 0; i < arguments.length; i++) {
-			var vDescriptor = arguments[i];
-			var bIsObject = typeof vDescriptor == 'object';
-			var sRelativeURL = bIsObject ? vDescriptor.src : vDescriptor;
-			var sType = bIsObject && vDescriptor.type || 'text/javascript';
-			var sURL = gl.uri.URI.resolve(sRelativeURL, sBaseURI);
-			if (oDependencyManager.isLoaded(sURL))
+			var oDependency = createDependency(arguments[i], sBaseURI);
+			if (oDependencyManager.isLoaded(oDependency.getURL()))
 				continue;
-			var oDependency = oDependencyManager.createDependency(sType, sURL);
 			oDependency.load();
 		}
 	};
@@ -174,8 +177,7 @@ gl.depsys = new function() {
 		var sBaseURI = getScriptURL();
 		var oModule = new Module(sName, fImplementation);
 		for (var i = 0; i < aDependencies.length; i++) {
-			var sURL = gl.uri.URI.resolve(aDependencies[i], sBaseURI);
-			var oDependency = oDependencyManager.createDependency('text/javascript', sURL);
+			var oDependency = createDependency(aDependencies[i], sBaseURI);
 			oModule.addDependency(oDependency);
 		}
 //		oModuleManager.register(oModule);
