@@ -211,8 +211,10 @@ gl.depsys = new function() {
 	Module.prototype.createModuleObject = function() {
 		var oContext = window;
 		var aNameParts = this.name.split('.');
+		if (aNameParts.length == 1 && aNameParts[0] == '')
+			return oContext;
 		for (var i = 0; i < aNameParts.length; i++) {
-			if (!oContext.hasOwnProperty(aNameParts[i]))
+			if (!(aNameParts[i] in oContext))
 				oContext = oContext[aNameParts[i]] = {};
 			else
 				oContext = oContext[aNameParts[i]];
