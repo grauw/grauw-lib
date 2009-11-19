@@ -385,7 +385,8 @@ gl.depsys = new function() {
 		if (bAsync) {
 			var oThis = this;
 			oXHR.onreadystatechange = function() {
-				oThis._loadComplete(oXHR);
+				if (oXHR.readyState == 4)
+					oThis._loadComplete(oXHR);
 			}
 		}
 		oXHR.open('GET', this.uri, bAsync);
