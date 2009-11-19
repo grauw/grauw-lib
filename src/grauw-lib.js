@@ -361,8 +361,6 @@ gl.depsys = new function() {
 		var sScript = oXHR.responseText;
 		oScript.text = sScript;
 		oHead.appendChild(oScript);
-		if (browser_ie)
-			window.execScript(sScript);
 		// oScript.src = this.uri;
 		this.loadComplete();
 	};
