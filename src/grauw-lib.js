@@ -182,7 +182,7 @@ gl.depsys = new function() {
 	 */
 	gl.module = function(sName, aDependencies, fImplementation) {
 		var sBaseURI = getScriptURI();
-		var oModule = new Module(sName, fImplementation);
+		var oModule = new Module(sName, fImplementation, sBaseURI);
 		for (var i = 0; i < aDependencies.length; i++) {
 			var oDependency = createDependency(aDependencies[i], sBaseURI);
 			oModule.addDependency(oDependency);
@@ -195,16 +195,21 @@ gl.depsys = new function() {
 	 * An object containing the information of a module.
 	 * @param {String} sName 
 	 * @param {Array} aDependencies
-	 * @param {Function} fInitialiser
+	 * @param {Function} fInitializer
 	 */
-	var Module = function(sName, fInitialiser) {
+	var Module = function(sName, fInitializer, sURI) {
 		this.name = sName;
-		this.initialiser = fInitialiser;
+		this.initializer = fInitializer;
+		this.uri = sURI;
 		this.dependencies = [];
 		this.object = null;
 	};
 	
 	this.Module = Module;
+	
+	Module.prototype.getURI = function(oDependency) {
+		return this.uri;
+	};
 	
 	Module.prototype.addDependency = function(oDependency) {
 		this.dependencies.push(oDependency);
@@ -254,7 +259,7 @@ gl.depsys = new function() {
 	};
 	
 	Module.prototype.initialize = function() {
-		this.initialiser.call(this.object);
+		this.initializer.call(this.object, this);
 	};
 	
 	
