@@ -335,32 +335,36 @@ gl.depsys = new function() {
 	};
 	
 	ScriptDependency.prototype._load = function(bAsync) {
+		var oXHR = new XMLHttpRequest();
+		if (bAsync) {
+			var oThis = this;
+			oXHR.onreadystatechange = function() {
+				if (oXHR.readyState == 4)
+					oThis._loadComplete(oXHR);
+			}
+		}
+		oXHR.open('GET', this.uri, bAsync);
+		oXHR.setRequestHeader('Accept', 'text/javascript');
+		oXHR.send();
+		if (!bAsync)
+			this._loadComplete(oXHR);
+	};
+	
+	ScriptDependency.prototype._loadComplete = function(oXHR) {
 		var oHead = document.getElementsByTagName('head')[0];
 		var oScript = document.createElement('script');
 		this.scriptNode = oScript;
 		oScript.type = 'text/javascript';
 		oScript._gl_dependency = this;
 		oScript._gl_src = this.uri;
-		if (!bAsync) {
-			var oXHR = new XMLHttpRequest();
-			oXHR.open('GET', this.uri, false);
-			oXHR.setRequestHeader('Accept', 'text/javascript');
-			oXHR.send();
-			var sScript = oXHR.responseText;
-			oScript.text = sScript;
-			oHead.appendChild(oScript);
-			if (browser_ie)
-				window.execScript(sScript);
-			this.loadComplete();
-		} else {
-			var oThis = this;
-			oScript.src = this.uri;
-			oScript.onload = function(event) {
-				oThis.loadComplete();
-			};
-			// TODO: onerror?
-			oHead.appendChild(oScript);
-		}
+		
+		var sScript = oXHR.responseText;
+		oScript.text = sScript;
+		oHead.appendChild(oScript);
+		if (browser_ie)
+			window.execScript(sScript);
+		// oScript.src = this.uri;
+		this.loadComplete();
 	};
 	
 	
