@@ -234,6 +234,8 @@ gl.depsys = new function() {
 			this.dependencies[i].addLoadListener(this);
 			this.dependencies[i].loadAsync();
 		}
+		if (!this.dependencies.length)
+			this.initialize();
 	};
 	
 	Module.prototype.dependencyLoaded = function(oDependency) {
