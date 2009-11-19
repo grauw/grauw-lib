@@ -1,0 +1,98 @@
+Execution/event orders found in IE:
+
+A execute
+B execute
+C execute
+D execute
+onreadystate D
+E execute
+onreadystate E
+F execute
+onreadystate F
+
+A execute
+B execute
+C execute
+D execute
+E execute
+onreadystate D
+F execute
+onreadystate E
+onreadystate F
+
+A execute
+B execute
+C execute
+E execute
+D execute
+onreadystate E
+F execute
+onreadystate D
+onreadystate F
+
+A execute
+D execute
+E execute
+onreadystate D
+F execute
+onreadystate E
+B execute
+onreadystate F
+C execute
+
+IE w/ createElement('<script defer>'):
+
+A execute
+B execute
+C execute
+D execute
+E execute
+onreadystate D
+onreadystate E
+F execute
+onreadystate F
+
+A execute
+D execute
+E execute
+B execute
+onreadystate D
+F execute
+onreadystate E
+C execute
+onreadystate F
+
+A execute
+D execute
+E execute
+onreadystate D
+F execute
+onreadystate E
+B execute
+onreadystate F
+
+Execution/ event orders found in Chrome:
+
+A execute
+B execute
+C execute
+C module OK
+D execute
+onload D
+E execute
+onload E
+A module OK
+F execute
+onload F
+F module OK
+E module OK
+
+A execute
+B execute
+D execute
+onload D
+E execute
+onload E
+A module OK
+C execute
+
