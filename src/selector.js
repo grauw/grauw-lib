@@ -129,7 +129,7 @@ gl.selector = new function() {
 	 * @param stop Stop querying after arriving at this node (optional)
 	 * @return The selected node.
 	 */
-	this.queryAncestor = function(oNode, sSelector, oStop) {
+	this.queryAncestorOrSelf = function(oNode, sSelector, oStop) {
 		var oSelectorGroup = oThis.parser.parse(sSelector);
 		if (!oSelectorGroup)
 			return null;
