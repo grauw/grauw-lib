@@ -123,7 +123,7 @@ gl.selector = new function() {
 	};
 
 	/**
-	 * Use a CSS selector to return the first selection found on a node or subsequent ancestors.
+	 * Use a CSS selector to return the first selection found on a node or its ancestors.
 	 * @param node The node
 	 * @param selector The selector
 	 * @param stop Stop querying after arriving at this node (optional)
