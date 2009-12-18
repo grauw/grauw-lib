@@ -1,4 +1,4 @@
-log('A execute');
+log('A execute: ' + getCurrentScriptName());
 gl.module(
 	'a',
 	[ 'sub/D.js', 'sub/E.js' ],

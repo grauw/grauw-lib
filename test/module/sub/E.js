@@ -1,4 +1,4 @@
-log('E execute');
+log('E execute: ' + getCurrentScriptName());
 gl.module(
 	'e',
 	[ 'F.js' ],

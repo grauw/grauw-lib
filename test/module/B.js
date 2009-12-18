@@ -1,1 +1,1 @@
-log('B execute');
+log('B execute: ' + getCurrentScriptName());

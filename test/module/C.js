@@ -1,4 +1,4 @@
-log('C execute');
+log('C execute: ' + getCurrentScriptName());
 gl.module(
 	'c',
 	[],

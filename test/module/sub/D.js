@@ -1,1 +1,1 @@
-log('D execute');
+log('D execute: ' + getCurrentScriptName());
