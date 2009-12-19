@@ -2,7 +2,7 @@
  * @fileoverview
  * 
  * Functions to support a Component / Container model,
- * and “TXML” (XML binding) definitions.
+ * and XML templates definitions.
  */
 gl.module('gl.core', [], function() {
 	
@@ -138,57 +138,6 @@ gl.module('gl.core', [], function() {
 	
 	
 	
-	
-	/**
-	 * Dependency implementation for the ‘TXML’ type.
-	 * Uses MIME-type ‘application/xml’.
-	 */
-	var TXMLDependency = function(sURI) {
-		gl.depsys.Dependency.call(this, sURI);
-		this.xml = null;
-	};
-	
-	this.TXMLDependency = gl.Class.create(TXMLDependency, gl.depsys.Dependency);
-	
-	TXMLDependency.prototype.load = function() {
-		this._load(false);
-	};
-	
-	TXMLDependency.prototype.loadAsync = function() {
-		this._load(true);
-	};
-	
-	TXMLDependency.prototype._load = function(bAsync) {
-		var oXHR = new XMLHttpRequest();
-		if (bAsync) {
-			var oThis = this;
-			oXHR.onreadystatechange = function() {
-				if (oXHR.readyState == 4)
-					oThis._loadComplete(oXHR);
-			}
-		}
-		oXHR.open('GET', this.uri, bAsync);
-		oXHR.setRequestHeader('Accept', 'application/xml');
-		oXHR.send();
-		if (!bAsync)
-			this._loadComplete(oXHR);
-	};
-	
-	TXMLDependency.prototype._loadComplete = function(oXHR) {
-		if (oXHR.responseXML.documentElement) {
-			this.xml = oXHR.responseXML;
-			var oNamespace = gl.namespaces.build(this.xml.documentElement);
-			oNamespace.init();
-			this.loadComplete();
-		}
-		// TODO: else error?
-	};
-	
-	
-	
-	
-	// register the TXML dependency type
-	gl.depsys.dependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
 	
 	// instantiate NamespaceList
 	gl.namespaces = new gl.core.NamespaceList();
@@ -409,8 +358,57 @@ gl.module('gl.templates', [], function() {
 	
 	
 	
+	/**
+	 * Dependency implementation for the XML templates type.
+	 * Uses MIME-type ‘application/xml’.
+	 */
+	var TemplatesDependency = function(sURI) {
+		gl.depsys.Dependency.call(this, sURI);
+		this.xml = null;
+	};
+	
+	this.TemplatesDependency = gl.Class.create(TemplatesDependency, gl.depsys.Dependency);
+	
+	TemplatesDependency.prototype.load = function() {
+		this._load(false);
+	};
+	
+	TemplatesDependency.prototype.loadAsync = function() {
+		this._load(true);
+	};
+	
+	TemplatesDependency.prototype._load = function(bAsync) {
+		var oXHR = new XMLHttpRequest();
+		if (bAsync) {
+			var oThis = this;
+			oXHR.onreadystatechange = function() {
+				if (oXHR.readyState == 4)
+					oThis._loadComplete(oXHR);
+			}
+		}
+		oXHR.open('GET', this.uri, bAsync);
+		oXHR.setRequestHeader('Accept', 'application/xml');
+		oXHR.send();
+		if (!bAsync)
+			this._loadComplete(oXHR);
+	};
+	
+	TemplatesDependency.prototype._loadComplete = function(oXHR) {
+		if (oXHR.responseXML.documentElement) {
+			this.xml = oXHR.responseXML;
+			var oNamespace = gl.namespaces.build(this.xml.documentElement);
+			oNamespace.init();
+			this.loadComplete();
+		}
+		// TODO: else error?
+	};
+	
+	
+	
+	
 	// instantiate templates namespace
 	var oTNamespace = new gl.core.Namespace('http://www.grauw.nl/templates');
+	this.namespace = oTNamespace;
 	
 	// add element types
 	oTNamespace.add(Namespace,   'namespace');
@@ -423,6 +421,7 @@ gl.module('gl.templates', [], function() {
 	// register templates namespace
 	gl.namespaces.add(oTNamespace);
 	
-	this.namespace = oTNamespace;
+	// register the XML templates dependency type
+	gl.depsys.dependencyManager.registerDependencyHandler('application/xml', TemplatesDependency);
 	
 });
