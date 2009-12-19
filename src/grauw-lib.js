@@ -212,7 +212,6 @@ gl.depsys = new function() {
 		this.uri = sURI;
 		this.dependencies = [];
 		this.object = null;
-		this.loadListeners = [];
 	};
 	
 	this.Module = Module;
