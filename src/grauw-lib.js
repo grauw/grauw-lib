@@ -111,12 +111,12 @@ gl.depsys = new function() {
 	/**
 	 * Returns the URI of a script tag.
 	 * In IE6 and IE7 the src property is not absolute, so need to use another method.
-	 * If no src property is specified, it returns the _gl_src property value
+	 * If no src property is specified, it returns the URI of the _gl_dependency property
 	 * which is present if the script tag was created by a dependency.
 	 */
 	function getScriptURI(oScript) {
 		var sScriptSrc = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
-		return sScriptSrc || oScript._gl_src || null;
+		return sScriptSrc || (oScript._gl_dependency && oScript._gl_dependency.getURI()) || null;
 	}
 	
 	/**
@@ -364,7 +364,6 @@ gl.depsys = new function() {
 		this.scriptNode = oScript;
 		oScript.type = 'text/javascript';
 		oScript._gl_dependency = this;
-		oScript._gl_src = this.uri;
 		
 		var sScript = oXHR.responseText;
 		oScript.text = sScript;
