@@ -4,47 +4,49 @@
  * Functions to support a Component / Container model,
  * and “TXML” (XML binding) definitions.
  */
-
-
-
-/* deal with inability of IE to set controller property on XML nodes */
-
-var browser_ie = !!window.ActiveXObject;
-
-if (browser_ie)
-	gl.modelRegistry = [];
-
-function setController(oModel, oController) {
-	if (browser_ie) {
-		var id = gl.modelRegistry.length;
-		gl.modelRegistry[id] = oController;
-		oModel.setAttribute('_controller', id);
-	} else {
-		oModel.controller = oController;
+gl.module('gl.core', [], function() {
+	
+	var browser_ie = !!window.ActiveXObject;
+	
+	function parseHTML_IE(sHTML) {
+		var oDiv = document.createElement('div');
+		oDiv.innerHTML = '&#160;' + sHTML;
+		return oDiv.childNodes[1];
 	}
-}
-
-function getController(oModel) {
-	if (browser_ie) {
-		var id = oModel.getAttribute('_controller');
-		return id && gl.modelRegistry[id] || null;
-	} else {
-		return oModel.controller;
+	
+	
+	
+	
+	/**
+	 * A utility registry to help map model nodes to controllers.
+	 * Primarily to deal IE’s inability to set property on XML nodes.
+	 */
+	var ModelRegistry = function() {
+		this.registry = {};	// only used in IE
+	};
+	this.ModelRegistry = ModelRegistry;
+	
+	ModelRegistry.prototype.setController = function(oModel, oController) {
+		if (browser_ie) {
+			var id = this.registry.length;
+			this.registry[id] = oController;
+			oModel.setAttribute('_controller', id);
+		} else {
+			oModel.controller = oController;
+		}
 	}
-}
 
-function xmlEscape(sText) {
-	return sText.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/&/g,'&amp;');
-}
-
-function parseHTML_IE(sHTML) {
-	var oDiv = document.createElement('div');
-	oDiv.innerHTML = '&#160;' + sHTML;
-	return oDiv.childNodes[1];
-}
-
-
-gl.core = new function() {
+	ModelRegistry.prototype.getController = function(oModel) {
+		if (browser_ie) {
+			var id = oModel.getAttribute('_controller');
+			return id && this.registry[id] || null;
+		} else {
+			return oModel.controller;
+		}
+	}
+	
+	
+	
 	
 	/**
 	 * A visual component with an HTML view.
@@ -130,7 +132,7 @@ gl.core = new function() {
 	 */
 	var Element = function(oModel) {
 		this.model = oModel;
-		setController(oModel, this);
+		gl.core.modelRegistry.setController(oModel, this);
 	};
 	this.Element = gl.Class.create(Element);
 	
@@ -142,7 +144,7 @@ gl.core = new function() {
 	 * Uses MIME-type ‘application/xml’.
 	 */
 	var TXMLDependency = function(sURI) {
-		Dependency.call(this, sURI);
+		gl.depsys.Dependency.call(this, sURI);
 		this.xml = null;
 	};
 	
@@ -183,15 +185,31 @@ gl.core = new function() {
 	};
 	
 	
+	
+	
 	// register the TXML dependency type
 	gl.depsys.dependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
 	
-}();
+	// instantiate NamespaceList
+	gl.namespaces = new gl.core.NamespaceList();
+	this.modelRegistry = new ModelRegistry();
+	
+});
 
-gl.namespaces = new gl.core.NamespaceList();
+gl.module('gl.templates', [], function() {
+	
+	var browser_ie = !!window.ActiveXObject;
 
-gl.templates = new function() {
+	function xmlEscape(sText) {
+		return sText.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/&/g,'&amp;');
+	}
 
+	function parseHTML_IE(sHTML) {
+		var oDiv = document.createElement('div');
+		oDiv.innerHTML = '&#160;' + sHTML;
+		return oDiv.childNodes[1];
+	}
+	
 	function getReference(sJSPath, bCreate) {
 		var aJSPath = sJSPath.split('.');
 		var oObject = window;
@@ -211,13 +229,19 @@ gl.templates = new function() {
 		var aClasses = [];
 		var oController;
 		while (oNode) {
-			if (oNode.nodeType == 1 && (oController = getController(oNode)) instanceof cClass)
+			if (oNode.nodeType == 1 && (oController = gl.core.modelRegistry.getController(oNode)) instanceof cClass)
 				aClasses.push(oController);
 			oNode = oNode.nextSibling;
 		}
 		return aClasses;
 	}
-
+	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Namespace = function(oModel) {
 		gl.core.Element.call(this, oModel);
 	};
@@ -242,6 +266,12 @@ gl.templates = new function() {
 		}
 	};
 	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Class = function(oModel, oParent) {
 		gl.core.Element.call(this, oModel);
 		this._namespace = oParent;
@@ -281,6 +311,12 @@ gl.templates = new function() {
 		return oNamespace.getObject()[this.getName()] = fConstructor;
 	};
 	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Template = function(oModel, oParent) {
 		gl.core.Element.call(this, oModel);
 		this._class = oParent;
@@ -297,6 +333,12 @@ gl.templates = new function() {
 		return null;
 	};
 	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Constructor = function(oModel, oParent) {
 		gl.core.Element.call(this, oModel);
 		this._class = oParent;
@@ -312,6 +354,12 @@ gl.templates = new function() {
 			return new Function(sBody);
 	};
 	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Method = function(oModel, oParent) {
 		gl.core.Element.call(this, oModel);
 		this._class = oParent;
@@ -324,6 +372,12 @@ gl.templates = new function() {
 		return this.model.getAttribute('name') || null;
 	};
 	
+	
+	
+	
+	/**
+	 * 
+	 */
 	var Resource = function(oModel, oParent) {
 		gl.core.Element.call(this, oModel);
 		
@@ -352,13 +406,23 @@ gl.templates = new function() {
 		return this.model.getAttribute('type') || null;
 	};
 	
+	
+	
+	
+	// instantiate templates namespace
 	var oTNamespace = new gl.core.Namespace('http://www.grauw.nl/templates');
+	
+	// add element types
 	oTNamespace.add(Namespace,   'namespace');
 	oTNamespace.add(Class,       'class');
 	oTNamespace.add(Template,    'template');
 	oTNamespace.add(Constructor, 'constructor');
 	oTNamespace.add(Method,      'method');
 	oTNamespace.add(Resource,    'resource');
+	
+	// register templates namespace
 	gl.namespaces.add(oTNamespace);
 	
-}();
+	this.namespace = oTNamespace;
+	
+});
