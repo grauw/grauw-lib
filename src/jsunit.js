@@ -1,6 +1,8 @@
-gl.require('mvc.js');
-gl.require('xmlbindings.js');
-gl.require({type: 'application/xml', src: 'jsunit.xml'});
+gl.require(
+		'mvc.js',
+		'xmlbindings.js',
+		{type: 'application/xml', src: 'jsunit.xml'}
+	);
 
 gl.unit = function(module) {
 	
