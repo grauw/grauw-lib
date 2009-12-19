@@ -1,6 +1,18 @@
 gl = new function() {
 	
 	/**
+	 * Copies properties from a hash object onto another object.
+	 * @param object The object to copy the members to.
+	 * @param members The hash object containing the members. 
+	 */
+	function mixin(oObject, hMembers) {
+	   for (var i in hMembers)
+		   if (hMembers.hasOwnProperty(i))
+			   oObject[i] = hMembers[i];
+	};
+	this.mixin = mixin;
+	
+	/**
 	 * Base object?
 	 * Just an experiment...
 	 */
@@ -30,17 +42,6 @@ gl = new function() {
 		fConstructor.prototype.constructor = fConstructor;
 		// fConstructor.parent = cBase? (or is that implicit from prototype?)
 		return fConstructor;
-	};
-	
-	/**
-	 * Copies properties from a hash object onto another object.
-	 * @param object The object to copy the members to.
-	 * @param members The hash object containing the members. 
-	 */
-	Class.mixin = function(oObject, hMembers) {
-	   for (var i in hMembers)
-		   if (hMembers.hasOwnProperty(i))
-			   oObject[i] = hMembers[i];
 	};
 	
 	/**
