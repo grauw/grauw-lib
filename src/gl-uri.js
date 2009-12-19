@@ -21,8 +21,6 @@ gl.uri = new function() {
 	};
 	this.URI = URI;
 	
-	URI.prototype = new Object();
-	
 	// Initial values on the prototype
 	URI.prototype.scheme    = null;
 	URI.prototype.authority = null;
