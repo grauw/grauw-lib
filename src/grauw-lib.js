@@ -428,9 +428,11 @@ gl.depsys = new function() {
 	};
 	
 	DependencyManager.prototype.createDependency = function(sType, sURI) {
-		return new this.handlers[sType](sURI);
+		return this.handlers[sType] && new this.handlers[sType](sURI) || null;
 	};
-
+	
+	
+	
 	
 	/**
 	 * Module manager
@@ -439,6 +441,8 @@ gl.depsys = new function() {
 	};
 	
 	this.ModuleManager = ModuleManager;
+	
+	
 	
 	
 	// initialise dependency manager
