@@ -39,8 +39,6 @@ if (!window.gl)
  */
 gl.selector = new function() {
 
-	var oThis = this;	// to make references to this class without hard coding the actual name
-
 	var browser_ie = !!window.ActiveXObject;
 	var browser_webkit = navigator.userAgent.indexOf('AppleWebKit') != -1;
 
@@ -90,8 +88,8 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return true if the selector matches.
 	 */
-	this.match = function(oNode, sSelector) {
-		var oSelectorGroup = oThis.parser.parse(sSelector);
+	this.match = function match(oNode, sSelector) {
+		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
 	};
 
@@ -101,10 +99,10 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return An array containing the selected nodes.
 	 */
-	this.queryAll = function(oNode, sSelector) {
+	this.queryAll = function queryAll(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
-		var oSelectorGroup = oThis.parser.parse(sSelector);
+		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
 	};
 
@@ -114,10 +112,10 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return The selected node.
 	 */
-	this.query = function(oNode, sSelector) {
+	this.query = function query(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
-		var oSelectorGroup = oThis.parser.parse(sSelector);
+		var oSelectorGroup = oParser.parse(sSelector);
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
 	};
@@ -129,8 +127,8 @@ gl.selector = new function() {
 	 * @param stop Stop querying after arriving at this node (optional)
 	 * @return The selected node.
 	 */
-	this.queryAncestorOrSelf = function(oNode, sSelector, oStop) {
-		var oSelectorGroup = oThis.parser.parse(sSelector);
+	this.queryAncestorOrSelf = function queryAncestorOrSelf(oNode, sSelector, oStop) {
+		var oSelectorGroup = oParser.parse(sSelector);
 		if (!oSelectorGroup)
 			return null;
 
@@ -149,8 +147,8 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return The selected node.
 	 */
-	this.queryDocument = function(sSelector) {
-		return oThis.query(document.documentElement, sSelector);
+	this.queryDocument = function queryDocument(sSelector) {
+		return query(document.documentElement, sSelector);
 	};
 
 	/**
@@ -158,8 +156,8 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return Array containing the selected nodes.
 	 */
-	this.queryDocumentAll = function(sSelector) {
-		return oThis.queryAll(document.documentElement, sSelector);
+	this.queryDocumentAll = function queryDocumentAll(sSelector) {
+		return queryAll(document.documentElement, sSelector);
 	};
 
 
@@ -1366,12 +1364,6 @@ gl.selector = new function() {
 	};
 
 
-	/**
-	 * Default instantiation of a caching parser.
-	 */
-	this.parser = new CachingParser();
-
-
 
 	/**
 	 * An exception object that is thrown when there is a parse error.
@@ -1389,5 +1381,11 @@ gl.selector = new function() {
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
 	};
+
+
+
+	// instantiate caching parser
+	var oParser = new CachingParser();
+	this.parser = oParser;
 
 }();
