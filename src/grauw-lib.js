@@ -44,53 +44,6 @@ gl = new function() {
 		return fConstructor;
 	};
 	
-	/**
-	 * Alternate version of gl.Class.create:
-	 * 
-	 * var SomeClass = gl.Class.create2(Object, {
-	 * 		constructor: function() {
-	 * 			Object.call(this);
-	 * 		},
-	 * 		member1: function() {},
-	 * 		member2: null
-	 * 	});
-	 * SomeClass.prototype.x = function(){};
-	 * 
-	 * Constructor is passed as a member called 'constructor'; it is optional,
-	 * if not present one is automatically created that calls the super class constructor.
-	 * 
-	 * @param base A base class.
-	 * @param members A hash object containing members for the class.
-	 * @param staticMembers A hash object containing static members for the class.
-	 * @return The class object.
-	 */
-	Class.create2 = function(cBase, hMembers, hStaticMembers) {
-		var fConstructor = hMembers && hMembers.constructor || function() {
-				cBase.apply(this, arguments);
-			};
-		var cClass = gl.Class.create(fConstructor, cBase);
-		if (hMembers)
-			gl.Class.mixin(cClass.prototype, hMembers);
-		if (hStaticMembers)
-			gl.Class.mixin(cClass, hStaticMembers);
-		return cClass;
-	};
-	
-	
-	/**
-	 * Alternative approach
-	 */
-	var Prototype = function() {
-	};
-	this.Prototype = Prototype;
-	
-	Prototype.extend = function(cBase) {
-		// create new prototype object that inherits from cBase
-		var cPrototype = new Function;
-		cPrototype.prototype = (cBase || Object).prototype;
-		return new cPrototype;
-	};
-	
 };
 
 
