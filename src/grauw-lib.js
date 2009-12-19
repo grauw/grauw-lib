@@ -461,8 +461,3 @@ gl.depsys = new function() {
 	this.dependencyManager = oDependencyManager;
 	
 };
-
-
-gl.require('xmlbindings.js');
-
-
