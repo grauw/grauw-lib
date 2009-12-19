@@ -21,26 +21,27 @@ gl = new function() {
 	this.Class = Class;
 	
 	/**
-	 * Creates a class object based on a constructor:
+	 * Creates a class object based on a constructor.
 	 * 
-	 * var SomeClass = function() {
-	 * 	Object.call(this);
+	 * var MyClass = function() {
+	 *     MyBaseClass.call(this); // call super
 	 * };
-	 * SomeClass = gl.Class.create(SomeClass, Object);
-	 * SomeClass.prototype.x = function(){};
+	 * MyClass = gl.Class.create(MyClass, MyBaseClass);
+	 * MyClass.prototype.myMethod = function(){};
 	 * 
-	 * @param constructor A constructor function.
-	 * @param base A base class.
-	 * @return The class object. Note that this is in fact the same object
+	 * @param constructor A constructor function (optional).
+	 * @param base A base class (optional).
+	 * @return The class constructor. Note that this is the same object
 	 * that was passed as the constructor.
 	 */
 	Class.create = function(fConstructor, cBase) {
+		cBase = cBase || Object;
+		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
 		// create new prototype object that inherits from cBase
 		var cPrototype = new Function;
-		cPrototype.prototype = (cBase || Object).prototype;
+		cPrototype.prototype = cBase.prototype;
 		fConstructor.prototype = new cPrototype;
 		fConstructor.prototype.constructor = fConstructor;
-		// fConstructor.parent = cBase? (or is that implicit from prototype?)
 		return fConstructor;
 	};
 	
