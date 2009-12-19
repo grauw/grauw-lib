@@ -359,6 +359,11 @@ gl.depsys = new function() {
 	};
 	
 	ScriptDependency.prototype._load = function(bAsync) {
+		if (oDependencyManager.isLoaded(this.uri)) {
+			this.loadComplete();
+			return;
+		}
+		
 		var oXHR = new XMLHttpRequest();
 		if (bAsync) {
 			var oThis = this;
