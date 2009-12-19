@@ -191,6 +191,8 @@ gl.depsys = new function() {
 	gl.module = function(sName, aDependencies, fImplementation) {
 		var sBaseURI = getScriptURI(getCurrentScript());
 		var oModule = new Module(sName, fImplementation, sBaseURI);
+		if (ScriptDependency.currentDependency)
+			ScriptDependency.currentDependency.registerModule(oModule);
 		for (var i = 0; i < aDependencies.length; i++) {
 			var oDependency = createDependency(aDependencies[i], sBaseURI);
 			oModule.addDependency(oDependency);
@@ -211,6 +213,7 @@ gl.depsys = new function() {
 		this.uri = sURI;
 		this.dependencies = [];
 		this.object = null;
+		this.loadListeners = [];
 	};
 	
 	this.Module = Module;
@@ -281,9 +284,20 @@ gl.depsys = new function() {
 		this.uri = sURI;
 		this.loadListeners = [];
 		this.loaded = false;
+		this.modules = [];
 	};
 	
 	this.Dependency = Dependency;
+	
+	/**
+	 * Registers a module to be a child of this dependency.
+	 * Registered modules are taken into account by isLoaded().
+	 * @param oModule The module in this dependency.
+	 * @return
+	 */
+	Dependency.prototype.registerModule = function(oModule) {
+		this.modules.push(oModule);
+	};
 	
 	Dependency.prototype.getURI = function() {
 		return this.uri;
@@ -334,6 +348,8 @@ gl.depsys = new function() {
 
 	this.ScriptDependency = gl.Class.create(ScriptDependency, Dependency);
 	
+	ScriptDependency.currentDependency = null;
+	
 	ScriptDependency.prototype.load = function() {
 		this._load(false);
 	};
@@ -367,7 +383,9 @@ gl.depsys = new function() {
 		
 		var sScript = oXHR.responseText;
 		oScript.text = sScript;
-		oHead.appendChild(oScript);
+		ScriptDependency.currentDependency = this;
+		oHead.appendChild(oScript);	// execute script
+		ScriptDependency.currentDependency = null;
 		// oScript.src = this.uri;
 		this.loadComplete();
 	};
