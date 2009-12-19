@@ -125,6 +125,8 @@ gl.depsys = new function() {
 	 * (But good enough for now.)
 	 */
 	function getCurrentScript() {
+		if (ScriptDependency.currentDependency)
+			return ScriptDependency.currentDependency.scriptNode;
 		var aScripts = document.getElementsByTagName('script');
 		return aScripts[aScripts.length - 1];
 	}
