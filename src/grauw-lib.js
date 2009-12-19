@@ -1,12 +1,6 @@
 gl = new function() {
 	
 	/**
-	 * Boot this shit!
-	 */
-	gl.boot = function() {
-	};
-	
-	/**
 	 * Base object?
 	 * Just an experiment...
 	 */
