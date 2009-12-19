@@ -21,7 +21,7 @@ gl.module('gl.core', [], function() {
 	 * Primarily to deal IE’s inability to set property on XML nodes.
 	 */
 	var ModelRegistry = function() {
-		this.registry = {};	// only used in IE
+		this.registry = [];	// only used in IE
 	};
 	this.ModelRegistry = ModelRegistry;
 	
