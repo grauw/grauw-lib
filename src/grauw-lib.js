@@ -129,6 +129,9 @@ gl.depsys = new function() {
 		return aScripts[aScripts.length - 1];
 	}
 	
+	/**
+	 * Creates a Dependency object based on descriptor object and base URI
+	 */
 	function createDependency(vDescriptor, sBaseURI) {
 		var bIsObject = typeof vDescriptor == 'object';
 		var sRelativeURI = bIsObject ? vDescriptor.src : vDescriptor;
@@ -156,8 +159,6 @@ gl.depsys = new function() {
 		var sBaseURI = getScriptURI(getCurrentScript());
 		for (var i = 0; i < arguments.length; i++) {
 			var oDependency = createDependency(arguments[i], sBaseURI);
-			if (oDependencyManager.isLoaded(oDependency.getURI()))
-				continue;
 			oDependency.load();
 		}
 	};
