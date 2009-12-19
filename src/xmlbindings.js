@@ -7,6 +7,12 @@ gl.module('gl.templates',
 	['mvc.js'],
 	function() {
 	
+	// imports
+	var Element = gl.core.Element;
+	
+	
+	
+	// utility
 	var browser_ie = !!window.ActiveXObject;
 
 	function xmlEscape(sText) {
@@ -52,9 +58,9 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Namespace = function(oModel) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 	};
-	this.Namespace = gl.Class.create(Namespace, gl.core.Element);
+	this.Namespace = gl.Class.create(Namespace, Element);
 	
 	Namespace.prototype.getURI = function() {
 		return this.model.getAttribute('name') || null;
@@ -82,10 +88,10 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Class = function(oModel, oParent) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 		this._namespace = oParent;
 	};
-	this.Class = gl.Class.create(Class, gl.core.Element);
+	this.Class = gl.Class.create(Class, Element);
 	
 	Class.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
@@ -127,10 +133,10 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Template = function(oModel, oParent) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Template = gl.Class.create(Template, gl.core.Element);
+	this.Template = gl.Class.create(Template, Element);
 	
 	Template.prototype.getTemplate = function() {
 		var oNode = this.model.firstChild;
@@ -149,10 +155,10 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Constructor = function(oModel, oParent) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Constructor = gl.Class.create(Constructor, gl.core.Element);
+	this.Constructor = gl.Class.create(Constructor, Element);
 	
 	Constructor.prototype.getConstructor = function() {
 		var sArguments = this.model.getAttribute('arguments');
@@ -170,10 +176,10 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Method = function(oModel, oParent) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Method = gl.Class.create(Method, gl.core.Element);
+	this.Method = gl.Class.create(Method, Element);
 	
 	Method.prototype.getMethod = Constructor.prototype.getConstructor;
 	
@@ -188,7 +194,7 @@ gl.module('gl.templates',
 	 * 
 	 */
 	var Resource = function(oModel, oParent) {
-		gl.core.Element.call(this, oModel);
+		Element.call(this, oModel);
 		
 		switch (this.getType()) {
 		case 'text/css':
@@ -209,7 +215,7 @@ gl.module('gl.templates',
 			break;
 		}
 	};
-	this.Resource = gl.Class.create(Resource, gl.core.Element);
+	this.Resource = gl.Class.create(Resource, Element);
 	
 	Resource.prototype.getType = function() {
 		return this.model.getAttribute('type') || null;
