@@ -109,16 +109,24 @@ gl.depsys = new function() {
 	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
 	
 	/**
-	 * Returns the URI of the last script tag, which is presumed to be this script.
+	 * Returns the URI of a script tag.
+	 * In IE6 and IE7 the src property is not absolute, so need to use another method.
+	 * If no src property is specified, it returns the _gl_src property value
+	 * which is present if the script tag was created by a dependency.
+	 */
+	function getScriptURI(oScript) {
+		var sScriptSrc = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
+		return sScriptSrc || oScript._gl_src || null;
+	}
+	
+	/**
+	 * Returns the last script tag, which is presumed to be this script.
 	 * Will probably not work for deferred scripts or certain dynamically inserted scripts...
 	 * (But good enough for now.)
 	 */
-	function getScriptURI() {
+	function getCurrentScript() {
 		var aScripts = document.getElementsByTagName('script');
-		var oScript = aScripts[aScripts.length - 1];
-		// src property is not absolute in IE6 and IE7
-		var sScriptSrc = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
-		return sScriptSrc || oScript._gl_src;
+		return aScripts[aScripts.length - 1];
 	}
 	
 	function createDependency(vDescriptor, sBaseURI) {
@@ -145,7 +153,7 @@ gl.depsys = new function() {
 	 * XXX: Maybe it should also accept plain strings (and then )
 	 */
 	gl.require = function() {
-		var sBaseURI = getScriptURI();
+		var sBaseURI = getScriptURI(getCurrentScript());
 		for (var i = 0; i < arguments.length; i++) {
 			var oDependency = createDependency(arguments[i], sBaseURI);
 			if (oDependencyManager.isLoaded(oDependency.getURI()))
@@ -181,7 +189,7 @@ gl.depsys = new function() {
 	 * file is loaded, by default it is text/javascript.
 	 */
 	gl.module = function(sName, aDependencies, fImplementation) {
-		var sBaseURI = getScriptURI();
+		var sBaseURI = getScriptURI(getCurrentScript());
 		var oModule = new Module(sName, fImplementation, sBaseURI);
 		for (var i = 0; i < aDependencies.length; i++) {
 			var oDependency = createDependency(aDependencies[i], sBaseURI);
@@ -435,7 +443,7 @@ gl.depsys = new function() {
 			return true;
 		var aScripts = document.getElementsByTagName('script');
 		for (var i = 0; i < aScripts.length; i++) {
-			if ((aScripts[i].src || aScripts[i]._gl_src) == sURI)
+			if (getScriptURI(aScripts[i]) == sURI)
 				return true;
 		}
 		return false;
@@ -469,7 +477,7 @@ gl.depsys = new function() {
 	oDependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
 	
 	// load URI library to do URI resolving (a bit of a paradox :))
-	var sBaseURI = getScriptURI();
+	var sBaseURI = getScriptURI(getCurrentScript());
 	var oURIDependency = new ScriptDependency(sBaseURI.substr(0, sBaseURI.lastIndexOf('/')) + '/gl-uri.js');
 	oURIDependency.load();
 	
