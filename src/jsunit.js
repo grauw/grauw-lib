@@ -4,7 +4,7 @@ gl.require(
 		{type: 'application/xml', src: 'jsunit.xml'}
 	);
 
-gl.unit = function(module) {
+gl.module('gl.unit', [], function() {
 	
 	/**
 	 * Unit testing framework
@@ -14,7 +14,7 @@ gl.unit = function(module) {
 		this.log = new gl.unit.JSUnitLog(document);
 		this.init();
 	};
-	module.JSUnit = gl.Class.create(JSUnit);
+	this.JSUnit = gl.Class.create(JSUnit);
 
 	JSUnit.prototype.init = function() {
 		// override
@@ -74,5 +74,4 @@ gl.unit = function(module) {
 		return new Date() - this.time;
 	};
 
-	return module;
-}(gl.unit || {});
+});
