@@ -31,7 +31,7 @@ gl.unit = function(module) {
 	};
 
 	JSUnit.prototype.end = function() {
-		document.body.insertBefore(this.log.viewNode, document.body.firstChild);
+		document.body.insertBefore(this.log.view, document.body.firstChild);
 	};
 
 	JSUnit.prototype.writeln = function(sString) {

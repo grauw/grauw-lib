@@ -16,7 +16,7 @@ gl.dom.DOMImplementation = function() {
 	var oXHTMLNamespace2 = new gl.dom.Namespace(null);
 	oDocument.registerNamespace(oXHTMLNamespace2);
 	
-	var oRoot = oDocument.importNode(oDocument.modelNode.documentElement, true);
+	var oRoot = oDocument.importNode(oDocument.model.documentElement, true);
 	oDocument._appendChild(oRoot);
 };
 gl.Class.create(gl.dom.DOMImplementation);
@@ -47,7 +47,7 @@ gl.dom.Node = function(oDocument, oImportedNode) {
 		return;
 	
 	this.ownerDocument = oDocument;
-	this.modelNode = oImportedNode;
+	this.model = oImportedNode;
 	oImportedNode.controller = this; // XXX: should this be set here???
 	
 	this.childNodes = []; // XXX: should be NodeList
@@ -68,15 +68,15 @@ gl.dom.Node.DOCUMENT_FRAGMENT_NODE      = 11;
 gl.dom.Node.NOTATION_NODE               = 12;
 
 gl.dom.Node.prototype.getNodeName = function() {
-	return this.modelNode.nodeName;
+	return this.model.nodeName;
 };
 
 gl.dom.Node.prototype.getNodeType = function() {
-	return this.modelNode.nodeType;
+	return this.model.nodeType;
 };
 
 gl.dom.Node.prototype.getNodeValue = function() {
-	return this.modelNode.nodeType;
+	return this.model.nodeType;
 };
 
 gl.dom.Node.prototype.getOwnerDocument = function() {
@@ -84,36 +84,36 @@ gl.dom.Node.prototype.getOwnerDocument = function() {
 };
 
 gl.dom.Node.prototype.getParentNode = function() {
-	var oParentNode = this.modelNode.parentNode;
+	var oParentNode = this.model.parentNode;
 	return oParentNode && oParentNode.controller || null;
 };
 
 gl.dom.Node.prototype.getPrefix = function() {
-	return this.modelNode.prefix;
+	return this.model.prefix;
 };
 
 gl.dom.Node.prototype.setPrefix = function(sValue) {
-	return this.modelNode.prefix = sValue;
+	return this.model.prefix = sValue;
 };
 
 gl.dom.Node.prototype.getPreviousSibling = function() {
-	var oPreviousSibling = this.modelNode.previousSibling;
+	var oPreviousSibling = this.model.previousSibling;
 	return oPreviousSibling && oPreviousSibling.controller || null;
 };
 
 gl.dom.Node.prototype.getTextContent = function() {
-	return this.modelNode.textContent;
+	return this.model.textContent;
 };
 
 gl.dom.Node.prototype.appendChild = function(oNewChild) {
-	this.modelNode.appendChild(oNewChild.modelNode);
+	this.model.appendChild(oNewChild.model);
 	return this._appendChild(oNewChild);
 };
 
 gl.dom.Node.prototype._appendChild = function(oNewChild) {
 //	this.childNodes += node;
 	
-//	this.viewGate.appendChild(node.viewNode);
+//	this.viewGate.appendChild(node.view);
 	
 //	MutationEvent event = new MutationEvent();
 //	event.initMutationEventNS(null, 'DOMNodeInserted', true, false, this, null, null, null, 0);
@@ -129,70 +129,70 @@ gl.dom.Node.prototype.cloneNode = function(bDeep) {
 };
 
 gl.dom.Node.prototype.compareDocumentPosition = function(oOther) {
-	return this.modelNode.compareDocumentPosition(oOther.modelNode);
+	return this.model.compareDocumentPosition(oOther.model);
 };
 
 gl.dom.Node.prototype.getFeature = function(sFeature, sVersion) {
-	return this.modelNode.getFeature(sFeature, sVersion);
+	return this.model.getFeature(sFeature, sVersion);
 };
 
 gl.dom.Node.prototype.getUserData = function(sKey) {
-	return this.modelNode.getUserData(sKey);
+	return this.model.getUserData(sKey);
 };
 
 gl.dom.Node.prototype.hasAttributes = function() {
-	return this.modelNode.hasAttributes();
+	return this.model.hasAttributes();
 };
 
 gl.dom.Node.prototype.hasChildNodes = function() {
-	return this.modelNode.hasChildNodes();
+	return this.model.hasChildNodes();
 };
 
 gl.dom.Node.prototype.insertBefore = function(oNewChild, oRefChild) {
-	this.modelNode.insertBefore(oNewChild.modelNode, oRefChild.modelNode);
+	this.model.insertBefore(oNewChild.model, oRefChild.model);
 	return oNewChild;
 };
 
 gl.dom.Node.prototype.isDefaultNamespace = function(sNamespaceURI) {
-	return this.modelNode.isDefaultNamespace(sNamespaceURI);
+	return this.model.isDefaultNamespace(sNamespaceURI);
 };
 
 gl.dom.Node.prototype.isEqualNode = function(oArg) {
-	return this.modelNode.isEqualNode(oArg.modelNode);
+	return this.model.isEqualNode(oArg.model);
 };
 
 gl.dom.Node.prototype.isSameNode = function(oOther) {
-	return this.modelNode.isSameNode(oOther.modelNode);
+	return this.model.isSameNode(oOther.model);
 };
 
 gl.dom.Node.prototype.isSupported = function(sFeature, sVersion) {
-	return this.modelNode.isSupported(sFeature, sVersion);
+	return this.model.isSupported(sFeature, sVersion);
 };
 
 gl.dom.Node.prototype.lookupNamespaceURI = function(sPrefix) {
-	return this.modelNode.lookupNamespaceURI(sPrefix);
+	return this.model.lookupNamespaceURI(sPrefix);
 };
 
 gl.dom.Node.prototype.lookupPrefix = function(sNamespaceURI) {
-	return this.modelNode.lookupPrefix(sNamespaceURI);
+	return this.model.lookupPrefix(sNamespaceURI);
 };
 
 gl.dom.Node.prototype.normalize = function() {
-	return this.modelNode.normalize();
+	return this.model.normalize();
 };
 
 gl.dom.Node.prototype.removeChild = function(oOldChild) {
-	this.modelNode.removeChild(oOldChild.modelNode);
+	this.model.removeChild(oOldChild.model);
 	return oOldChild;
 };
 
 gl.dom.Node.prototype.replaceChild = function(oNewChild, oOldChild) {
-	this.modelNode.removeChild(oNewChild.modelNode, oOldChild.modelNode);
+	this.model.removeChild(oNewChild.model, oOldChild.model);
 	return oOldChild;
 };
 
 gl.dom.Node.prototype.setUserData = function(sKey, oData, oHandler) {
-	return this.modelNode.setUserData(sKey, oData, oHandler);
+	return this.model.setUserData(sKey, oData, oHandler);
 };
 
 gl.dom.Node.prototype.toString = function() {
@@ -216,52 +216,52 @@ gl.dom.Document.prototype.registerNamespace = function(oNamespace) {
 
 gl.dom.Document.prototype.getDoctype = function() {
 	// TODO: return DocumentType instance
-	return this.modelNode.doctype;
+	return this.model.doctype;
 };
 
 gl.dom.Document.prototype.getDocumentElement = function() {
-	var oElement = this.modelNode.documentElement;
+	var oElement = this.model.documentElement;
 	return oElement && oElement.controller || null;
 };
 
 gl.dom.Document.prototype.getDocumentURI = function() {
-	return this.modelNode.documentURI;
+	return this.model.documentURI;
 };
 
 gl.dom.Document.prototype.getInputEncoding = function() {
-	return this.modelNode.inputEncoding;
+	return this.model.inputEncoding;
 };
 
 gl.dom.Document.prototype.getStrictErrorChecking = function() {
-	return this.modelNode.strictErrorChecking;
+	return this.model.strictErrorChecking;
 };
 
 gl.dom.Document.prototype.setStrictErrorChecking = function(bValue) {
-	return this.modelNode.strictErrorChecking = bValue;
+	return this.model.strictErrorChecking = bValue;
 };
 
 gl.dom.Document.prototype.getXmlEncoding = function() {
-	return this.modelNode.xmlEncoding;
+	return this.model.xmlEncoding;
 };
 
 gl.dom.Document.prototype.getXmlStandalone = function() {
-	return this.modelNode.xmlEncoding;
+	return this.model.xmlEncoding;
 };
 
 gl.dom.Document.prototype.getXmlStandalone = function() {
-	return this.modelNode.xmlStandalone;
+	return this.model.xmlStandalone;
 };
 
 gl.dom.Document.prototype.setXmlStandalone = function(bValue) {
-	return this.modelNode.xmlStandalone = bValue;
+	return this.model.xmlStandalone = bValue;
 };
 
 gl.dom.Document.prototype.getXmlVersion = function() {
-	return this.modelNode.xmlVersion;
+	return this.model.xmlVersion;
 };
 
 gl.dom.Document.prototype.setXmlVersion = function(sValue) {
-	return this.modelNode.xmlVersion = sValue;
+	return this.model.xmlVersion = sValue;
 };
 
 /**
@@ -309,7 +309,7 @@ gl.dom.Element = function(oDocument, oImportedNode) {
 gl.Class.create(gl.dom.Element, gl.dom.Node);
 
 gl.dom.Element.prototype.import = function() {
-	var aChildNodes = this.modelNode.childNodes;
+	var aChildNodes = this.model.childNodes;
 	
 	for (var i = 0, len = aChildNodes.length; i < len; i++) {
 		var oNode = this.ownerDocument.importNode(aChildNodes[i], true);
@@ -321,34 +321,34 @@ gl.dom.Element.prototype.import = function() {
 
 gl.dom.Element.prototype.getSchemaTypeInfo = function() {
 	// TODO: return TypeInfo instance
-	return this.modelNode.schemaTypeInfo;
+	return this.model.schemaTypeInfo;
 };
 
 gl.dom.Element.prototype.getTagName = function() {
-	return this.modelNode.tagName;
+	return this.model.tagName;
 };
 
 gl.dom.Element.prototype.getAttribute = function(sName) {
-	return this.modelNode.getAttribute(sName);
+	return this.model.getAttribute(sName);
 };
 
 gl.dom.Element.prototype.getAttributeNS = function(sNamespaceURI, sLocalName) {
-	return this.modelNode.getAttributeNS(sNamespaceURI, sLocalName);
+	return this.model.getAttributeNS(sNamespaceURI, sLocalName);
 };
 
 gl.dom.Element.prototype.getAttributeNode = function(sName) {
 	// TODO: return Attr instance
-	return this.modelNode.getAttributeNode(sName);
+	return this.model.getAttributeNode(sName);
 };
 
 gl.dom.Element.prototype.getAttributeNodeNS = function(sNamespaceURI, sLocalName) {
 	// TODO: return Attr instance
-	return this.modelNode.getAttributeNodeNS(sNamespaceURI, sLocalName);
+	return this.model.getAttributeNodeNS(sNamespaceURI, sLocalName);
 };
 
 gl.dom.Element.prototype.getElementsByTagName = function(sName) {
 	// TODO: return live NodeList
-	var oElements = this.modelNode.getElementsByTagName(sName);
+	var oElements = this.model.getElementsByTagName(sName);
 	var aElements = [];
 	for (var i = 0, len = oElements.length; i < len; i++) {
 		if (oElements.item(i).controller)
@@ -359,7 +359,7 @@ gl.dom.Element.prototype.getElementsByTagName = function(sName) {
 
 gl.dom.Element.prototype.getElementsByTagNameNS = function(sNamespaceURI, sLocalName) {
 	// TODO: return live NodeList
-	var oElements = this.modelNode.getElementsByTagNameNS(sNamespaceURI, sLocalName);
+	var oElements = this.model.getElementsByTagNameNS(sNamespaceURI, sLocalName);
 	var aElements = [];
 	for (var i = 0, len = oElements.length; i < len; i++) {
 		if (oElements.item(i).controller)
@@ -369,58 +369,58 @@ gl.dom.Element.prototype.getElementsByTagNameNS = function(sNamespaceURI, sLocal
 };
 
 gl.dom.Element.prototype.hasAttribute = function(sName) {
-	return this.modelNode.hasAttribute(sName);
+	return this.model.hasAttribute(sName);
 };
 
 gl.dom.Element.prototype.hasAttributeNS = function(sNamespaceURI, sLocalName) {
-	return this.modelNode.hasAttributeNS(sNamespaceURI, sLocalName);
+	return this.model.hasAttributeNS(sNamespaceURI, sLocalName);
 };
 
 gl.dom.Element.prototype.removeAttribute = function(sName) {
-	this.modelNode.removeAttribute(sName);
+	this.model.removeAttribute(sName);
 };
 
 gl.dom.Element.prototype.removeAttributeNS = function(sNamespaceURI, sLocalName) {
-	this.modelNode.removeAttributeNS(sNamespaceURI, sLocalName);
+	this.model.removeAttributeNS(sNamespaceURI, sLocalName);
 };
 
 gl.dom.Element.prototype.removeAttributeNode = function(oOldAttr) {
 	// TODO: return Attr instance
-	return this.modelNode.removeAttributeNode(oOldAttr.modelNode);
+	return this.model.removeAttributeNode(oOldAttr.model);
 };
 
 gl.dom.Element.prototype.setAttribute = function(sName, sValue) {
-	this.modelNode.setAttribute(sName, sValue);
+	this.model.setAttribute(sName, sValue);
 };
 
 gl.dom.Element.prototype.setAttributeNS = function(sNamespaceURI, sLocalName, sValue) {
-	this.modelNode.setAttributeNS(sNamespaceURI, sLocalName);
+	this.model.setAttributeNS(sNamespaceURI, sLocalName);
 };
 
 gl.dom.Element.prototype.setAttributeNode = function(oNewAttr) {
 	// TODO: return Attr instance
-	return this.modelNode.setAttributeNode(oNewAttr.modelNode);
+	return this.model.setAttributeNode(oNewAttr.model);
 };
 
 gl.dom.Element.prototype.setAttributeNodeNS = function(oNewAttr) {
 	// TODO: return Attr instance
-	return this.modelNode.setAttributeNodeNS(oNewAttr.modelNode);
+	return this.model.setAttributeNodeNS(oNewAttr.model);
 };
 
 gl.dom.Element.prototype.setIdAttribute = function(sName, bIsId) {
-	this.modelNode.setIdAttribute(sName, bIsId);
+	this.model.setIdAttribute(sName, bIsId);
 };
 
 gl.dom.Element.prototype.setIdAttributeNS = function(sNamespaceURI, sLocalName, bIsId) {
-	this.modelNode.setIdAttribute(sNamespaceURI, sLocalName, bIsId);
+	this.model.setIdAttribute(sNamespaceURI, sLocalName, bIsId);
 };
 
 gl.dom.Element.prototype.setIdAttributeNode = function(oIdAttr, bIsId) {
-	this.modelNode.setIdAttributeNode(oIdAttr, bIsId);
+	this.model.setIdAttributeNode(oIdAttr, bIsId);
 };
 
 gl.dom.Element.prototype.toString = function() {
-	return 'gl.dom.Element (' + this.modelNode.localName + ')';
+	return 'gl.dom.Element (' + this.model.localName + ')';
 };
 
 
@@ -433,33 +433,33 @@ gl.dom.Attr = function() {
 gl.Class.create(gl.dom.Attr, gl.dom.Node);
 
 gl.dom.Attr.prototype.isId = function() {
-	return this.modelNode.isId;
+	return this.model.isId;
 };
 
 gl.dom.Attr.prototype.getName = function() {
-	return this.modelNode.name;
+	return this.model.name;
 };
 
 gl.dom.Attr.prototype.getOwnerElement = function() {
-	var oElement = this.modelNode.ownerElement;
+	var oElement = this.model.ownerElement;
 	return oElement && oElement.controller || null;
 };
 
 gl.dom.Attr.prototype.getSchemaTypeInfo = function() {
 	// TODO: return TypeInfo instance
-	return this.modelNode.getSchemaTypeInfo;
+	return this.model.getSchemaTypeInfo;
 };
 
 gl.dom.Attr.prototype.getSpecified = function() {
-	return this.modelNode.specified;
+	return this.model.specified;
 };
 
 gl.dom.Attr.prototype.getValue = function() {
-	return this.modelNode.value;
+	return this.model.value;
 };
 
 gl.dom.Attr.prototype.setValue = function(sValue) {
-	return this.modelNode.value = sValue;
+	return this.model.value = sValue;
 };
 
 gl.dom.Attr.prototype.toString = function() {
@@ -481,35 +481,35 @@ gl.dom.CharacterData = function(oDocument, oImportedNode) {
 gl.Class.create(gl.dom.CharacterData, gl.dom.Node);
 
 gl.dom.CharacterData.prototype.getData = function() {
-	return this.modelNode.data;
+	return this.model.data;
 };
 
 gl.dom.CharacterData.prototype.setData = function(sValue) {
-	return this.modelNode.data = sValue;
+	return this.model.data = sValue;
 };
 
 gl.dom.CharacterData.prototype.getLength = function() {
-	return this.modelNode.length;
+	return this.model.length;
 };
 
 gl.dom.CharacterData.prototype.appendData = function(sArg) {
-	this.modelNode.appendData(sArg);
+	this.model.appendData(sArg);
 };
 
 gl.dom.CharacterData.prototype.deleteData = function(iOffset, iCount) {
-	this.modelNode.deleteData(iOffset, iCount);
+	this.model.deleteData(iOffset, iCount);
 };
 
 gl.dom.CharacterData.prototype.insertData = function(iOffset, sArg) {
-	this.modelNode.insertData(iOffset, sArg);
+	this.model.insertData(iOffset, sArg);
 };
 
 gl.dom.CharacterData.prototype.replaceData = function(iOffset, iCount, sArg) {
-	this.modelNode.replaceData(iOffset, iCount, sArg);
+	this.model.replaceData(iOffset, iCount, sArg);
 };
 
 gl.dom.CharacterData.prototype.substringData = function(iOffset, iCount) {
-	return this.modelNode.substringData(iOffset, iCount);
+	return this.model.substringData(iOffset, iCount);
 };
 
 gl.dom.CharacterData.prototype.toString = function() {
@@ -531,20 +531,20 @@ gl.dom.Text.prototype.toString = function() {
 };
 
 gl.dom.Text.prototype.getIsElementContentWhitespace = function() {
-	return this.modelNode.isElementContentWhitespace;
+	return this.model.isElementContentWhitespace;
 };
 
 gl.dom.Text.prototype.getWholeText = function() {
-	return this.modelNode.wholeText;
+	return this.model.wholeText;
 };
 
 gl.dom.Text.prototype.replaceWholeText = function(sContent) {
 	// TODO: return Text instance
-	return this.modelNode.replaceWholeText(sContent);
+	return this.model.replaceWholeText(sContent);
 };
 
 gl.dom.Text.prototype.splitText = function(iOffset) {
-	return this.modelNode.splitText(iOffset);
+	return this.model.splitText(iOffset);
 };
 
 
@@ -775,7 +775,7 @@ gl.dom.HTMLElement = function(oDocument, oImportedNode) {
 gl.Class.create(gl.dom.HTMLElement, gl.dom.Element);
 
 gl.dom.HTMLElement.prototype.getTagName = function() {
-	return this.modelNode.tagName.toUpperCase();
+	return this.model.tagName.toUpperCase();
 };
 
 

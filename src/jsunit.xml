@@ -45,19 +45,19 @@
 		</t:template>
 		<t:constructor>
 			gl.core.Component.call(this, arguments[0]);
-			//this.viewNode = this.getTemplate();
+			//this.view = this.getTemplate();
 			//this.callSuper();
 		</t:constructor>
 		<t:method name="writeln" arguments="sString">
 			var oDiv = document.createElement('div');
 			oDiv.appendChild(document.createTextNode(sString));
-			this.viewNode.appendChild(oDiv);
+			this.view.appendChild(oDiv);
 		</t:method>
 		<t:method name="writelnError" arguments="sString">
 			var oDiv = document.createElement('div');
 			oDiv.style.color = '#f00';
 			oDiv.appendChild(document.createTextNode(sString));
-			this.viewNode.appendChild(oDiv);
+			this.view.appendChild(oDiv);
 		</t:method>
 		<t:implementation>
 			({
