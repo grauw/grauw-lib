@@ -9,6 +9,7 @@ gl.module('gl.templates',
 	
 	// imports
 	var Element = gl.core.Element;
+	var oModelRegistry = gl.core.modelRegistry;
 	
 	
 	
@@ -44,7 +45,7 @@ gl.module('gl.templates',
 		var aClasses = [];
 		var oController;
 		while (oNode) {
-			if (oNode.nodeType == 1 && (oController = gl.core.modelRegistry.getController(oNode)) instanceof cClass)
+			if (oNode.nodeType == 1 && (oController = oModelRegistry.getController(oNode)) instanceof cClass)
 				aClasses.push(oController);
 			oNode = oNode.nextSibling;
 		}
