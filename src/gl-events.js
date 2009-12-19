@@ -38,14 +38,7 @@
  * removing listeners does not affect the current target's candidate event
  * listeners.”
  */
-if (!window.gl)
-	gl = {};
-
-/**
- * The main events object.
- * Acts as sort of a namespace; all other events objects are closures of the instance of this object.
- */
-gl.events = new function() {
+gl.module('gl.events', [], function() {
 
 	/**
 	 * @param {Object} cBase
@@ -299,4 +292,4 @@ gl.events = new function() {
 		'unload' : [false, false]
 	};
 	
-};
+});
