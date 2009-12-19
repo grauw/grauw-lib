@@ -46,6 +46,9 @@ function parseHTML_IE(sHTML) {
 
 gl.core = new function() {
 	
+	/**
+	 * A visual component with an HTML view.
+	 */
 	var Component = function(oDocument) {
 		this.viewNode = this.getTemplate(oDocument);
 	};
@@ -56,8 +59,13 @@ gl.core = new function() {
 			return parseHTML_IE(this._template.xml);
 		return oDocument.importNode(this._template, true);
 	};
-
-
+	
+	
+	
+	
+	/**
+	 * A registry of namespaces.
+	 */
 	var NamespaceList = function() {
 		this.namespaces = {};
 	};
@@ -91,7 +99,13 @@ gl.core = new function() {
 		var oNamespace = this.namespaces[oNode.namespaceURI];
 		return oNamespace && oNamespace.getElement(oNode.localName || oNode.baseName) || null;
 	};
-
+	
+	
+	
+	
+	/**
+	 * A namespace.
+	 */
 	var Namespace = function(sURI) {
 		this.uri = sURI;
 		this.elements = {};
@@ -108,12 +122,70 @@ gl.core = new function() {
 		return this.elements[sLocalName];
 	};
 	
+	
+	
+	
+	/**
+	 * An element.
+	 */
 	var Element = function(oModelNode) {
 		this.modelNode = oModelNode;
 		setController(oModelNode, this);
 	};
 	this.Element = gl.Class.create(Element);
-
+	
+	
+	
+	
+	/**
+	 * Dependency implementation for the ‘TXML’ type.
+	 * Uses MIME-type ‘application/xml’.
+	 */
+	var TXMLDependency = function(sURI) {
+		Dependency.call(this, sURI);
+		this.xml = null;
+	};
+	
+	this.TXMLDependency = gl.Class.create(TXMLDependency, gl.depsys.Dependency);
+	
+	TXMLDependency.prototype.load = function() {
+		this._load(false);
+	};
+	
+	TXMLDependency.prototype.loadAsync = function() {
+		this._load(true);
+	};
+	
+	TXMLDependency.prototype._load = function(bAsync) {
+		var oXHR = new XMLHttpRequest();
+		if (bAsync) {
+			var oThis = this;
+			oXHR.onreadystatechange = function() {
+				if (oXHR.readyState == 4)
+					oThis._loadComplete(oXHR);
+			}
+		}
+		oXHR.open('GET', this.uri, bAsync);
+		oXHR.setRequestHeader('Accept', 'application/xml');
+		oXHR.send();
+		if (!bAsync)
+			this._loadComplete(oXHR);
+	};
+	
+	TXMLDependency.prototype._loadComplete = function(oXHR) {
+		if (oXHR.responseXML.documentElement) {
+			this.xml = oXHR.responseXML;
+			var oNamespace = gl.namespaces.build(this.xml.documentElement);
+			oNamespace.init();
+			this.loadComplete();
+		}
+		// TODO: else error?
+	};
+	
+	
+	// register the TXML dependency type
+	gl.depsys.dependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
+	
 }();
 
 gl.namespaces = new gl.core.NamespaceList();
@@ -290,6 +362,3 @@ gl.templates = new function() {
 	gl.namespaces.add(oTNamespace);
 	
 }();
-
-
-

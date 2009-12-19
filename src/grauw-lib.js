@@ -394,58 +394,6 @@ gl.depsys = new function() {
 	
 	
 	/**
-	 * Dependency implementation for the ‘TXML’ type.
-	 * Uses MIME-type ‘application/xml’.
-	 */
-	var TXMLDependency = function(sURI) {
-		Dependency.call(this, sURI);
-		this.xml = null;
-	};
-	
-	this.TXMLDependency = gl.Class.create(TXMLDependency, Dependency);
-	
-	TXMLDependency.prototype.load = function() {
-		this._load(false);
-	};
-	
-	TXMLDependency.prototype.loadAsync = function() {
-		this._load(true);
-	};
-	
-	TXMLDependency.prototype._load = function(bAsync) {
-		var oXHR = new XMLHttpRequest();
-		if (bAsync) {
-			var oThis = this;
-			oXHR.onreadystatechange = function() {
-				if (oXHR.readyState == 4)
-					oThis._loadComplete(oXHR);
-			}
-		}
-		oXHR.open('GET', this.uri, bAsync);
-		oXHR.setRequestHeader('Accept', 'application/xml');
-		oXHR.send();
-		if (!bAsync)
-			this._loadComplete(oXHR);
-	};
-	
-	TXMLDependency.prototype._loadComplete = function(oXHR) {
-		if (oXHR.responseXML.documentElement) {
-			this.xml = oXHR.responseXML;
-			var oNamespace = gl.namespaces.build(this.xml.documentElement);
-			oNamespace.init();
-			this.loadComplete();
-		}
-		// TODO: else error?
-	};
-	
-	
-	
-	
-//	var StyleDependency = function() {
-//		Dependency.call(this);
-//	};
-	
-	/**
 	 * Dependency manager
 	 */
 	var DependencyManager = function() {
@@ -491,12 +439,14 @@ gl.depsys = new function() {
 	// initialise dependency manager
 	var oDependencyManager = new DependencyManager();
 	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
-	oDependencyManager.registerDependencyHandler('application/xml', TXMLDependency);
 	
 	// load URI library to do URI resolving (a bit of a paradox :))
 	var sBaseURI = getScriptURI(getCurrentScript());
 	var oURIDependency = new ScriptDependency(sBaseURI.substr(0, sBaseURI.lastIndexOf('/')) + '/gl-uri.js');
 	oURIDependency.load();
+	
+	// exports
+	this.dependencyManager = oDependencyManager;
 	
 };
 
