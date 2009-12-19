@@ -34,7 +34,7 @@ gl = new function() {
 	 * @return The class constructor. Note that this is the same object
 	 * that was passed as the constructor.
 	 */
-	Class.create = function(fConstructor, cBase) {
+	Class.create = function create(fConstructor, cBase) {
 		cBase = cBase || Object;
 		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
 		// create new prototype object that inherits from cBase
@@ -43,6 +43,26 @@ gl = new function() {
 		fConstructor.prototype = new cPrototype;
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
+	};
+	
+	/**
+	 * Create a class object based on a constructor.
+	 * (Another approach.)
+	 * 
+	 * var MyClass = gl.Class.extend(function() {
+	 *     MyBaseClass.call(this); // call super
+	 * });
+	 * MyClass.prototype.myMethod = function(){};
+	 * 
+	 * Not 100% ‘pure’ as it does manual static member inheritance.
+	 * Ideally one would extend Function instead, but this is not possible.
+	 * @param constructor A constructor function (optional).
+	 * @return The class constructor.
+	 */
+	Class.extend = function(fConstructor) {
+		var oClass = create(fConstructor, this);
+		mixin(fConstructor, this);	// inherit static members
+		return oClass;
 	};
 	
 };
