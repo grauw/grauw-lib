@@ -18,10 +18,10 @@ gl = new function() {
 	/**
 	 * Extends a class.
 	 * 
-	 * You can extend from Object, but this what functions already do
-	 * by default, so in that case calling extend is not necessary.
+	 * You can extend from Object, but this is what functions already do
+	 * by default, so then calling extend is not necessary.
 	 * Passing a constructor is optional, if you do not pass a constructor,
-	 * a new constructor that just calls the super is created.
+	 * a new constructor that just calls the base constructor is created.
 	 * 
 	 * Example:
 	 * 
