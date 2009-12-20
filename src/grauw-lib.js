@@ -12,30 +12,31 @@ gl = new function() {
 	};
 	this.mixin = mixin;
 	
-	/**
-	 * Base object?
-	 * Just an experiment...
-	 */
-	var Class = function() {
-	};
-	this.Class = Class;
+	
+	
 	
 	/**
-	 * Creates a class object based on a constructor.
+	 * Extends a class.
+	 * 
+	 * You can extend from Object, but this what functions already do
+	 * by default, so in that case calling extend is not necessary.
+	 * Passing a constructor is optional, if you do not pass a constructor,
+	 * a new constructor that just calls the super is created.
+	 * 
+	 * Example:
 	 * 
 	 * var MyClass = function() {
 	 *     MyBaseClass.call(this); // call super
 	 * };
-	 * MyClass = gl.Class.create(MyClass, MyBaseClass);
+	 * gl.extend(MyBaseClass, MyClass);
 	 * MyClass.prototype.myMethod = function(){};
 	 * 
-	 * @param constructor A constructor function (optional).
-	 * @param base A base class (optional).
-	 * @return The class constructor. Note that this is the same object
-	 * that was passed as the constructor.
+	 * @param {Function} base The base class.
+	 * @param {Function} constructor A constructor function (optional).
+	 * @return The class constructor.
+	 * @type Function
 	 */
-	Class.create = function create(fConstructor, cBase) {
-		cBase = cBase || Object;
+	function extend(cBase, fConstructor) {
 		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
 		// create new prototype object that inherits from cBase
 		var cPrototype = new Function;
@@ -44,25 +45,42 @@ gl = new function() {
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
 	};
+	this.extend = extend;
+	
+	
+	
 	
 	/**
-	 * Create a class object based on a constructor.
-	 * (Another approach.)
+	 * Base class.
+	 * Use extend() method to create subclasses.
+	 * This provides an alternate approach to creating classes, compared to gl.extend(). 
+	 */
+	var Class = function() {
+	};
+	this.Class = Class;
+	
+	/**
+	 * Creates a subclass.
+	 * 
+	 * Not 100% ‘pure’ as it does manual static member inheritance.
+	 * Ideally one would extend Function instead, but this is not possible.
+	 * 
+	 * Example:
 	 * 
 	 * var MyClass = gl.Class.extend(function() {
 	 *     MyBaseClass.call(this); // call super
 	 * });
 	 * MyClass.prototype.myMethod = function(){};
 	 * 
-	 * Not 100% ‘pure’ as it does manual static member inheritance.
-	 * Ideally one would extend Function instead, but this is not possible.
-	 * @param constructor A constructor function (optional).
+	 * @param {Function} constructor A constructor function (optional).
 	 * @return The class constructor.
+	 * @type Class
 	 */
 	Class.extend = function(fConstructor) {
-		var oClass = create(fConstructor, this);
+		fConstructor = fConstructor || (this == Class ? function() {} : null);
+		extend(this, fConstructor);
 		mixin(fConstructor, this);	// inherit static members
-		return oClass;
+		return fConstructor;
 	};
 	
 };
@@ -318,7 +336,7 @@ gl.depsys = new function() {
 		this.scriptNode = null;
 	};
 
-	this.ScriptDependency = gl.Class.create(ScriptDependency, Dependency);
+	this.ScriptDependency = gl.extend(Dependency, ScriptDependency);
 	
 	ScriptDependency.currentDependency = null;
 	

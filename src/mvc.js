@@ -53,7 +53,7 @@ gl.module('gl.core', [], function() {
 	var Component = function(oDocument) {
 		this.view = this.getTemplate(oDocument);
 	};
-	this.Component = gl.Class.create(Component);
+	this.Component = Component;
 
 	Component.prototype.getTemplate = function(oDocument) {
 		if (browser_ie)
@@ -70,7 +70,7 @@ gl.module('gl.core', [], function() {
 	var NamespaceList = function() {
 		this.namespaces = {};
 	};
-	this.NamespaceList = gl.Class.create(NamespaceList);
+	this.NamespaceList = NamespaceList;
 
 	NamespaceList.prototype.add = function(oNamespace) {
 //		if (!(oElement instanceof Namespace))
@@ -111,7 +111,7 @@ gl.module('gl.core', [], function() {
 		this.uri = sURI;
 		this.elements = {};
 	};
-	this.Namespace = gl.Class.create(Namespace);
+	this.Namespace = Namespace;
 
 	Namespace.prototype.add = function(oElement, sLocalName) {
 //		if (!(oElement instanceof Element))
@@ -133,7 +133,7 @@ gl.module('gl.core', [], function() {
 		this.model = oModel;
 		gl.core.modelRegistry.setController(oModel, this);
 	};
-	this.Element = gl.Class.create(Element);
+	this.Element = Element;
 	
 	
 	

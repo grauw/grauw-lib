@@ -18,7 +18,7 @@ gl.module('gl.dom', [], function() {
 		var oRoot = oDocument.importNode(oDocument.model.documentElement, true);
 		oDocument._appendChild(oRoot);
 	};
-	this.DOMImplementation = gl.Class.create(DOMImplementation);
+	this.DOMImplementation = DOMImplementation;
 	
 	DOMImplementation.prototype.createDocumentType = function(sQualifiedName, sPublicId, sSystemId) {
 		return new DocumentType(sQualifiedName, sPublicId, sSystemId);
@@ -51,7 +51,7 @@ gl.module('gl.dom', [], function() {
 		
 		this.childNodes = []; // XXX: should be NodeList
 	};
-	this.Node = gl.Class.create(Node);
+	this.Node = Node;
 	
 	Node.ELEMENT_NODE                = 1;
 	Node.ATTRIBUTE_NODE              = 2;
@@ -207,7 +207,7 @@ gl.module('gl.dom', [], function() {
 		Node.call(this, null, oImportedNode);
 		this.namespaces = {};
 	};
-	this.Document = gl.Class.create(Document, Node);
+	this.Document = gl.extend(Node, Document);
 	
 	Document.prototype.registerNamespace = function(oNamespace) {
 		this.namespaces[oNamespace.name] = oNamespace;
@@ -305,7 +305,7 @@ gl.module('gl.dom', [], function() {
 	Element = function(oDocument, oImportedNode) {
 		Node.call(this, oDocument, oImportedNode);
 	};
-	this.Element = gl.Class.create(Element, Node);
+	this.Element = gl.extend(Node, Element);
 	
 	Element.prototype.import = function() {
 		var aChildNodes = this.model.childNodes;
@@ -429,7 +429,7 @@ gl.module('gl.dom', [], function() {
 	 */
 	Attr = function() {
 	};
-	this.Attr = gl.Class.create(Attr, Node);
+	this.Attr = gl.extend(Node, Attr);
 	
 	Attr.prototype.isId = function() {
 		return this.model.isId;
@@ -477,7 +477,7 @@ gl.module('gl.dom', [], function() {
 		Node.call(this, oDocument, oImportedNode);
 	//	this.data = oImportedNode.data;
 	};
-	this.CharacterData = gl.Class.create(CharacterData, Node);
+	this.CharacterData = gl.extend(Node, CharacterData);
 	
 	CharacterData.prototype.getData = function() {
 		return this.model.data;
@@ -523,7 +523,7 @@ gl.module('gl.dom', [], function() {
 	Text = function(oDocument, oImportedNode) {
 		CharacterData.call(this, oDocument, oImportedNode);
 	};
-	this.Text = gl.Class.create(Text, CharacterData);
+	this.Text = gl.extend(CharacterData, Text);
 	
 	Text.prototype.toString = function() {
 		return 'Text';
@@ -554,7 +554,7 @@ gl.module('gl.dom', [], function() {
 	Comment = function(oDocument, oImportedNode) {
 		CharacterData.call(this, oDocument, oImportedNode);
 	};
-	this.Comment = gl.Class.create(Comment, CharacterData);
+	this.Comment = gl.extend(CharacterData, Comment);
 	
 	Comment.prototype.toString = function() {
 		return 'Comment';
@@ -567,7 +567,7 @@ gl.module('gl.dom', [], function() {
 	Namespace = function(sName) {
 		this.name = sName;
 	};
-	this.Namespace = gl.Class.create(Namespace);
+	this.Namespace = Namespace;
 	
 	Namespace.prototype.getElementClass = function(sName) {
 		// Default implementation is to always return generic Element instance
@@ -586,7 +586,7 @@ gl.module('gl.dom', [], function() {
 	Event = function() {
 		this.timestamp = new Date().getTime();
 	};
-	this.Event = gl.Class.create(Event);
+	this.Event = Event;
 	
 	Event.CAPTURING_PHASE = 1;
 	Event.AT_TARGET       = 2;
@@ -671,7 +671,7 @@ gl.module('gl.dom', [], function() {
 	CustomEvent = function() {
 		Event.call(this);
 	};
-	this.CustomEvent = gl.Class.create(CustomEvent, Event);
+	this.CustomEvent = gl.extend(Event, CustomEvent);
 	
 	CustomEvent.prototype.detail = null;
 	
@@ -691,7 +691,7 @@ gl.module('gl.dom', [], function() {
 	 */
 	EventTarget = function() {
 	};
-	this.EventTarget = gl.Class.create(EventTarget);
+	this.EventTarget = EventTarget;
 	
 	EventTarget.prototype.addEventListener = function(sType, oListener, bUseCapture) {
 		
@@ -720,7 +720,7 @@ gl.module('gl.dom', [], function() {
 	 */
 	EventListener = function() {
 	};
-	this.EventListener = gl.Class.create(EventListener);
+	this.EventListener = EventListener;
 	
 	EventTarget.prototype.handleEvent = function(oEvent) {
 		
@@ -733,7 +733,7 @@ gl.module('gl.dom', [], function() {
 	 */
 	DocumentEvent = function() {
 	};
-	this.DocumentEvent = gl.Class.create(DocumentEvent);
+	this.DocumentEvent = DocumentEvent;
 	
 	DocumentEvent.prototype.canDispatch = function(sNamespaceURI, sType) {
 		
@@ -749,7 +749,7 @@ gl.module('gl.dom', [], function() {
 	 */
 	HTMLElement = function(oDocument, oImportedNode) {
 	};
-	this.HTMLElement = gl.Class.create(HTMLElement, Element);
+	this.HTMLElement = gl.extend(Element, HTMLElement);
 	
 	HTMLElement.prototype.getTagName = function() {
 		return this.model.tagName.toUpperCase();

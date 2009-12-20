@@ -14,7 +14,7 @@ gl.module('gl.unit', [], function() {
 		this.log = new gl.unit.JSUnitLog(document);
 		this.init();
 	};
-	this.JSUnit = gl.Class.create(JSUnit);
+	this.JSUnit = JSUnit;
 
 	JSUnit.prototype.init = function() {
 		// override

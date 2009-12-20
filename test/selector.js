@@ -26,7 +26,7 @@ gl.module(
 SelectorUnit = function() {
 	gl.unit.JSUnit.call(this);
 };
-gl.Class.create(SelectorUnit, gl.unit.JSUnit);
+gl.extend(gl.unit.JSUnit, SelectorUnit);
 
 /**
  * Unit tests

@@ -9,7 +9,7 @@ gl.require(
 URIUnit = function() {
 	gl.unit.JSUnit.call(this);
 };
-gl.Class.create(URIUnit, gl.unit.JSUnit);
+gl.extend(gl.unit.JSUnit, URIUnit);
 
 /**
  * Unit tests

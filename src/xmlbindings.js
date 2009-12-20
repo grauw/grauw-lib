@@ -61,7 +61,7 @@ gl.module('gl.templates',
 	var Namespace = function(oModel) {
 		Element.call(this, oModel);
 	};
-	this.Namespace = gl.Class.create(Namespace, Element);
+	this.Namespace = gl.extend(Element, Namespace);
 	
 	Namespace.prototype.getURI = function() {
 		return this.model.getAttribute('name') || null;
@@ -92,7 +92,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._namespace = oParent;
 	};
-	this.Class = gl.Class.create(Class, Element);
+	this.Class = gl.extend(Element, Class);
 	
 	Class.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
@@ -118,7 +118,7 @@ gl.module('gl.templates',
 	
 	Class.prototype.init = function(oNamespace) {
 		var fConstructor = this.getConstructor();
-		gl.Class.create(fConstructor, this.getExtends());
+		gl.extend(this.getExtends(), fConstructor);
 		fConstructor.prototype._template = this.getTemplate();
 		var aMethods = this.getMethods();
 		for (var i = 0; i < aMethods.length; i++) {
@@ -137,7 +137,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Template = gl.Class.create(Template, Element);
+	this.Template = gl.extend(Element, Template);
 	
 	Template.prototype.getTemplate = function() {
 		var oNode = this.model.firstChild;
@@ -159,7 +159,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Constructor = gl.Class.create(Constructor, Element);
+	this.Constructor = gl.extend(Element, Constructor);
 	
 	Constructor.prototype.getConstructor = function() {
 		var sArguments = this.model.getAttribute('arguments');
@@ -180,7 +180,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Method = gl.Class.create(Method, Element);
+	this.Method = gl.extend(Element, Method);
 	
 	Method.prototype.getMethod = Constructor.prototype.getConstructor;
 	
@@ -216,7 +216,7 @@ gl.module('gl.templates',
 			break;
 		}
 	};
-	this.Resource = gl.Class.create(Resource, Element);
+	this.Resource = gl.extend(Element, Resource);
 	
 	Resource.prototype.getType = function() {
 		return this.model.getAttribute('type') || null;
@@ -234,7 +234,7 @@ gl.module('gl.templates',
 		this.xml = null;
 	};
 	
-	this.TemplatesDependency = gl.Class.create(TemplatesDependency, gl.depsys.Dependency);
+	this.TemplatesDependency = gl.extend(gl.depsys.Dependency, TemplatesDependency);
 	
 	TemplatesDependency.prototype.load = function() {
 		this._load(false);
