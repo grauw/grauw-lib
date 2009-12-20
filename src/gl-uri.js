@@ -1,7 +1,4 @@
-if (!window.gl)
-	gl = {};
-
-gl.uri = new function() {
+gl.module('gl.uri', [], function() {
 	
 	/**
 	 * Constructs a URI object.
@@ -216,4 +213,4 @@ gl.uri = new function() {
 		return sResult;
 	};
 
-};
+});

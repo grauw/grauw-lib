@@ -236,31 +236,21 @@ gl.module('gl.templates',
 	
 	this.TemplatesDependency = gl.extend(gl.depsys.Dependency, TemplatesDependency);
 	
-	TemplatesDependency.prototype.load = function() {
-		this._load(false);
-	};
-	
-	TemplatesDependency.prototype.loadAsync = function() {
-		this._load(true);
-	};
-	
-	TemplatesDependency.prototype._load = function(bAsync) {
+	TemplatesDependency.prototype.load = function(bAsync) {
 		var oXHR = new XMLHttpRequest();
-		if (bAsync) {
-			var oThis = this;
-			oXHR.onreadystatechange = function() {
-				if (oXHR.readyState == 4)
-					oThis._loadComplete(oXHR);
+		var oThis = this;
+		oXHR.onreadystatechange = function() {
+			if (oXHR.readyState == 4) {
+				oXHR.onreadystatechange = null; // avoid memory leak
+				oThis.handleXHRComplete(oXHR);
 			}
 		}
 		oXHR.open('GET', this.uri, bAsync);
 		oXHR.setRequestHeader('Accept', 'application/xml');
 		oXHR.send();
-		if (!bAsync)
-			this._loadComplete(oXHR);
 	};
 	
-	TemplatesDependency.prototype._loadComplete = function(oXHR) {
+	TemplatesDependency.prototype.handleXHRComplete = function(oXHR) {
 		if (oXHR.responseXML.documentElement) {
 			this.xml = oXHR.responseXML;
 			var oNamespace = gl.namespaces.build(this.xml.documentElement);

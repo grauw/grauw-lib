@@ -1,10 +1,9 @@
-gl.require(
-		'mvc.js',
+gl.module('gl.unit',
+	[
 		'xmlbindings.js',
 		{type: 'application/xml', src: 'jsunit.xml'}
-	);
-
-gl.module('gl.unit', [], function() {
+	],
+	function() {
 	
 	/**
 	 * Unit testing framework
