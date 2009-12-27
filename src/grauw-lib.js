@@ -98,7 +98,7 @@ gl.depsys = new function() {
 	
 	/**
 	 * Returns the last script tag, which is presumed to be this script.
-	 * Will probably not work for deferred scripts or certain dynamically inserted scripts...
+	 * Does not work for deferred scripts or certain dynamically inserted scripts...
 	 * (But good enough for now.)
 	 */
 	function getCurrentScript() {
@@ -130,23 +130,6 @@ gl.depsys = new function() {
 			}
 		}
 	}
-	
-	/**
-	 * load URI library to do URI resolving (a bit of a paradox :))
-	 */
-	function loadURILibrary() {
-		dependencyIseEverything();
-		var sBaseURI = getCurrentScript()._gl_dependency.getURI();
-		var oURIDependency = new URIScriptDependency(sBaseURI);
-		oURIDependency.load();
-//		dependencyIseEverything();
-//		var oModule = new Module('gl.depsys', fCallback);
-//		oModule.addDependency(oDependency);
-//		oDependencyManager.registerModule(oModule);
-//		function fCallback() {
-//			// do something
-//		}
-	};
 	
 	/**
 	 * Define a module, with package name and dependencies.
@@ -191,7 +174,6 @@ gl.depsys = new function() {
 	/**
 	 * An object containing the information of a module.
 	 * @param {String} sName 
-	 * @param {Array} aDependencies
 	 * @param {Function} fInitializer
 	 */
 	var Module = function(sName, fInitializer) {
@@ -247,6 +229,11 @@ gl.depsys = new function() {
 	};
 	
 	Module.prototype.loadDependencies = function() {
+		if (!oURIDependency.isLoaded()) {
+			var oThis = this;
+			oURIDependency.addLoadListener({dependencyLoaded:function() {oThis.loadDependencies()}});
+			return;
+		}
 		for (var i = 0; i < this.dependencies.length; i++) {
 			this.dependencies[i].addLoadListener(this);
 			this.dependencies[i].setBaseURI(this.getURI());
@@ -265,7 +252,7 @@ gl.depsys = new function() {
 	Module.prototype.allDependenciesLoaded = function() {
 		// probably this can be implemented a little more efficiently
 		for (var i = 0; i < this.dependencies.length; i++) {
-			if (!this.dependencies[i].allModulesLoaded())
+			if (!this.dependencies[i].isLoaded())
 				return false;
 		}
 		return true;
@@ -294,7 +281,7 @@ gl.depsys = new function() {
 	
 	/**
 	 * Registers a module to be a child of this dependency.
-	 * Registered modules are taken into account by allModulesLoaded().
+	 * Registered modules are taken into account by isLoaded().
 	 * @param oModule The module in this dependency.
 	 * @return
 	 */
@@ -316,7 +303,7 @@ gl.depsys = new function() {
 		throw new Error('Abstract method must be implemented by subclass.');
 	};
 	
-	Dependency.prototype.allModulesLoaded = function() {
+	Dependency.prototype.isLoaded = function() {
 		var bLoaded = this.loaded;
 		for (var i = 0; i < this.modules.length && bLoaded; i++) {
 			bLoaded = this.modules[i].allDependenciesLoaded() && bLoaded;
@@ -328,7 +315,7 @@ gl.depsys = new function() {
 	 * Callback from a child module
 	 */
 	Dependency.prototype.moduleReady = function(oModule) {
-		if (this.allModulesLoaded())
+		if (this.isLoaded())
 			this.fireLoadEvent();
 	};
 
@@ -525,7 +512,11 @@ gl.depsys = new function() {
 	var oDependencyManager = new DependencyManager();
 	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
 	
-	loadURILibrary();
+	// load URI library to do URI resolving (a bit of a paradox :))
+	dependencyIseEverything();
+	var sBaseURI = getCurrentScript()._gl_dependency.getURI();
+	var oURIDependency = new URIScriptDependency(sBaseURI);
+	oURIDependency.load();
 	
 	// exports
 	this.dependencyManager = oDependencyManager;
