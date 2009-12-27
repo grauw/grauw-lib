@@ -107,6 +107,19 @@ gl.depsys = new function() {
 	}
 	
 	/**
+	 * Returns the script tag with readyState 'interactive', which is the current script.
+	 * Searches last-first, in case the script tags are created synchronously by another script.
+	 */
+	function getCurrentScriptIE() {
+		var aScripts = document.getElementsByTagName('script');
+		for (var i = aScripts.length - 1; i >= 0; i--) {
+			if (aScripts[i].readyState == 'interactive')
+				return aScripts[i];
+		}
+		return null;
+	}
+	
+	/**
 	 * Creates a Dependency object based on descriptor object
 	 */
 	function createDependency(vDescriptor) {
@@ -166,6 +179,8 @@ gl.depsys = new function() {
 		}
 		oDependencyManager.registerModule(oModule);
 		oModule.process();
+		if (browser_ie)
+			oModule.setParentDependency(getCurrentScriptIE()._gl_dependency);
 	};
 	
 	
@@ -194,6 +209,7 @@ gl.depsys = new function() {
 	
 	Module.prototype.setParentDependency = function(oDependency) {
 		this.parentDependency = oDependency;
+		oDependency.registerModule(this);
 		this.loadDependencies();
 		//oDependency.addLoadListener(this);
 	};
@@ -209,7 +225,7 @@ gl.depsys = new function() {
 	Module.prototype.process = function() {
 //		if (!this.parentDependency)
 //			throw new Error('Module process() can not be used before parent dependency is set.');
-		this.object = this.createModuleObject(this.name);	// XXX: maybe move to the constructor?
+		this.object = this.createModuleObject();	// XXX: maybe move to the constructor?
 //		if (this.parentDependency)
 //			this.loadDependencies();	// XXX: remove?
 	};
@@ -229,18 +245,18 @@ gl.depsys = new function() {
 	};
 	
 	Module.prototype.loadDependencies = function() {
-		if (!oURIDependency.isLoaded()) {
-			var oThis = this;
-			oURIDependency.addLoadListener({dependencyLoaded:function() {oThis.loadDependencies()}});
-			return;
-		}
-		for (var i = 0; i < this.dependencies.length; i++) {
-			this.dependencies[i].addLoadListener(this);
-			this.dependencies[i].setBaseURI(this.getURI());
-			this.dependencies[i].load();
-		}
-		if (!this.dependencies.length)
+		if (!this.dependencies.length) {
 			this.ready();
+		} else if (!oURIDependency.isLoaded()) {
+			// wait for URI library to load if it hasn’t loaded yet
+			oURIDependency.addLoadListener({dependencyLoaded: function(){this.module.loadDependencies();}, module: this});
+		} else {
+			for (var i = 0; i < this.dependencies.length; i++) {
+				this.dependencies[i].addLoadListener(this);
+				this.dependencies[i].setBaseURI(this.getURI());
+				this.dependencies[i].load();
+			}
+		}
 	};
 	
 	Module.prototype.dependencyLoaded = function(oDependency) {
@@ -372,24 +388,42 @@ gl.depsys = new function() {
 		var oHead = document.getElementsByTagName('head')[0];
 		var oScript = document.createElement('script');
 		this.setScriptNode(oScript);
-		// FIXME: use addEventListener / attachEvent
-		var oThis = this;
-		oScript.onload = function() {
-			oThis.loadComplete();
-		};
+		this.attachLoadHandler(oScript);
 		oScript.type = 'text/javascript';
 		oScript.src = this.getURI();
 		oHead.appendChild(oScript);	// execute script
 	};
 	
+	/**
+	 * Attachs the load event handler to the script.
+	 * @return
+	 */
+	ScriptDependency.prototype.attachLoadHandler = function(oScript) {
+		// FIXME: use addEventListener / attachEvent
+		var oThis = this;
+		if (browser_ie) {
+			oScript.attachEvent('onreadystatechange', function() {
+				if (oScript.readyState == 'complete' || oScript.readyState == 'loaded') {
+					oScript.onreadystatechange = null; // avoid memory leak in IE
+					oThis.loadComplete();
+				}
+			});
+		} else {
+			oScript.addEventListener('load', function() {
+				oThis.loadComplete();
+			}, false);
+		}
+	};
+	
 	ScriptDependency.prototype.loadComplete = function() {
 		Dependency.prototype.loadComplete.call(this);	// call super
+		var bUnboundModules = false;
 		var oModule;
 		while (oModule = oDependencyManager.getUnboundModule()) {
-			this.registerModule(oModule);
 			oModule.setParentDependency(this);
+			bUnboundModules = true;
 		}
-		if (!this.modules.length)
+		if (!bUnboundModules)
 			this.moduleReady();
 	};
 	
@@ -405,11 +439,7 @@ gl.depsys = new function() {
 		var sURI = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
 		ScriptDependency.call(this, sURI);
 		this.setScriptNode(oScript);
-		var oThis = this;
-		// FIXME: use addEventListener / attachEvent
-		oScript.onload = function() {
-			oThis.loadComplete();
-		};
+		this.attachLoadHandler(oScript);
 	};
 	
 	this.DummyScriptDependency = gl.extend(ScriptDependency, DummyScriptDependency);
