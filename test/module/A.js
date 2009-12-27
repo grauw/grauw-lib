@@ -11,6 +11,5 @@ gl.module(
 			log('A module ERROR - module_e object not found');
 		else
 			log('A module OK');
-		console.trace();
 	}
 );
