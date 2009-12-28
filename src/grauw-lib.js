@@ -97,11 +97,10 @@ gl.depsys = new function() {
 	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
 	
 	/**
-	 * Returns the last script tag, which is presumed to be this script.
-	 * Does not work for deferred scripts or certain dynamically inserted scripts...
-	 * (But good enough for now.)
+	 * Returns the last script tag that can be found in the document.
+	 * While parsing, this is often the current script.
 	 */
-	function getCurrentScript() {
+	function getLastScript() {
 		var aScripts = document.getElementsByTagName('script');
 		return aScripts[aScripts.length - 1];
 	}
@@ -545,7 +544,7 @@ gl.depsys = new function() {
 	
 	// load URI library to do URI resolving (a bit of a paradox :))
 	dependencyIseEverything();
-	var sBaseURI = getCurrentScript()._gl_dependency.getURI();
+	var sBaseURI = getLastScript()._gl_dependency.getURI();
 	var oURIDependency = new URIScriptDependency(sBaseURI);
 	oURIDependency.load();
 	
