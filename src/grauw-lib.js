@@ -293,6 +293,16 @@ gl.depsys = new function() {
 	this.Dependency = Dependency;
 	
 	/**
+	 * Returns the absolute URI of this dependency.
+	 * May throw an error if no parentModule is set and getURI() is not overridden.
+	 */
+	Dependency.prototype.getURI = function() {
+		if (!this.parentModule)
+			throw new Error('Need to set parent module first before getting URI.');
+		return gl.uri.URI.resolve(this.uri, this.parentModule.getURI());
+	};
+	
+	/**
 	 * Registers a module to be a child of this dependency.
 	 * Registered modules are taken into account by isLoaded().
 	 * @param oModule The module in this dependency.
@@ -300,12 +310,6 @@ gl.depsys = new function() {
 	 */
 	Dependency.prototype.registerModule = function(oModule) {
 		this.modules.push(oModule);
-	};
-	
-	Dependency.prototype.getURI = function() {
-		if (!this.parentModule)
-			throw new Error('Need to set parent module first before getting URI.');
-		return gl.uri.URI.resolve(this.uri, this.parentModule.getURI());
 	};
 	
 	Dependency.prototype.setParentModule = function(oModule) {
