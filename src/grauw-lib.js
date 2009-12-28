@@ -182,7 +182,6 @@ gl.depsys = new function() {
 			var oDependency = oDependencyManager.createDependencyFromParameter(aDependencies[i]);
 			oModule.addDependency(oDependency);
 		}
-		oModule.process();
 		if (oCurrentDependency)
 			oModule.setParentDependency(oCurrentDependency);
 	};
@@ -200,7 +199,7 @@ gl.depsys = new function() {
 		this.initializer = fInitializer;
 		this.dependencies = [];
 		this.parentDependency = null;
-		this.object = null;
+		this.object = this.createModuleObject();
 	};
 	
 	this.Module = Module;
@@ -211,6 +210,11 @@ gl.depsys = new function() {
 		return this.parentDependency.getURI();
 	};
 	
+	/**
+	 * Sets the dependency containing this module. Needed for base URI resolving.
+	 * Setting this initiates the loading of dependencies, so be sure to add all dependencies before.
+	 * @param oDependency The parent dependency.
+	 */
 	Module.prototype.setParentDependency = function(oDependency) {
 		this.parentDependency = oDependency;
 		oDependency.registerModule(this);
@@ -224,10 +228,6 @@ gl.depsys = new function() {
 	Module.prototype.addDependency = function(oDependency) {
 		this.dependencies.push(oDependency);
 		oDependency.setParentModule(this);
-	};
-	
-	Module.prototype.process = function() {
-		this.object = this.createModuleObject();	// XXX: maybe move to the constructor?
 	};
 	
 	Module.prototype.createModuleObject = function() {
@@ -247,9 +247,6 @@ gl.depsys = new function() {
 	Module.prototype.loadDependencies = function() {
 		if (!this.dependencies.length) {
 			this.ready();
-		} else if (!oURIDependency.isLoaded()) {
-			// wait for URI library to load if it hasn’t loaded yet
-			oURIDependency.addLoadListener({dependencyLoaded: function(){this.module.loadDependencies();}, module: this});
 		} else {
 			for (var i = 0; i < this.dependencies.length; i++) {
 				this.dependencies[i].load();
@@ -316,8 +313,33 @@ gl.depsys = new function() {
 		this.parentModule = oModule;
 	};
 	
+	/**
+	 * Start loading the dependency.
+	 * If the URI library has not been loaded yet, postpones the loading.
+	 * @return
+	 */
 	Dependency.prototype.load = function() {
-		throw new Error('Abstract method must be implemented by subclass.');
+		// TODO: don’t load existing dependencies twice
+//		if (oDependencyManager.isLoaded(this.uri)) {
+//			Dependency.prototype.loadComplete.call(this);	// FIXME
+//			return;
+//		}
+		
+		if (!oURIDependency.isLoaded()) {
+			// wait for URI library to load if it hasn’t loaded yet
+			oURIDependency.addLoadListener({dependencyLoaded: function(){this.dependency.load();}, dependency: this});
+		} else {
+			this.doLoad();
+		}
+	};
+	
+	/**
+	 * Do the actual loading.
+	 * This should be overridden by subclasses.
+	 * @return
+	 */
+	Dependency.prototype.doLoad = function() {
+		throw new Error('Abstract method doLoad() must be implemented by subclass.');
 	};
 	
 	Dependency.prototype.isLoaded = function() {
@@ -371,13 +393,7 @@ gl.depsys = new function() {
 		return browser_ie && this.scriptNode && this.scriptNode.readyState == 'interactive';
 	};
 	
-	ScriptDependency.prototype.load = function() {
-		// TODO: don’t load existing dependencies twice
-//		if (oDependencyManager.isLoaded(this.uri)) {
-//			Dependency.prototype.loadComplete.call(this);	// FIXME
-//			return;
-//		}
-		
+	ScriptDependency.prototype.doLoad = function() {
 		var oHead = document.getElementsByTagName('head')[0];
 		var oScript = document.createElement('script');
 		this.setScriptNode(oScript);
@@ -393,16 +409,15 @@ gl.depsys = new function() {
 	 * @return
 	 */
 	ScriptDependency.prototype.attachLoadHandler = function(oScript) {
-		// FIXME: use addEventListener / attachEvent
 		var oThis = this;
 		if (oScript.addEventListener) {
 			oScript.addEventListener('load', function() {
 				oThis.loadComplete();
 			}, false);
 		} else {
-			oScript.attachEvent('onreadystatechange', function() {
+			oScript.attachEvent('onreadystatechange', function handleReadyStateChange() {
 				if (oScript.readyState == 'complete' || oScript.readyState == 'loaded') {
-					oScript.onreadystatechange = null; // avoid memory leak in IE
+					oScript.detachEvent('onreadystatechange', handleReadyStateChange); // avoid memory leak in IE
 					oThis.loadComplete();
 				}
 			});
@@ -443,7 +458,7 @@ gl.depsys = new function() {
 		return this.uri;
 	};
 	
-	DummyScriptDependency.prototype.load = function() {
+	DummyScriptDependency.prototype.doLoad = function() {
 		throw new Error('You can not load a DummyScriptDependency.')
 	};
 	
@@ -453,16 +468,22 @@ gl.depsys = new function() {
 	/**
 	 * Special dependency type to load the URI resolving code.
 	 */
-	var URIScriptDependency = function(sBaseURI) {
+	var URIScriptDependency = function() {
 		ScriptDependency.call(this, 'gl-uri.js');
-		this.baseURI = sBaseURI;
 		this.loadListeners = [];
 	};
 	
 	this.URIScriptDependency = gl.extend(ScriptDependency, URIScriptDependency);
 	
 	URIScriptDependency.prototype.getURI = function() {
-		return this.baseURI.substr(0, this.baseURI.lastIndexOf('/') + 1) + this.uri;
+		if (!this.parentModule)
+			throw new Error('Need to set parent module first before getting URI.');
+		var sBaseURI = this.parentModule.getURI();
+		return sBaseURI.substr(0, sBaseURI.lastIndexOf('/') + 1) + this.uri;
+	};
+	
+	URIScriptDependency.prototype.load = function() {
+		this.doLoad();
 	};
 	
 	URIScriptDependency.prototype.moduleReady = function(oModule) {
@@ -608,13 +629,19 @@ gl.depsys = new function() {
 	};
 	
 	/**
-	 * Creates a Dependency object based on descriptor object
+	 * Creates a Dependency object based on descriptor object.
+	 * If object is instance of Dependency, returns it immediately.
+	 * If object is a string, creates a text/javascript dependency with the string as URI.
+	 * If object is an object, uses .type and .src properties to create the dependency.
 	 */
 	DependencyManager.prototype.createDependencyFromParameter = function(vDescriptor) {
-		var bIsObject = typeof vDescriptor == 'object';
-		var sRelativeURI = bIsObject ? vDescriptor.src : vDescriptor;
-		var sType = bIsObject && vDescriptor.type || 'text/javascript';
-		return this.createDependency(sType, sRelativeURI);
+		if (vDescriptor instanceof Dependency) {
+			return vDescriptor;
+		} else if (typeof vDescriptor == 'object') {
+			return this.createDependency(vDescriptor.type || 'text/javascript', vDescriptor.src);
+		} else {
+			return this.createDependency('text/javascript', vDescriptor);
+		}
 	};
 	
 	/**
@@ -672,12 +699,12 @@ gl.depsys = new function() {
 	var oDependencyManager = new DependencyManager();
 	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
 	
+	// create modules for gl and gl.depsys objects
 	// load URI library to do URI resolving (a bit of a paradox :))
-	oDependencyManager.dependencyIseEverything();
-	var sBaseURI = oDependencyManager.getLastDependency().getURI();
-	var oURIDependency = new URIScriptDependency(sBaseURI);
+	var oURIDependency = new URIScriptDependency();
 	oDependencyManager.registerDependency(oURIDependency);
-	oURIDependency.load();
+	gl.module('gl.depsys', [oURIDependency], function(){});
+	gl.module('gl', [], function(){});
 	
 	// exports
 	this.dependencyManager = oDependencyManager;

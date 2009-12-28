@@ -240,7 +240,7 @@ gl.module('gl.templates',
 	
 	this.TemplatesDependency = gl.extend(Dependency, TemplatesDependency);
 	
-	TemplatesDependency.prototype.load = function() {
+	TemplatesDependency.prototype.doLoad = function() {
 		var oXHR = new XMLHttpRequest();
 		var oThis = this;
 		oXHR.onreadystatechange = function() {
