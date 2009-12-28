@@ -12,6 +12,9 @@ gl.module('gl.templates',
 	var Dependency = gl.depsys.Dependency;
 	var oModelRegistry = gl.core.modelRegistry;
 	
+	// for IE6
+	var XMLHttpRequest = window.XMLHttpRequest || function() { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); };
+	
 	
 	
 	// utility
@@ -242,7 +245,7 @@ gl.module('gl.templates',
 		var oThis = this;
 		oXHR.onreadystatechange = function() {
 			if (oXHR.readyState == 4) {
-				oXHR.onreadystatechange = null; // avoid memory leak
+				oXHR.onreadystatechange = new Function; // avoid memory leak
 				oThis.handleXHRComplete(oXHR);
 			}
 		}
