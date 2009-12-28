@@ -37,6 +37,19 @@
 		</script>
 		<script src="../../src/grauw-lib.js" type="text/javascript"></script>
 		<script src="A.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			log('$ execute: ' + getCurrentScriptName());
+			gl.module(
+				'module_$',
+				[],
+				function(oModule) {
+					if (oModule.getURI().indexOf('module.html') == -1)
+						log('$ module ERROR - Wrong URI: ' + oModule.getURI());
+					else
+						log('$ module OK');
+				}
+			);
+		</script>
 		<script src="B.js" type="text/javascript"></script>
 		<script src="C.js" type="text/javascript"></script>
 	</head>
