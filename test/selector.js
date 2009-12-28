@@ -6,13 +6,16 @@ gl.module(
 	],
 	function() {
 	
+	// imports
+	var JSUnit = gl.unit.JSUnit;
+	
 	/**
 	 * Unit tests
 	 */
 	SelectorUnit = function() {
-		gl.unit.JSUnit.call(this);
+		JSUnit.call(this);
 	};
-	this.SelectorUnit = gl.extend(gl.unit.JSUnit, SelectorUnit);
+	this.SelectorUnit = gl.extend(JSUnit, SelectorUnit);
 	
 	/**
 	 * Unit tests
