@@ -391,6 +391,7 @@ gl.depsys = new function() {
 		this.attachLoadHandler(oScript);
 		oScript.type = 'text/javascript';
 		oScript.src = this.getURI();
+		oScript.defer = true;
 		oHead.appendChild(oScript);	// execute script
 	};
 	
