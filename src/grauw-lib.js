@@ -3,7 +3,7 @@ gl = new function() {
 	/**
 	 * Copies properties from a hash object onto another object.
 	 * @param object The object to copy the members to.
-	 * @param members The hash object containing the members. 
+	 * @param members The hash object containing the members.
 	 */
 	function mixin(oObject, hMembers) {
 	   for (var i in hMembers)
@@ -82,6 +82,59 @@ gl = new function() {
 		mixin(fConstructor, this);	// inherit static members
 		return fConstructor;
 	};
+	
+	
+	
+	
+	var DOMReadyUtil = function() {
+		this.domReady = false;
+		this.listeners = [];
+		
+		var oThis = this;
+		function loadHandler() {
+			if (window.removeEventListener)
+				window.removeEventListener('load', loadHandler, false);
+			else
+				window.detachEvent('onload', loadHandler);
+			oThis.domReady = true;
+			oThis.fireDOMReady();
+		}
+		if (window.addEventListener)
+			window.addEventListener('load', loadHandler, false);
+		else
+			window.attachEvent('onload', loadHandler);
+	};
+	
+	this.DOMReadyUtil = DOMReadyUtil;
+	
+	DOMReadyUtil.prototype.fireDOMReady = function() {
+		for (var i = 0; i < this.listeners.length; i++)
+			this.listeners[i].handleDOMReady();
+	};
+	
+	DOMReadyUtil.prototype.addDOMReadyListener = function(oListener) {
+		if (!this.domReady)
+			this.listeners.push(oListener);
+		else
+			oListener.handleDOMReady();
+	};
+	
+	
+	
+	
+	/**
+	 * Calls the function once the document is ready and all dependencies have been loaded.
+	 */
+	function ready(fCallback) {
+		oDOMReadyUtil.addDOMReadyListener({handleDOMReady: fCallback});
+	}
+	this.ready = ready;
+	
+	
+	
+	
+	var oDOMReadyUtil = new DOMReadyUtil();
+	this.domReadyUtil = oDOMReadyUtil;
 	
 };
 
