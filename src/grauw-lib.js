@@ -202,7 +202,7 @@ gl.depsys = new function() {
 		this.initializer = fInitializer;
 		this.dependencies = [];
 		this.parentDependency = null;
-		this.object = this.createModuleObject();
+		this.object = this.getModuleObject();
 	};
 	
 	this.Module = Module;
@@ -229,7 +229,12 @@ gl.depsys = new function() {
 		oDependency.setParentModule(this);
 	};
 	
-	Module.prototype.createModuleObject = function() {
+	/**
+	 * Returns the object for this module.
+	 * If the object does not already exist, creates it.
+	 * @return The module object.
+	 */
+	Module.prototype.getModuleObject = function() {
 		var oContext = window;
 		var aNameParts = this.name.split('.');
 		if (aNameParts.length == 1 && aNameParts[0] == '')
