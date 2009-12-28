@@ -224,10 +224,6 @@ gl.depsys = new function() {
 		this.loadDependencies();
 	};
 	
-	Module.prototype.getParentDependency = function() {
-		return this.parentDependency;
-	};
-	
 	Module.prototype.addDependency = function(oDependency) {
 		this.dependencies.push(oDependency);
 		oDependency.setParentModule(this);
@@ -624,12 +620,7 @@ gl.depsys = new function() {
 	 * If there are no more unbound modules, returns null.
 	 */
 	DependencyManager.prototype.getUnboundModule = function() {
-		var oModule;
-		while (oModule = this.unboundModules.shift()) {
-			if (!oModule.getParentDependency())
-				return oModule;
-		}
-		return null;
+		return this.unboundModules.shift() || null;
 	};
 	
 	/**
