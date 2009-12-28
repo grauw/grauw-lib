@@ -332,6 +332,7 @@ gl.depsys = new function() {
 			// wait for URI library to load if it hasn’t loaded yet
 			oURIDependency.addLoadListener({dependencyLoaded: function(){this.dependency.load();}, dependency: this});
 		} else {
+			oDependencyManager.registerDependency(this);
 			this.doLoad();
 		}
 	};
@@ -498,6 +499,7 @@ gl.depsys = new function() {
 	};
 	
 	URIScriptDependency.prototype.load = function() {
+		oDependencyManager.registerDependency(this);
 		this.doLoad();
 	};
 	
@@ -584,10 +586,14 @@ gl.depsys = new function() {
 		return !!this.getDependencyByURI(sURI);
 	};
 	
+	/**
+	 * Registers a dependency on DependencyManager.
+	 * Uses getURI(), so only register dependencies once their URI is available.
+	 * @param oDependency
+	 */
 	DependencyManager.prototype.registerDependency = function(oDependency) {
 		this.dependencyList.push(oDependency);
-		return oDependency;
-		//return this.dependencyMap[oDependency.getURI()] = oDependency;
+		this.dependencyMap[oDependency.getURI()] = oDependency;
 	};
 	
 	DependencyManager.prototype.getDependencyByURI = function(sURI) {
@@ -636,13 +642,10 @@ gl.depsys = new function() {
 	/**
 	 * Dependency factory method.
 	 * Creates a dependency based on type.
-	 * Also automatically registers the created dependency.
 	 */
 	DependencyManager.prototype.createDependency = function(sType, sURI) {
 		if (this.handlers.hasOwnProperty(sType)) {
-			var oDependency = new this.handlers[sType](sURI);
-			this.registerDependency(oDependency);
-			return oDependency;
+			return new this.handlers[sType](sURI);
 		} else {
 			return new UnregisteredDependency(sType, sURI, this);
 		}
@@ -722,7 +725,6 @@ gl.depsys = new function() {
 	// create modules for gl and gl.depsys objects
 	// load URI library to do URI resolving (a bit of a paradox :))
 	var oURIDependency = new URIScriptDependency();
-	oDependencyManager.registerDependency(oURIDependency);
 	gl.module('gl.depsys', [oURIDependency], function(){});
 	gl.module('gl', [], function(){});
 	
