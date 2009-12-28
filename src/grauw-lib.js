@@ -125,10 +125,10 @@ gl = new function() {
 	/**
 	 * Calls the function once the document is ready and all dependencies have been loaded.
 	 */
-	function ready(fCallback) {
+	function domReady(fCallback) {
 		oDOMReadyUtil.addDOMReadyListener({handleDOMReady: fCallback});
 	}
-	this.ready = ready;
+	this.domReady = domReady;
 	
 	
 	
