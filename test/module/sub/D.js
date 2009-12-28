@@ -1,2 +1,2 @@
-log('D execute: ' + getCurrentScriptName());
+execute('D');
 module_d = {};
