@@ -7,9 +7,17 @@
 		<style type="text/css">
 		</style>
 		<script src="../src/grauw-lib.js" type="text/javascript"></script>
-		<script src="selector.js" type="text/javascript"></script>
+		<script type="text/javascript">
+
+gl.module('', ['selector.js'], function() {
+	gl.ready(function() {
+		new unit.SelectorUnit().start();
+	});
+});
+
+		</script>
 	</head>
-	<body onload="new unit.SelectorUnit().start()">
+	<body>
 		<h1>Selectors test</h1>
 		<ul lang="en-GB" class="test1 test2" id="t7">
 			<li id="t1">Item 1</li>

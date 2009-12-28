@@ -6,8 +6,16 @@
 		<style type="text/css">
 		</style>
 		<script src="../src/grauw-lib.js" type="text/javascript"></script>
-		<script src="gl-uri.js" type="text/javascript"></script>
+		<script type="text/javascript">
+
+gl.module('', ['gl-uri.js'], function() {
+	gl.ready(function() {
+		new unit.URIUnit().start()
+	});
+});
+
+		</script>
 	</head>
-	<body onload="new unit.URIUnit().start()">
+	<body>
 	</body>
 </html>

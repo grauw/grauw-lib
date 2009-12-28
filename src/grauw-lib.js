@@ -149,53 +149,6 @@ gl.depsys = new function() {
 	var browser_ie_version = parseFloat(browser_ie_version_match && browser_ie_version_match[1] || '0');
 	
 	/**
-	 * Returns the last script tag that can be found in the document.
-	 * While parsing, this is often the current script.
-	 */
-	function getLastScript() {
-		var aScripts = document.getElementsByTagName('script');
-		return aScripts[aScripts.length - 1];
-	}
-	
-	/**
-	 * Returns the script tag with readyState 'interactive', which is the current script.
-	 * Searches last-first, in case the script tags are created synchronously by another script.
-	 */
-	function getCurrentScriptIE() {
-		var aScripts = document.getElementsByTagName('script');
-		for (var i = aScripts.length - 1; i >= 0; i--) {
-			if (aScripts[i].readyState == 'interactive')
-				return aScripts[i];
-		}
-		return null;
-	}
-	
-	/**
-	 * Creates a Dependency object based on descriptor object
-	 */
-	function createDependency(vDescriptor) {
-		var bIsObject = typeof vDescriptor == 'object';
-		var sRelativeURI = bIsObject ? vDescriptor.src : vDescriptor;
-		var sType = bIsObject && vDescriptor.type || 'text/javascript';
-		return oDependencyManager.createDependency(sType, sRelativeURI);
-	}
-	
-	/**
-	 * Instantiates a DummyScriptDependency for every script without dependency.
-	 */
-	function dependencyIseEverything() {
-		var aScripts = document.getElementsByTagName('script');
-		for (var i = aScripts.length - 1; i >= 0; i--) {
-			// TODO: currently skips every script without src
-			// XXX: src can be set after the script has been created... more reliable way of detecting?
-			if (!aScripts[i]._gl_dependency && aScripts[i].src) {
-				var oDependency = new DummyScriptDependency(aScripts[i]);
-				oDependencyManager.registerDependency(oDependency);
-			}
-		}
-	}
-	
-	/**
 	 * Define a module, with package name and dependencies.
 	 * An object will be created from the module name, dependencies will be loaded,
 	 * and the implementation initialisation function will be invoked afterwards.
@@ -221,17 +174,17 @@ gl.depsys = new function() {
 	 * The type field specifies an optional MIME type which will influence how the
 	 * file is loaded, by default it is text/javascript.
 	 */
-	gl.module = function(sName, aDependencies, fImplementation) {
-		dependencyIseEverything();
-		var oModule = new Module(sName, fImplementation);
+	gl.module = function(sName, aDependencies, fInitializer) {
+		oDependencyManager.dependencyIseEverything();
+		var oCurrentDependency = oDependencyManager.getCurrentDependency(sName);
+		var oModule = oDependencyManager.createModule(sName, fInitializer);
 		for (var i = 0; i < aDependencies.length; i++) {
-			var oDependency = createDependency(aDependencies[i]);
+			var oDependency = oDependencyManager.createDependencyFromParameter(aDependencies[i]);
 			oModule.addDependency(oDependency);
 		}
-		oDependencyManager.registerModule(oModule);
 		oModule.process();
-		if (browser_ie)
-			oModule.setParentDependency(getCurrentScriptIE()._gl_dependency);
+		if (oCurrentDependency)
+			oModule.setParentDependency(oCurrentDependency);
 	};
 	
 	
@@ -262,7 +215,6 @@ gl.depsys = new function() {
 		this.parentDependency = oDependency;
 		oDependency.registerModule(this);
 		this.loadDependencies();
-		//oDependency.addLoadListener(this);
 	};
 	
 	Module.prototype.getParentDependency = function() {
@@ -271,14 +223,11 @@ gl.depsys = new function() {
 	
 	Module.prototype.addDependency = function(oDependency) {
 		this.dependencies.push(oDependency);
+		oDependency.setParentModule(this);
 	};
 	
 	Module.prototype.process = function() {
-//		if (!this.parentDependency)
-//			throw new Error('Module process() can not be used before parent dependency is set.');
 		this.object = this.createModuleObject();	// XXX: maybe move to the constructor?
-//		if (this.parentDependency)
-//			this.loadDependencies();	// XXX: remove?
 	};
 	
 	Module.prototype.createModuleObject = function() {
@@ -303,13 +252,14 @@ gl.depsys = new function() {
 			oURIDependency.addLoadListener({dependencyLoaded: function(){this.module.loadDependencies();}, module: this});
 		} else {
 			for (var i = 0; i < this.dependencies.length; i++) {
-				this.dependencies[i].addLoadListener(this);
-				this.dependencies[i].setBaseURI(this.getURI());
 				this.dependencies[i].load();
 			}
 		}
 	};
 	
+	/**
+	 * Callback called when a child dependency has completed loading
+	 */
 	Module.prototype.dependencyLoaded = function(oDependency) {
 		if (this.allDependenciesLoaded()) {
 			this.ready();
@@ -339,9 +289,9 @@ gl.depsys = new function() {
 	 */
 	var Dependency = function(sURI) {
 		this.uri = sURI;
-		this.loadListeners = [];
 		this.loaded = false;
 		this.modules = [];
+		this.parentModule = null;
 	};
 	
 	this.Dependency = Dependency;
@@ -357,13 +307,13 @@ gl.depsys = new function() {
 	};
 	
 	Dependency.prototype.getURI = function() {
-		if (!this.baseURI)
-			throw new Error('Need to set base URI first before getting URI.')
-		return gl.uri.URI.resolve(this.uri, this.baseURI);
+		if (!this.parentModule)
+			throw new Error('Need to set parent module first before getting URI.');
+		return gl.uri.URI.resolve(this.uri, this.parentModule.getURI());
 	};
 	
-	Dependency.prototype.setBaseURI = function(sBaseURI) {
-		this.baseURI = sBaseURI;
+	Dependency.prototype.setParentModule = function(oModule) {
+		this.parentModule = oModule;
 	};
 	
 	Dependency.prototype.load = function() {
@@ -382,8 +332,8 @@ gl.depsys = new function() {
 	 * Callback from a child module
 	 */
 	Dependency.prototype.moduleReady = function(oModule) {
-		if (this.isLoaded())
-			this.fireLoadEvent();
+		if (this.isLoaded() && this.parentModule)
+			this.parentModule.dependencyLoaded(this);
 	};
 
 	/**
@@ -392,22 +342,6 @@ gl.depsys = new function() {
 	 */
 	Dependency.prototype.loadComplete = function() {
 		this.loaded = true;
-	};
-	
-	/**
-	 * Registers an object as a load listener. When this dependency has loaded,
-	 * the ‘dependencyLoaded’ method on the loadListener will be invoked.
-	 */
-	Dependency.prototype.addLoadListener = function(oLoadListener) {
-		this.loadListeners.push(oLoadListener);
-	};
-	
-	Dependency.prototype.fireLoadEvent = function() {
-		for (var i = 0; i < this.loadListeners.length; i++) {
-			this.loadListeners[i].dependencyLoaded(this);
-		}
-		// XXX: possible GC optimisation?
-//		this.loadListeners = [];	// will only load once, clean up for better GC
 	};
 	
 	
@@ -429,6 +363,14 @@ gl.depsys = new function() {
 		oScript._gl_dependency = this;
 	};
 	
+	/**
+	 * Returns whether this dependency is currently being executed.
+	 * Can only be determined in IE.
+	 */
+	ScriptDependency.prototype.isCurrentScript = function() {
+		return browser_ie && this.scriptNode && this.scriptNode.readyState == 'interactive';
+	};
+	
 	ScriptDependency.prototype.load = function() {
 		// TODO: don’t load existing dependencies twice
 //		if (oDependencyManager.isLoaded(this.uri)) {
@@ -441,8 +383,8 @@ gl.depsys = new function() {
 		this.setScriptNode(oScript);
 		this.attachLoadHandler(oScript);
 		oScript.type = 'text/javascript';
-		oScript.src = this.getURI();
 		oScript.defer = true;
+		oScript.src = this.getURI();
 		oHead.appendChild(oScript);	// execute script
 	};
 	
@@ -453,17 +395,17 @@ gl.depsys = new function() {
 	ScriptDependency.prototype.attachLoadHandler = function(oScript) {
 		// FIXME: use addEventListener / attachEvent
 		var oThis = this;
-		if (browser_ie) {
+		if (oScript.addEventListener) {
+			oScript.addEventListener('load', function() {
+				oThis.loadComplete();
+			}, false);
+		} else {
 			oScript.attachEvent('onreadystatechange', function() {
 				if (oScript.readyState == 'complete' || oScript.readyState == 'loaded') {
 					oScript.onreadystatechange = null; // avoid memory leak in IE
 					oThis.loadComplete();
 				}
 			});
-		} else {
-			oScript.addEventListener('load', function() {
-				oThis.loadComplete();
-			}, false);
 		}
 	};
 	
@@ -489,6 +431,7 @@ gl.depsys = new function() {
 	var DummyScriptDependency = function(oScript) {
 		// src property is not absolute in IE6 and IE7
 		var sURI = browser_ie && browser_ie_version < 8 ? oScript.getAttribute('src', 4) : oScript.src;
+		sURI = sURI || oScript.ownerDocument.location.href;
 		ScriptDependency.call(this, sURI);
 		this.setScriptNode(oScript);
 		this.attachLoadHandler(oScript);
@@ -513,11 +456,68 @@ gl.depsys = new function() {
 	var URIScriptDependency = function(sBaseURI) {
 		ScriptDependency.call(this, 'gl-uri.js');
 		this.baseURI = sBaseURI;
+		this.loadListeners = [];
 	};
+	
 	this.URIScriptDependency = gl.extend(ScriptDependency, URIScriptDependency);
 	
 	URIScriptDependency.prototype.getURI = function() {
 		return this.baseURI.substr(0, this.baseURI.lastIndexOf('/') + 1) + this.uri;
+	};
+	
+	URIScriptDependency.prototype.moduleReady = function(oModule) {
+		ScriptDependency.prototype.moduleReady.call(this, oModule);
+		if (this.isLoaded())
+			this.fireLoadEvent(this);
+	};
+	
+	/**
+	 * Registers an object as a load listener. When this dependency has loaded,
+	 * the ‘dependencyLoaded’ method on the loadListener will be invoked.
+	 */
+	URIScriptDependency.prototype.addLoadListener = function(oLoadListener) {
+		this.loadListeners.push(oLoadListener);
+	};
+	
+	URIScriptDependency.prototype.fireLoadEvent = function() {
+		for (var i = 0; i < this.loadListeners.length; i++)
+			this.loadListeners[i].dependencyLoaded(this);
+	};
+	
+	
+	
+	
+	/**
+	 * Special dependency type to load dependencies whose type is not registered yet.
+	 */
+	var UnregisteredDependency = function(sType, sURI, oDependencyManager) {
+		Dependency.call(this, sURI);
+		this.type = sType;
+		this.dependencyManager = oDependencyManager;
+		this.loadStarted = false;
+		oDependencyManager.addDependencyHandlerListener(this);
+	};
+	
+	this.UnregisteredDependency = gl.extend(Dependency, UnregisteredDependency);
+	
+	UnregisteredDependency.prototype.dependencyHandlerRegistered = function(sType) {
+		if (this.type == sType) {
+			var oNewDependency = this.dependencyManager.createDependency(this.type, this.uri);
+			for (var i = 0; i < this.parentModule.dependencies.length; i++) {
+				// TODO: don’t directly access parent module dependencies collection
+				if (this.parentModule.dependencies[i] == this) {
+					this.parentModule.dependencies[i] = oNewDependency;
+					oNewDependency.setParentModule(this.parentModule);
+					if (this.loadStarted)
+						oNewDependency.load();
+					break;
+				}
+			}
+		}
+	};
+	
+	UnregisteredDependency.prototype.load = function() {
+		this.loadStarted = true;
 	};
 	
 	
@@ -531,6 +531,7 @@ gl.depsys = new function() {
 		this.dependencyList = [];
 		this.handlers = {};
 		this.moduleQueue = [];
+		this.handlerListeners = [];
 	};
 	
 	this.DependencyManager = DependencyManager;
@@ -551,20 +552,14 @@ gl.depsys = new function() {
 	
 	DependencyManager.prototype.registerDependencyHandler = function(sType, cDependency) {
 		this.handlers[sType] = cDependency;
+		
+		// fire event
+		for (var i = 0; i < this.handlerListeners.length; i++)
+			this.handlerListeners[i].dependencyHandlerRegistered(sType);
 	};
 	
-	/**
-	 * Dependency factory method.
-	 * Creates a dependency based on type.
-	 * Also automatically registers the created dependency.
-	 */
-	DependencyManager.prototype.createDependency = function(sType, sURI) {
-		if (this.handlers.hasOwnProperty(sType)) {
-			var oDependency = new this.handlers[sType](sURI);
-			this.registerDependency(oDependency);
-			return oDependency;
-		}
-		return null;
+	DependencyManager.prototype.addDependencyHandlerListener = function(oListener) {
+		this.handlerListeners.push(oListener);
 	};
 	
 	/**
@@ -587,6 +582,89 @@ gl.depsys = new function() {
 		return null;
 	};
 	
+	/**
+	 * Module factory method.
+	 * Also automatically registers the created dependency.
+	 */
+	DependencyManager.prototype.createModule = function(sName, fInitializer) {
+		var oModule = new Module(sName, fInitializer);
+		this.registerModule(oModule);
+		return oModule;
+	};
+	
+	/**
+	 * Dependency factory method.
+	 * Creates a dependency based on type.
+	 * Also automatically registers the created dependency.
+	 */
+	DependencyManager.prototype.createDependency = function(sType, sURI) {
+		if (this.handlers.hasOwnProperty(sType)) {
+			var oDependency = new this.handlers[sType](sURI);
+			this.registerDependency(oDependency);
+			return oDependency;
+		} else {
+			return new UnregisteredDependency(sType, sURI, this);
+		}
+	};
+	
+	/**
+	 * Creates a Dependency object based on descriptor object
+	 */
+	DependencyManager.prototype.createDependencyFromParameter = function(vDescriptor) {
+		var bIsObject = typeof vDescriptor == 'object';
+		var sRelativeURI = bIsObject ? vDescriptor.src : vDescriptor;
+		var sType = bIsObject && vDescriptor.type || 'text/javascript';
+		return this.createDependency(sType, sRelativeURI);
+	};
+	
+	/**
+	 * Instantiates a DummyScriptDependency for every script without dependency.
+	 */
+	DependencyManager.prototype.dependencyIseEverything = function() {
+		var aScripts = document.getElementsByTagName('script');
+		for (var i = 0; i < aScripts.length; i++) {
+			if (!aScripts[i]._gl_dependency) {
+				var oDependency = new DummyScriptDependency(aScripts[i]);
+				this.registerDependency(oDependency);
+			}
+		}
+	};
+	
+	/**
+	 * Returns the dependency whose script tag’s readyState is 'interactive', which is the current script.
+	 * Searches last-first, in case the script tags are created synchronously by another script.
+	 */
+	DependencyManager.prototype.getCurrentDependencyIE = function() {
+		for (var i = this.dependencyList.length - 1; i >= 0; i--) {
+			if (this.dependencyList[i] instanceof ScriptDependency && this.dependencyList[i].isCurrentScript())
+				return this.dependencyList[i];
+		}
+		throw new Error('The current script tag was not found.');
+	};
+	
+	/**
+	 * Returns the last script tag that can be found in the document.
+	 * While parsing, this is often the current script.
+	 */
+	DependencyManager.prototype.getLastDependency = function() {
+		return this.dependencyList[this.dependencyList.length - 1];
+	};
+	
+	/**
+	 * Returns the current dependency, or null if it can not be determined.
+	 */
+	DependencyManager.prototype.getCurrentDependency = function(sName) {
+		if (browser_ie) {
+			return this.getCurrentDependencyIE();
+		} else {
+			var oDependency = this.getLastDependency();
+			// XXX: src can be set after the script has been created... more reliable way of detecting?
+			if (oDependency instanceof DummyScriptDependency && !oDependency.scriptNode.hasAttribute('src'))
+				return oDependency;
+		}
+		return null;
+	};
+	
 	
 	
 	
@@ -595,9 +673,10 @@ gl.depsys = new function() {
 	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
 	
 	// load URI library to do URI resolving (a bit of a paradox :))
-	dependencyIseEverything();
-	var sBaseURI = getLastScript()._gl_dependency.getURI();
+	oDependencyManager.dependencyIseEverything();
+	var sBaseURI = oDependencyManager.getLastDependency().getURI();
 	var oURIDependency = new URIScriptDependency(sBaseURI);
+	oDependencyManager.registerDependency(oURIDependency);
 	oURIDependency.load();
 	
 	// exports
