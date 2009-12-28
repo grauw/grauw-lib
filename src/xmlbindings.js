@@ -269,6 +269,10 @@ gl.module('gl.templates',
 		this.moduleReady();
 	};
 	
+	TemplatesDependency.prototype.toString = function() {
+		return 'TemplatesDependency';
+	};
+	
 	
 	
 	

@@ -369,6 +369,10 @@ gl.depsys = new function() {
 		this.loaded = true;
 	};
 	
+	Dependency.prototype.toString = function() {
+		return 'Dependency';
+	};
+	
 	
 	
 	
@@ -439,6 +443,10 @@ gl.depsys = new function() {
 			this.moduleReady();
 	};
 	
+	ScriptDependency.prototype.toString = function() {
+		return 'ScriptDependency';
+	};
+	
 	
 	
 	
@@ -463,6 +471,10 @@ gl.depsys = new function() {
 	
 	DummyScriptDependency.prototype.doLoad = function() {
 		throw new Error('You can not load a DummyScriptDependency.')
+	};
+	
+	DummyScriptDependency.prototype.toString = function() {
+		return 'DummyScriptDependency';
 	};
 	
 	
@@ -508,6 +520,10 @@ gl.depsys = new function() {
 			this.loadListeners[i].dependencyLoaded(this);
 	};
 	
+	URIScriptDependency.prototype.toString = function() {
+		return 'URIScriptDependency';
+	};
+	
 	
 	
 	
@@ -542,6 +558,10 @@ gl.depsys = new function() {
 	
 	UnregisteredDependency.prototype.load = function() {
 		this.loadStarted = true;
+	};
+	
+	UnregisteredDependency.prototype.toString = function() {
+		return 'UnregisteredDependency';
 	};
 	
 	
