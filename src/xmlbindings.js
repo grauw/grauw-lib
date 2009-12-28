@@ -9,6 +9,7 @@ gl.module('gl.templates',
 	
 	// imports
 	var Element = gl.core.Element;
+	var Dependency = gl.depsys.Dependency;
 	var oModelRegistry = gl.core.modelRegistry;
 	
 	
@@ -230,13 +231,13 @@ gl.module('gl.templates',
 	 * Uses MIME-type ‘application/xml’.
 	 */
 	var TemplatesDependency = function(sURI) {
-		gl.depsys.Dependency.call(this, sURI);
+		Dependency.call(this, sURI);
 		this.xml = null;
 	};
 	
-	this.TemplatesDependency = gl.extend(gl.depsys.Dependency, TemplatesDependency);
+	this.TemplatesDependency = gl.extend(Dependency, TemplatesDependency);
 	
-	TemplatesDependency.prototype.load = function(bAsync) {
+	TemplatesDependency.prototype.load = function() {
 		var oXHR = new XMLHttpRequest();
 		var oThis = this;
 		oXHR.onreadystatechange = function() {
@@ -245,7 +246,7 @@ gl.module('gl.templates',
 				oThis.handleXHRComplete(oXHR);
 			}
 		}
-		oXHR.open('GET', this.uri, bAsync);
+		oXHR.open('GET', this.getURI());
 		oXHR.setRequestHeader('Accept', 'application/xml');
 		oXHR.send();
 	};
@@ -258,6 +259,11 @@ gl.module('gl.templates',
 			this.loadComplete();
 		}
 		// TODO: else error?
+	};
+
+	TemplatesDependency.prototype.loadComplete = function() {
+		Dependency.prototype.loadComplete.call(this);	// call super
+		this.moduleReady();
 	};
 	
 	
