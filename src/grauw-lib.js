@@ -182,8 +182,11 @@ gl.depsys = new function() {
 			var oDependency = oDependencyManager.createDependencyFromParameter(aDependencies[i]);
 			oModule.addDependency(oDependency);
 		}
-		if (oCurrentDependency)
+		if (oCurrentDependency) {
 			oModule.setParentDependency(oCurrentDependency);
+		} else {
+			oDependencyManager.registerUnboundModule(oModule);
+		}
 	};
 	
 	
@@ -551,7 +554,7 @@ gl.depsys = new function() {
 		this.dependencyMap = {};
 		this.dependencyList = [];
 		this.handlers = {};
-		this.moduleQueue = [];
+		this.unboundModules = [];
 		this.handlerListeners = [];
 	};
 	
@@ -586,8 +589,8 @@ gl.depsys = new function() {
 	/**
 	 * Put a module in the queue to be picked up by a dependency later.
 	 */
-	DependencyManager.prototype.registerModule = function(oModule) {
-		this.moduleQueue.push(oModule);
+	DependencyManager.prototype.registerUnboundModule = function(oModule) {
+		this.unboundModules.push(oModule);
 	};
 	
 	/**
@@ -596,7 +599,7 @@ gl.depsys = new function() {
 	 */
 	DependencyManager.prototype.getUnboundModule = function() {
 		var oModule;
-		while (oModule = this.moduleQueue.shift()) {
+		while (oModule = this.unboundModules.shift()) {
 			if (!oModule.getParentDependency())
 				return oModule;
 		}
@@ -605,12 +608,9 @@ gl.depsys = new function() {
 	
 	/**
 	 * Module factory method.
-	 * Also automatically registers the created dependency.
 	 */
 	DependencyManager.prototype.createModule = function(sName, fInitializer) {
-		var oModule = new Module(sName, fInitializer);
-		this.registerModule(oModule);
-		return oModule;
+		return new Module(sName, fInitializer);
 	};
 	
 	/**
