@@ -105,7 +105,7 @@ gl.module(
 				oCachingParser.parse(this.tests[i][0]);
 			} catch(e) {
 				if (e instanceof gl.selector.ParsingException)
-					this.assert(false, 'Selector “' + this.tests[i][0] + '” should not cause a parse error.')
+					this.assert(false, 'Selector “' + this.tests[i][0] + '” should not cause a parse error.');
 				else
 					throw e;
 			}

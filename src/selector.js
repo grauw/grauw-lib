@@ -1271,7 +1271,7 @@ gl.selector = new function() {
 	 */
 	Parser.prototype.createAttributeSelector = function(sIdentifier, sName, sValue) {
 		return new hAttrTypeMap[sIdentifier](sName, sValue);
-	}
+	};
 	
 	Parser.prototype.parsePseudoSelector = function(sSelectorPart) {
 		var aParsedPseudo = regexp_pseudo.exec(sSelectorPart),

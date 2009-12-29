@@ -248,7 +248,7 @@ gl.module('gl.templates',
 				oXHR.onreadystatechange = new Function; // avoid memory leak
 				oThis.handleXHRComplete(oXHR);
 			}
-		}
+		};
 		oXHR.open('GET', this.getURI());
 		oXHR.setRequestHeader('Accept', 'application/xml');
 		oXHR.send();

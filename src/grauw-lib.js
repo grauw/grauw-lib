@@ -476,7 +476,7 @@ gl.depsys = new function() {
 	};
 	
 	DummyScriptDependency.prototype.doLoad = function() {
-		throw new Error('You can not load a DummyScriptDependency.')
+		throw new Error('You can not load a DummyScriptDependency.');
 	};
 	
 	DummyScriptDependency.prototype.toString = function() {

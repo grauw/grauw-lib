@@ -83,7 +83,7 @@ gl.module('unit',
 	URIUnit.prototype.test = function() {
 		this.performanceTest();
 		this.unitTests();
-	}
+	};
 	
 	/**
 	 * Unit tests
@@ -99,7 +99,7 @@ gl.module('unit',
 			var sURI = gl.uri.URI.resolve(test[1], test[0]);
 			this.assertEquals(test[2], sURI, 'Result URI should match expected URI.');
 		}
-	}
+	};
 	
 	/**
 	 * Performance tests
@@ -120,6 +120,6 @@ gl.module('unit',
 	//		oURI.resolve(oBaseURI).toString();
 		}
 		this.writeln('Running 10000x w/ different URIs, milliseconds needed: ' + this.timeEnd() + ' ms');
-	}
+	};
 
 });

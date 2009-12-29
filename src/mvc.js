@@ -33,7 +33,7 @@ gl.module('gl.core', [], function() {
 		} else {
 			oModel.controller = oController;
 		}
-	}
+	};
 
 	ModelRegistry.prototype.getController = function(oModel) {
 		if (browser_ie) {
@@ -42,7 +42,7 @@ gl.module('gl.core', [], function() {
 		} else {
 			return oModel.controller;
 		}
-	}
+	};
 	
 	
 	
