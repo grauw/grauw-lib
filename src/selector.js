@@ -79,6 +79,22 @@ gl.selector = new function() {
 		return oNode.getAttribute(sName) || '';
 	}
 
+	/**
+	 * Helper function for cross-browser getElementsByTagName('*').
+	 * In particular, ignores HTMLCommentElement nodes thrown at you by Internet Explorer.
+	 */
+	function getAllDescendants(oNode) {
+		var aDescendants = oNode.getElementsByTagName('*');
+		if (!browser_ie)
+			return aDescendants;
+		var aResult = [];
+		for (var i = 0, len = aDescendants.length; i < len; i++) {
+			if (aDescendants[i].nodeType == 1)
+				aResult.push(aDescendants[i]);
+		}
+		return aResult;
+	}
+
 
 	/**
 	 * Matches a node against a CSS selector or selector group.
@@ -432,7 +448,7 @@ gl.selector = new function() {
 				if (oNode2 && (oNode.contains ? oNode2 != oNode && oNode.contains(oNode2) : !!(oNode.compareDocumentPosition(oNode2) & 16)))
 					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			}
-			aNodes = oNode.all || oNode.getElementsByTagName('*');
+			aNodes = getAllDescendants(oNode);
 		}
 		var bMatch = false;
 		for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
