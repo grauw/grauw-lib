@@ -21,12 +21,19 @@ gl.module(
 	 * Unit tests
 	 */
 	SelectorUnit.prototype.tests = [
-			['li', ['t1', 't2', 't3', 't4', 't5', 't6']],	// type selector test	
+			['*[lang]', ['t0', 't7', 't8']],				// universal selector test
+			['li', ['t1', 't2', 't3', 't4', 't5', 't6']],	// type selector test
+			['.test1', ['t7']],								// class selector tests
+			['.test2', ['t7']],
+			['.test3', ['t7']],
+			['.test4', []],
 			['#t7', ['t7']],								// id selector tests
 			['ul#t7', ['t7']],
 			['ul#t7 li', ['t1', 't2', 't3', 't4', 't5']],	// descendant combinator test
+			['#t13 *', []],									// IE quirk test (comment nodes treated as elements)
 			['ul#t7 > li', ['t1', 't2', 't3', 't4', 't5']],	// child combinator tests
 			['body > li', []],
+			['#t13 > *', []],								// IE quirk test (comment nodes treated as elements)
 			['span:empty', ['t10', 't13']],				// :empty test
 			['ul[lang=en-GB]', ['t7']],					// attribute exists / equals tests
 			['form[class]', ['t20']],
@@ -48,7 +55,8 @@ gl.module(
 			['button[value="xyz"]', ['t25']],
 			['ul[class~="test1"]', ['t7']],				// attribute list selector tests
 			['ul[class~="test2"]', ['t7']],
-			['ul[class~="test3"]', []],
+			['ul[class~="test3"]', ['t7']],
+			['ul[class~="test4"]', []],
 			['ul[class~="test1 test2"]', []],
 			['ul[class~=" "]', []],
 			['ul[class~=""]', []],						// empty attribute selector test
