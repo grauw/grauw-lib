@@ -21,13 +21,19 @@ gl.module('gl.unit',
 
 	JSUnit.prototype.start = function() {
 		this.writeln('JSUnit running…');
-		try {
+		if (location.hash != '#notrycatch') {
+			// Note: Secret feature for debugging!
+			// Add #notrycatch to URL to avoid the try/catch here.
+			try {
+				this.test();
+			} catch(e) {
+				this.writelnError('Error: ' + String(e));
+				this.writelnError('JSUnit aborted.');
+				this.end();
+				throw e;
+			}
+		} else {
 			this.test();
-		} catch(e) {
-			this.writelnError('Error: ' + String(e));
-			this.writelnError('JSUnit aborted.');
-			this.end();
-			throw e;
 		}
 		this.writeln('JSUnit finished.'); // ...with x errors
 		this.end();

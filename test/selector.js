@@ -128,13 +128,8 @@ gl.module(
 		for (var i = 0; i < this.tests.length; i++) {
 			var test = this.tests[i];
 			this.writeln('Testing selector “' + test[0] + '”.');
-			try {
-				this.unitTestQuery(test[0], test[1]);
-				this.unitTestMatch(test[0], test[1]);
-			} catch(e) {
-				this.writelnError('Error: ' + String(e));
-	//			throw e;
-			}
+			this.unitTestQuery(test[0], test[1]);
+			this.unitTestMatch(test[0], test[1]);
 		}
 	};
 	
