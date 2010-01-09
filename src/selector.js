@@ -482,7 +482,7 @@ gl.selector = new function() {
 				if (oNode2.parentNode == oNode)
 					return this.querySimpleSelectors(oNode2, aResult, bSingleResult, 1);
 			}
-			aNodes = oNode.childNodes;
+			aNodes = oNode.children || oNode.childNodes;
 		}
 		var bMatch = false;
 		for (var i = 0, iLen = aNodes.length; i < iLen && !(bSingleResult && bMatch); i++) {
