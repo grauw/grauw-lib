@@ -1,0 +1,26 @@
+<project name="Grauw-lib" default="BUILD_ALL">
+	
+	<target name="BUILD_ALL" depends="BUILD_SELECTORS">
+	</target>
+	
+	<target name="BUILD_SELECTORS">
+		<mkdir dir="output"/>
+		
+		<apply executable="java">
+			<fileset dir="../src/" includes="selector.js"/>
+			<arg value="--jar"/>
+			<arg file="lib/yuicompressor.jar"/>
+			<arg line="--charset"/>
+			<arg value="UTF-8"/>
+			<arg value="-o"/>
+			<mapper>
+				<chainedmapper>
+					<flattenmapper/>
+					<globmapper from="*.js" to="new/path/*-compressed.js"/>
+				</chainedmapper>
+			</mapper>
+			<targetfile/>
+		</apply>
+	</target>
+	
+</project>
