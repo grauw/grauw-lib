@@ -93,6 +93,7 @@ gl.module(
 	SelectorUnit.prototype.test = function() {
 		this.apiTests();
 		this.unitTests();
+		// TODO: add API function tests
 		this.performanceTest();
 	};
 	

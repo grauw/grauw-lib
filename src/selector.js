@@ -104,10 +104,11 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return true if the selector matches.
 	 */
-	this.match = function match(oNode, sSelector) {
+	function match(oNode, sSelector) {
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
 	};
+	this.match = match;
 
 	/**
 	 * Queries a CSS selector or selector group against a node.
@@ -115,12 +116,13 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return An array containing the selected nodes.
 	 */
-	this.queryAll = function queryAll(oNode, sSelector) {
+	function queryAll(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
 	};
+	this.queryAll = queryAll;
 
 	/**
 	 * Queries a CSS selector or selector group against a node and returns one node.
@@ -128,13 +130,14 @@ gl.selector = new function() {
 	 * @param selector The selector
 	 * @return The selected node.
 	 */
-	this.query = function query(oNode, sSelector) {
+	function query(oNode, sSelector) {
 		if (oNode.nodeType == 9)
 			oNode = oNode.documentElement;
 		var oSelectorGroup = oParser.parse(sSelector);
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
 	};
+	this.query = query;
 
 	/**
 	 * Use a CSS selector to return the first selection found on a node or its ancestors.
@@ -143,7 +146,7 @@ gl.selector = new function() {
 	 * @param stop Stop querying after arriving at this node (optional)
 	 * @return The selected node.
 	 */
-	this.queryAncestorOrSelf = function queryAncestorOrSelf(oNode, sSelector, oStop) {
+	function queryAncestorOrSelf(oNode, sSelector, oStop) {
 		var oSelectorGroup = oParser.parse(sSelector);
 		if (!oSelectorGroup)
 			return null;
@@ -157,24 +160,27 @@ gl.selector = new function() {
 		}
 		return null;
 	};
+	this.queryAncestorOrSelf = queryAncestorOrSelf;
 
 	/**
 	 * Queries a CSS selector or selector group against the document and returns one node.
 	 * @param selector The selector
 	 * @return The selected node.
 	 */
-	this.queryDocument = function queryDocument(sSelector) {
+	function queryDocument(sSelector) {
 		return query(document.documentElement, sSelector);
 	};
+	this.queryDocument = queryDocument;
 
 	/**
 	 * Queries a CSS selector or selector group against the document.
 	 * @param selector The selector
 	 * @return Array containing the selected nodes.
 	 */
-	this.queryDocumentAll = function queryDocumentAll(sSelector) {
+	function queryDocumentAll(sSelector) {
 		return queryAll(document.documentElement, sSelector);
 	};
+	this.queryDocumentAll = queryDocumentAll;
 
 
 
