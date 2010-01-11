@@ -79,7 +79,7 @@ gl.module(
 			['ul:not(.test1)', ['t8']],					// :not parsing tests
 			['span:not(:empty)', ['t11', 't12', 't14']],
 			['ul:not(:lang(en))', ['t8']],
-			['ul.test1 *:not(#t2):not([id=t4])', ['t1', 't3', 't5']]
+			['ul.test1 li:not(#t2):not([id=t4])', ['t1', 't3', 't5']]
 		];
 	
 	// Selectors that should result in parsing errors
