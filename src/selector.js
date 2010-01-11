@@ -7,7 +7,7 @@
  * - gl.selector.match(node, selector)
  * - gl.selector.query(node, selector)
  * - gl.selector.queryAll(node, selector)
- * - gl.selector.queryAncestor(node, selector)
+ * - gl.selector.queryAncestorOrSelf(node, selector)
  * 
  * See: http://www.grauw.nl/projects/pc/selectors/
  * 
