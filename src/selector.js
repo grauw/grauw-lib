@@ -1145,13 +1145,13 @@ gl.selector = new function() {
 				pattern_sibling,
 				pattern_comma,
 				pattern_descendant	// descendant combinator must be last
-			].join('|'), 'g');
-		regexp_attribute    = new RegExp(pattern_attribute);
-		regexp_nlescape     = new RegExp(pattern_nlescape, 'g');
-		regexp_pseudo       = new RegExp(':([^(]+)(?:\\((.+)\\))?');
-		regexp_trim         = /^\s+|\s+$/gm;
-		regexp_escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g;
-		regexp_escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g;
+			].join('|'), 'g'),
+		regexp_attribute    = new RegExp(pattern_attribute),
+		regexp_nlescape     = new RegExp(pattern_nlescape, 'g'),
+		regexp_pseudo       = new RegExp(':([^(]+)(?:\\((.+)\\))?'),
+		regexp_trim         = /^\s+|\s+$/gm,
+		regexp_escapeCSS    = /\\([^\n\r\f0-9a-fA-F])|\\([0-9a-fA-F]{1,6})(?:\r\n|[ \n\r\t\f])?/g,
+		regexp_escapeRegexp = /([\[\\\^\$\.\|\?\*\+\(\)\{\}])/g,
 		regexp_whiteSpace   = /\s/;
 
 	var hAttrTypeMap = {
