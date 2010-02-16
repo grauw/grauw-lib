@@ -1,5 +1,5 @@
 /**
- * @fileoverview
+ * @fileOverview
  * 
  * DOM 3 Events framework
  * 

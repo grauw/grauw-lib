@@ -1,5 +1,5 @@
 /**
- * @fileoverview
+ * @fileOverview
  * 
  * Class that wraps the Grauw Selectors to provide a Selectors API-like interface.
  * Element selectors only available on browsers that support adding to the Element prototype (i.e. not IE).

@@ -1,5 +1,5 @@
 /**
- * @fileoverview
+ * @fileOverview
  * 
  * Functions to support XML templates definitions.
  */
