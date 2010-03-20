@@ -423,7 +423,7 @@ gl.depsys = new function() {
 	 */
 	ScriptDependency.prototype.attachLoadHandler = function(oScript) {
 		var oThis = this;
-		if (oScript.addEventListener) {
+		if (!browser_ie) {	// IE9 preview 1.9.7745.6019 still doesn’t dispatch load event
 			oScript.addEventListener('load', function() {
 				oThis.loadComplete();
 			}, false);
