@@ -108,7 +108,6 @@ gl.selector = new function() {
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
 	};
-	this.match = match;
 
 	/**
 	 * Queries a CSS selector or selector group against a node.
@@ -122,7 +121,6 @@ gl.selector = new function() {
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
 	};
-	this.queryAll = queryAll;
 
 	/**
 	 * Queries a CSS selector or selector group against a node and returns one node.
@@ -137,7 +135,6 @@ gl.selector = new function() {
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
 	};
-	this.query = query;
 
 	/**
 	 * Use a CSS selector to return the first selection found on a node or its ancestors.
@@ -160,7 +157,6 @@ gl.selector = new function() {
 		}
 		return null;
 	};
-	this.queryAncestorOrSelf = queryAncestorOrSelf;
 
 	/**
 	 * Queries a CSS selector or selector group against the document and returns one node.
@@ -170,7 +166,6 @@ gl.selector = new function() {
 	function queryDocument(sSelector) {
 		return query(document.documentElement, sSelector);
 	};
-	this.queryDocument = queryDocument;
 
 	/**
 	 * Queries a CSS selector or selector group against the document.
@@ -180,7 +175,6 @@ gl.selector = new function() {
 	function queryDocumentAll(sSelector) {
 		return queryAll(document.documentElement, sSelector);
 	};
-	this.queryDocumentAll = queryDocumentAll;
 
 
 
@@ -193,7 +187,7 @@ gl.selector = new function() {
 	var SelectorGroup = function() {
 		this.selectors = [];
 	};
-	this.SelectorGroup = extend(SelectorGroup, Object);
+	extend(SelectorGroup, Object);
 
 	/**
 	 * Add a selector to the selector group.
@@ -259,7 +253,7 @@ gl.selector = new function() {
 	var Selector = function() {
 		this.combinators = [];
 	};
-	this.Selector = extend(Selector, Object);
+	extend(Selector, Object);
 
 	/**
 	 * Add a combinator to the selector.
@@ -326,7 +320,7 @@ gl.selector = new function() {
 		this.nextCombinator = null;
 		this.previousCombinator = null;
 	};
-	this.Combinator = extend(Combinator, Object);
+	extend(Combinator, Object);
 
 	/**
 	 * Add a simpleSelector to the combinator.
@@ -431,7 +425,7 @@ gl.selector = new function() {
 	DescendantCombinator = function() {
 		Combinator.call(this);
 	};
-	this.DescendantCombinator = extend(DescendantCombinator, Combinator);
+	extend(DescendantCombinator, Combinator);
 	
 	DescendantCombinator.prototype.matchNext = function(oNode) {
 		var bMatch = false;
@@ -469,7 +463,7 @@ gl.selector = new function() {
 	ChildCombinator = function() {
 		Combinator.call(this);
 	};
-	this.ChildCombinator = extend(ChildCombinator, Combinator);
+	extend(ChildCombinator, Combinator);
 
 	ChildCombinator.prototype.matchNext = function(oNode) {
 		return !!(oNode = oNode.parentNode) && oNode.nodeType == 1 && this.previousCombinator.match(oNode);
@@ -504,7 +498,7 @@ gl.selector = new function() {
 	AdjacentCombinator = function() {
 		Combinator.call(this);
 	};
-	this.AdjacentCombinator = extend(AdjacentCombinator, Combinator);
+	extend(AdjacentCombinator, Combinator);
 
 	AdjacentCombinator.prototype.matchNext = function(oNode) {
 		while ((oNode = oNode.previousSibling) && oNode.nodeType != 1)
@@ -527,7 +521,7 @@ gl.selector = new function() {
 	SiblingCombinator = function() {
 		Combinator.call(this);
 	};
-	this.SiblingCombinator = extend(SiblingCombinator, Combinator);
+	extend(SiblingCombinator, Combinator);
 
 	SiblingCombinator.prototype.matchNext = function(oNode) {
 		var bMatch = false;
@@ -554,7 +548,7 @@ gl.selector = new function() {
 	RootCombinator = function() {
 		Combinator.call(this);
 	};
-	this.RootCombinator = extend(RootCombinator, Combinator);
+	extend(RootCombinator, Combinator);
 
 	RootCombinator.prototype.matchNext = function(oNode) {
 		return true;
@@ -576,7 +570,7 @@ gl.selector = new function() {
 	 */
 	var SimpleSelector = function() {
 	};
-	this.SimpleSelector = extend(SimpleSelector, Object);
+	extend(SimpleSelector, Object);
 
 	/**
 	 * Check whether the simpleSelector is in a valid final state.
@@ -602,7 +596,7 @@ gl.selector = new function() {
 	var UniversalSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.UniversalSelector = extend(UniversalSelector, SimpleSelector);
+	extend(UniversalSelector, SimpleSelector);
 	
 	UniversalSelector.prototype.match = function(oNode) {
 		return true;
@@ -615,7 +609,7 @@ gl.selector = new function() {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 	};
-	this.TypeSelector = extend(TypeSelector, SimpleSelector);
+	extend(TypeSelector, SimpleSelector);
 	
 	TypeSelector.prototype.match = function(oNode) {
 		var bXHTML = oNode.namespaceURI && oNode.namespaceURI != 'http://www.w3.org/1999/xhtml';
@@ -633,7 +627,7 @@ gl.selector = new function() {
 		
 		this.classRegexp = new RegExp('(^|\\s)' + Parser.escapeRegexp(sArg1) + '($|\\s)');
 	};
-	this.ClassSelector = extend(ClassSelector, SimpleSelector);
+	extend(ClassSelector, SimpleSelector);
 	
 	ClassSelector.prototype.match = function(oNode) {
 		return this.classRegexp.test(oNode.className);
@@ -646,7 +640,7 @@ gl.selector = new function() {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 	};
-	this.IdSelector = extend(IdSelector, SimpleSelector);
+	extend(IdSelector, SimpleSelector);
 	
 	IdSelector.prototype.match = function(oNode) {
 		return oNode.getAttribute('id') == this.arg1;
@@ -659,7 +653,7 @@ gl.selector = new function() {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 	};
-	this.AttributeExistSelector = extend(AttributeExistSelector, SimpleSelector);
+	extend(AttributeExistSelector, SimpleSelector);
 	
 	AttributeExistSelector.prototype.match = function(oNode) {
 		return hasAttribute(oNode, this.arg1);
@@ -673,7 +667,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeEqualsSelector = extend(AttributeEqualsSelector, SimpleSelector);
+	extend(AttributeEqualsSelector, SimpleSelector);
 	
 	AttributeEqualsSelector.prototype.match = function(oNode) {
 		if (!hasAttribute(oNode, this.arg1))
@@ -693,7 +687,7 @@ gl.selector = new function() {
 				/$x^/ : // regexp that doesn’t match anything
 				new RegExp('(^|\\s)' + Parser.escapeRegexp(sArg2) + '($|\\s)');
 	};
-	this.AttributeListSelector = extend(AttributeListSelector, SimpleSelector);
+	extend(AttributeListSelector, SimpleSelector);
 	
 	AttributeListSelector.prototype.match = function(oNode) {
 		return !!this.arg2 && this.attrListRegexp.test(getAttribute(oNode, this.arg1));
@@ -707,7 +701,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeLangSelector = extend(AttributeLangSelector, SimpleSelector);
+	extend(AttributeLangSelector, SimpleSelector);
 	
 	AttributeLangSelector.prototype.match = function(oNode) {
 		if (!hasAttribute(oNode, this.arg1))
@@ -725,7 +719,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeStartSelector = extend(AttributeStartSelector, SimpleSelector);
+	extend(AttributeStartSelector, SimpleSelector);
 	
 	AttributeStartSelector.prototype.match = function(oNode) {
 		return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) == 0;
@@ -739,7 +733,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeEndSelector = extend(AttributeEndSelector, SimpleSelector);
+	extend(AttributeEndSelector, SimpleSelector);
 	
 	AttributeEndSelector.prototype.match = function(oNode) {
 		var sAttrValue = getAttribute(oNode, this.arg1);
@@ -754,7 +748,7 @@ gl.selector = new function() {
 		this.arg1 = sArg1;
 		this.arg2 = sArg2;
 	};
-	this.AttributeContainsSelector = extend(AttributeContainsSelector, SimpleSelector);
+	extend(AttributeContainsSelector, SimpleSelector);
 	
 	AttributeContainsSelector.prototype.match = function(oNode) {
 		return !!this.arg2 && getAttribute(oNode, this.arg1).indexOf(this.arg2) != -1;
@@ -766,7 +760,7 @@ gl.selector = new function() {
 	var RootSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.RootSelector = extend(RootSelector, SimpleSelector);
+	extend(RootSelector, SimpleSelector);
 	
 	RootSelector.prototype.match = function(oNode) {
 		return oNode.ownerDocument.documentElement == oNode;
@@ -793,7 +787,7 @@ gl.selector = new function() {
 		this.a = a;
 		this.b = b;
 	};
-	this.NthSelector = extend(NthSelector, SimpleSelector);
+	extend(NthSelector, SimpleSelector);
 
 	/**
 	 * Nth-child pseudo-class selector (:nth-child(3n+1))
@@ -801,7 +795,7 @@ gl.selector = new function() {
 	var NthChildSelector = function(sArg) {
 		NthSelector.call(this, sArg);
 	};
-	this.NthChildSelector = extend(NthChildSelector, NthSelector);
+	extend(NthChildSelector, NthSelector);
 	
 	NthChildSelector.prototype.match = function(oNode) {
 		var iCount = 1, a = this.a, b = this.b;
@@ -819,7 +813,7 @@ gl.selector = new function() {
 	var NthLastChildSelector = function(sArg) {
 		NthSelector.call(this, sArg);
 	};
-	this.NthLastChildSelector = extend(NthLastChildSelector, NthSelector);
+	extend(NthLastChildSelector, NthSelector);
 	
 	NthLastChildSelector.prototype.match = function(oNode) {
 		var iCount = 1, a = this.a, b = this.b;
@@ -837,7 +831,7 @@ gl.selector = new function() {
 	var NthOfTypeSelector = function(sArg) {
 		NthSelector.call(this, sArg);
 	};
-	this.NthOfTypeSelector = extend(NthOfTypeSelector, NthSelector);
+	extend(NthOfTypeSelector, NthSelector);
 	
 	NthOfTypeSelector.prototype.match = function(oNode) {
 		var iCount = 1, a = this.a, b = this.b, sNodeName = oNode.nodeName;
@@ -855,7 +849,7 @@ gl.selector = new function() {
 	var NthLastOfTypeSelector = function(sArg) {
 		NthSelector.call(this, sArg);
 	};
-	this.NthLastOfTypeSelector = extend(NthLastOfTypeSelector, NthSelector);
+	extend(NthLastOfTypeSelector, NthSelector);
 	
 	NthLastOfTypeSelector.prototype.match = function(oNode) {
 		var iCount = 1, a = this.a, b = this.b, sNodeName = oNode.nodeName;
@@ -873,7 +867,7 @@ gl.selector = new function() {
 	var FirstChildSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.FirstChildSelector = extend(FirstChildSelector, SimpleSelector);
+	extend(FirstChildSelector, SimpleSelector);
 	
 	FirstChildSelector.prototype.match = function firstChildMatch(oNode) {
 		do
@@ -888,7 +882,7 @@ gl.selector = new function() {
 	var LastChildSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.LastChildSelector = extend(LastChildSelector, SimpleSelector);
+	extend(LastChildSelector, SimpleSelector);
 	
 	LastChildSelector.prototype.match = function lastChildMatch(oNode) {
 		do
@@ -903,7 +897,7 @@ gl.selector = new function() {
 	var FirstOfTypeSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.FirstOfTypeSelector = extend(FirstOfTypeSelector, SimpleSelector);
+	extend(FirstOfTypeSelector, SimpleSelector);
 	
 	FirstOfTypeSelector.prototype.match = function firstOfTypeMatch(oNode) {
 		var sNodeName = oNode.nodeName;
@@ -919,7 +913,7 @@ gl.selector = new function() {
 	var LastOfTypeSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.LastOfTypeSelector = extend(LastOfTypeSelector, SimpleSelector);
+	extend(LastOfTypeSelector, SimpleSelector);
 	
 	LastOfTypeSelector.prototype.match = function lastOfTypeMatch(oNode) {
 		var sNodeName = oNode.nodeName;
@@ -935,7 +929,7 @@ gl.selector = new function() {
 	var OnlyChildSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.OnlyChildSelector = extend(OnlyChildSelector, SimpleSelector);
+	extend(OnlyChildSelector, SimpleSelector);
 	
 	OnlyChildSelector.prototype.match = function(oNode) {
 		return FirstChildSelector.prototype.match.call(this, oNode) &&
@@ -948,7 +942,7 @@ gl.selector = new function() {
 	var OnlyOfTypeSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.OnlyOfTypeSelector = extend(OnlyOfTypeSelector, SimpleSelector);
+	extend(OnlyOfTypeSelector, SimpleSelector);
 	
 	OnlyOfTypeSelector.prototype.match = function(oNode) {
 		return FirstOfTypeSelector.prototype.match.call(this, oNode) &&
@@ -961,7 +955,7 @@ gl.selector = new function() {
 	var EmptySelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.EmptySelector = extend(EmptySelector, SimpleSelector);
+	extend(EmptySelector, SimpleSelector);
 	
 	EmptySelector.prototype.match = function(oNode) {
 		oNode = oNode.firstChild;
@@ -977,7 +971,7 @@ gl.selector = new function() {
 //		SimpleSelector.call(this);
 		this.arg1 = sArg1;
 	};
-	this.LangSelector = extend(LangSelector, SimpleSelector);
+	extend(LangSelector, SimpleSelector);
 	
 	LangSelector.prototype.match = function(oNode) {
 		var sLang;
@@ -996,7 +990,7 @@ gl.selector = new function() {
 	var EnabledSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.EnabledSelector = extend(EnabledSelector, SimpleSelector);
+	extend(EnabledSelector, SimpleSelector);
 	
 	EnabledSelector.prototype.match = function(oNode) {
 		var sTagName = oNode.tagName.toUpperCase();
@@ -1009,7 +1003,7 @@ gl.selector = new function() {
 	var DisabledSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.DisabledSelector = extend(DisabledSelector, SimpleSelector);
+	extend(DisabledSelector, SimpleSelector);
 	
 	DisabledSelector.prototype.match = function(oNode) {
 		var sTagName = oNode.tagName.toUpperCase();
@@ -1022,7 +1016,7 @@ gl.selector = new function() {
 	var CheckedSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.CheckedSelector = extend(CheckedSelector, SimpleSelector);
+	extend(CheckedSelector, SimpleSelector);
 	
 	CheckedSelector.prototype.match = function(oNode) {
 		var sTagName = oNode.tagName.toUpperCase();
@@ -1035,7 +1029,7 @@ gl.selector = new function() {
 	var ReadOnlySelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.ReadOnlySelector = extend(ReadOnlySelector, SimpleSelector);
+	extend(ReadOnlySelector, SimpleSelector);
 	
 	ReadOnlySelector.prototype.match = function(oNode) {
 		return !('readOnly' in oNode) || oNode.readOnly;
@@ -1047,7 +1041,7 @@ gl.selector = new function() {
 	var ReadWriteSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.ReadWriteSelector = extend(ReadWriteSelector, SimpleSelector);
+	extend(ReadWriteSelector, SimpleSelector);
 	
 	ReadWriteSelector.prototype.match = function(oNode) {
 		return 'readOnly' in oNode && !oNode.readOnly;
@@ -1059,7 +1053,7 @@ gl.selector = new function() {
 	var TargetSelector = function() {
 //		SimpleSelector.call(this);
 	};
-	this.TargetSelector = extend(TargetSelector, SimpleSelector);
+	extend(TargetSelector, SimpleSelector);
 	
 	TargetSelector.prototype.match = function(oNode) {
 		return '#' + oNode.getAttribute('id') == oNode.ownerDocument.location.hash;
@@ -1074,7 +1068,7 @@ gl.selector = new function() {
 			throw new Error('Parameter must be instance of SimpleSelector!');
 		this.simpleSelector = oSimpleSelector;
 	};
-	this.NotSelector = extend(NotSelector, SimpleSelector);
+	extend(NotSelector, SimpleSelector);
 
 	NotSelector.prototype.validate = function() {
 		return !(this.simpleSelector instanceof NotSelector);
@@ -1093,7 +1087,7 @@ gl.selector = new function() {
 	 */
 	var Parser = function() {
 	};
-	this.Parser = extend(Parser, Object);
+	extend(Parser, Object);
 
 	/**
 	 * Parser regexp macros and patterns for the tokenizer
@@ -1377,7 +1371,7 @@ gl.selector = new function() {
 		this.cache = {};
 		Parser.call(this);
 	};
-	this.CachingParser = extend(CachingParser, Parser);
+	extend(CachingParser, Parser);
 	
 	CachingParser.prototype.parse = function(sSelector) {
 		if (!(sSelector in this.cache))
@@ -1394,7 +1388,7 @@ gl.selector = new function() {
 		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
 		this.selector = sSelector;
 	};
-	this.ParsingException = extend(ParsingException, Error);
+	extend(ParsingException, Error);
 	
 	ParsingException.prototype.setSelector = function(sSelector) {
 		this.selector = sSelector;
@@ -1408,6 +1402,61 @@ gl.selector = new function() {
 
 	// instantiate caching parser
 	var oParser = new CachingParser();
+	
+	
+	
+	
+	// exports
+	this.match = match;
+	this.queryAll = queryAll;
+	this.query = query;
+	this.queryAncestorOrSelf = queryAncestorOrSelf;
+	this.queryDocument = queryDocument;
+	this.queryDocumentAll = queryDocumentAll;
+	this.SelectorGroup = SelectorGroup;
+	this.Selector = Selector;
+	this.Combinator = Combinator;
+	this.DescendantCombinator = DescendantCombinator;
+	this.ChildCombinator = ChildCombinator;
+	this.AdjacentCombinator = AdjacentCombinator;
+	this.SiblingCombinator = SiblingCombinator;
+	this.RootCombinator = RootCombinator;
+	this.SimpleSelector = SimpleSelector;
+	this.UniversalSelector = UniversalSelector;
+	this.TypeSelector = TypeSelector;
+	this.ClassSelector = ClassSelector;
+	this.IdSelector = IdSelector;
+	this.AttributeExistSelector = AttributeExistSelector;
+	this.AttributeEqualsSelector = AttributeEqualsSelector;
+	this.AttributeListSelector = AttributeListSelector;
+	this.AttributeLangSelector = AttributeLangSelector;
+	this.AttributeStartSelector = AttributeStartSelector;
+	this.AttributeEndSelector = AttributeEndSelector;
+	this.AttributeContainsSelector = AttributeContainsSelector;
+	this.RootSelector = RootSelector;
+	this.NthSelector = NthSelector;
+	this.NthChildSelector = NthChildSelector;
+	this.NthLastChildSelector = NthLastChildSelector;
+	this.NthOfTypeSelector = NthOfTypeSelector;
+	this.NthLastOfTypeSelector = NthLastOfTypeSelector;
+	this.FirstChildSelector = FirstChildSelector;
+	this.LastChildSelector = LastChildSelector;
+	this.FirstOfTypeSelector = FirstOfTypeSelector;
+	this.LastOfTypeSelector = LastOfTypeSelector;
+	this.OnlyChildSelector = OnlyChildSelector;
+	this.OnlyOfTypeSelector = OnlyOfTypeSelector;
+	this.EmptySelector = EmptySelector;
+	this.LangSelector = LangSelector;
+	this.EnabledSelector = EnabledSelector;
+	this.DisabledSelector = DisabledSelector;
+	this.CheckedSelector = CheckedSelector;
+	this.ReadOnlySelector = ReadOnlySelector;
+	this.ReadWriteSelector = ReadWriteSelector;
+	this.TargetSelector = TargetSelector;
+	this.NotSelector = NotSelector;
+	this.Parser = Parser;
+	this.CachingParser = CachingParser;
+	this.ParsingException = ParsingException;
 	this.parser = oParser;
-
+	
 };
