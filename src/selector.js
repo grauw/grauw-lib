@@ -43,7 +43,6 @@ gl.selector = new function() {
 	var browser_webkit = navigator.userAgent.indexOf('AppleWebKit') != -1;
 
 	function extend(cBase, fConstructor) {
-		// create new prototype object that inherits from cBase
 		var cPrototype = new Function;
 		cPrototype.prototype = cBase.prototype;
 		fConstructor.prototype = new cPrototype;

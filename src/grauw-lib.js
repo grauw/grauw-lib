@@ -37,7 +37,6 @@ gl = new function() {
 	 */
 	function extend(cBase, fConstructor) {
 		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
-		// create new prototype object that inherits from cBase
 		var cPrototype = new Function;
 		cPrototype.prototype = cBase.prototype;
 		fConstructor.prototype = new cPrototype;
