@@ -1410,4 +1410,4 @@ gl.selector = new function() {
 	var oParser = new CachingParser();
 	this.parser = oParser;
 
-}();
+};
