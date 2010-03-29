@@ -187,7 +187,6 @@ gl.selector = new function() {
 	var SelectorGroup = function() {
 		this.selectors = [];
 	};
-	extend(SelectorGroup, Object);
 
 	/**
 	 * Add a selector to the selector group.
@@ -253,7 +252,6 @@ gl.selector = new function() {
 	var Selector = function() {
 		this.combinators = [];
 	};
-	extend(Selector, Object);
 
 	/**
 	 * Add a combinator to the selector.
@@ -320,7 +318,6 @@ gl.selector = new function() {
 		this.nextCombinator = null;
 		this.previousCombinator = null;
 	};
-	extend(Combinator, Object);
 
 	/**
 	 * Add a simpleSelector to the combinator.
@@ -570,7 +567,6 @@ gl.selector = new function() {
 	 */
 	var SimpleSelector = function() {
 	};
-	extend(SimpleSelector, Object);
 
 	/**
 	 * Check whether the simpleSelector is in a valid final state.
@@ -1087,7 +1083,6 @@ gl.selector = new function() {
 	 */
 	var Parser = function() {
 	};
-	extend(Parser, Object);
 
 	/**
 	 * Parser regexp macros and patterns for the tokenizer
