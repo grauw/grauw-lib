@@ -10,7 +10,6 @@ gl = new function() {
 		   if (hMembers.hasOwnProperty(i))
 			   oObject[i] = hMembers[i];
 	};
-	this.mixin = mixin;
 	
 	
 	
@@ -45,7 +44,6 @@ gl = new function() {
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
 	};
-	this.extend = extend;
 	
 	
 	
@@ -57,7 +55,6 @@ gl = new function() {
 	 */
 	var Class = function() {
 	};
-	this.Class = Class;
 	
 	/**
 	 * Creates a subclass.
@@ -128,12 +125,21 @@ gl = new function() {
 	function domReady(fCallback) {
 		oDOMReadyUtil.addDOMReadyListener({handleDOMReady: fCallback});
 	}
-	this.domReady = domReady;
 	
 	
 	
-	
+	// instantiate DOM ready util
 	var oDOMReadyUtil = new DOMReadyUtil();
+	
+	
+	
+	
+	// exports
+	this.mixin = mixin;
+	this.extend = extend;
+	this.Class = Class;
+	this.DOMReadyUtil = DOMReadyUtil;
+	this.domReady = domReady;
 	this.domReadyUtil = oDOMReadyUtil;
 	
 };
@@ -204,8 +210,6 @@ gl.depsys = new function() {
 		this.parentDependency = null;
 		this.object = this.getModuleObject();
 	};
-	
-	this.Module = Module;
 	
 	Module.prototype.getURI = function() {
 		if (!this.parentDependency)
@@ -294,8 +298,6 @@ gl.depsys = new function() {
 		this.modules = [];
 		this.parentModule = null;
 	};
-	
-	this.Dependency = Dependency;
 	
 	/**
 	 * Returns the absolute URI of this dependency.
@@ -390,8 +392,8 @@ gl.depsys = new function() {
 		Dependency.call(this, sURI);
 		this.scriptNode = null;
 	};
-
-	this.ScriptDependency = gl.extend(Dependency, ScriptDependency);
+	
+	gl.extend(Dependency, ScriptDependency);
 	
 	ScriptDependency.prototype.setScriptNode = function(oScript) {
 		this.scriptNode = oScript;
@@ -469,7 +471,7 @@ gl.depsys = new function() {
 		this.attachLoadHandler(oScript);
 	};
 	
-	this.DummyScriptDependency = gl.extend(ScriptDependency, DummyScriptDependency);
+	gl.extend(ScriptDependency, DummyScriptDependency);
 	
 	DummyScriptDependency.prototype.getURI = function() {
 		return this.uri;
@@ -494,7 +496,7 @@ gl.depsys = new function() {
 		this.loadListeners = [];
 	};
 	
-	this.URIScriptDependency = gl.extend(ScriptDependency, URIScriptDependency);
+	gl.extend(ScriptDependency, URIScriptDependency);
 	
 	URIScriptDependency.prototype.getURI = function() {
 		if (!this.parentModule)
@@ -545,7 +547,7 @@ gl.depsys = new function() {
 		oDependencyManager.addDependencyHandlerListener(this);
 	};
 	
-	this.UnregisteredDependency = gl.extend(Dependency, UnregisteredDependency);
+	gl.extend(Dependency, UnregisteredDependency);
 	
 	UnregisteredDependency.prototype.dependencyHandlerRegistered = function(sType) {
 		if (this.type == sType) {
@@ -584,8 +586,6 @@ gl.depsys = new function() {
 		this.unboundModules = [];
 		this.handlerListeners = [];
 	};
-	
-	this.DependencyManager = DependencyManager;
 	
 	DependencyManager.prototype.isLoaded = function(sURI) {
 		return !!this.getDependencyByURI(sURI);
@@ -728,7 +728,17 @@ gl.depsys = new function() {
 	gl.module('gl.depsys', [oURIDependency], function(){});
 	gl.module('gl', [], function(){});
 	
+	
+	
+	
 	// exports
+	this.Module = Module;
+	this.Dependency = Dependency;
+	this.ScriptDependency = ScriptDependency;
+	this.DummyScriptDependency = DummyScriptDependency;
+	this.URIScriptDependency = URIScriptDependency;
+	this.UnregisteredDependency = UnregisteredDependency;
+	this.DependencyManager = DependencyManager;
 	this.dependencyManager = oDependencyManager;
 	
 };
