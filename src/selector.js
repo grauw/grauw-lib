@@ -45,7 +45,7 @@ gl.selector = new function() {
 	function extend(cBase, fConstructor) {
 		// create new prototype object that inherits from cBase
 		var cPrototype = new Function;
-		cPrototype.prototype = (cBase || Object).prototype;
+		cPrototype.prototype = cBase.prototype;
 		fConstructor.prototype = new cPrototype;
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
