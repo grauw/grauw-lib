@@ -418,7 +418,7 @@ gl.selector = new function() {
 	/**
 	 * Descendant combinator (white space)
 	 */
-	DescendantCombinator = function() {
+	var DescendantCombinator = function() {
 		Combinator.call(this);
 	};
 	extend(Combinator, DescendantCombinator);
@@ -456,7 +456,7 @@ gl.selector = new function() {
 	/**
 	 * Child combinator (>)
 	 */
-	ChildCombinator = function() {
+	var ChildCombinator = function() {
 		Combinator.call(this);
 	};
 	extend(Combinator, ChildCombinator);
@@ -491,7 +491,7 @@ gl.selector = new function() {
 	/**
 	 * Sibling combinator (+)
 	 */
-	AdjacentCombinator = function() {
+	var AdjacentCombinator = function() {
 		Combinator.call(this);
 	};
 	extend(Combinator, AdjacentCombinator);
@@ -514,7 +514,7 @@ gl.selector = new function() {
 	/**
 	 * Sibling combinator (~)
 	 */
-	SiblingCombinator = function() {
+	var SiblingCombinator = function() {
 		Combinator.call(this);
 	};
 	extend(Combinator, SiblingCombinator);
@@ -541,7 +541,7 @@ gl.selector = new function() {
 	 * Root combinator
 	 * This combinator does not actually exist, it just contains the first set of simple selectors.
 	 */
-	RootCombinator = function() {
+	var RootCombinator = function() {
 		Combinator.call(this);
 	};
 	extend(Combinator, RootCombinator);
