@@ -11,7 +11,7 @@
  * 
  * See: http://www.grauw.nl/projects/pc/selectors/
  * 
- * @version 1.1.1
+ * @version 1.1.2
  * @author L. Holst (http://www.grauw.nl/)
  * 
  *   Copyright 2010 Laurens Holst
