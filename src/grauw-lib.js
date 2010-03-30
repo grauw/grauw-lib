@@ -9,7 +9,7 @@ gl = new function() {
 	   for (var i in hMembers)
 		   if (hMembers.hasOwnProperty(i))
 			   oObject[i] = hMembers[i];
-	};
+	}
 	
 	
 	
@@ -37,12 +37,12 @@ gl = new function() {
 	 */
 	function extend(cBase, fConstructor) {
 		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
-		var cPrototype = new Function;
+		var cPrototype = new Function();
 		cPrototype.prototype = cBase.prototype;
-		fConstructor.prototype = new cPrototype;
+		fConstructor.prototype = new cPrototype();
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
-	};
+	}
 	
 	
 	

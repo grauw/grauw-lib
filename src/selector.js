@@ -40,12 +40,11 @@ if (!window.gl)
 gl.selector = new function() {
 
 	var browser_ie = !!window.ActiveXObject;
-	var browser_webkit = navigator.userAgent.indexOf('AppleWebKit') != -1;
 
 	function extend(cBase, fConstructor) {
-		var cPrototype = new Function;
+		var cPrototype = new Function();
 		cPrototype.prototype = cBase.prototype;
-		fConstructor.prototype = new cPrototype;
+		fConstructor.prototype = new cPrototype();
 		fConstructor.prototype.constructor = fConstructor;
 		return fConstructor;
 	}
@@ -106,7 +105,7 @@ gl.selector = new function() {
 	function match(oNode, sSelector) {
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.match(oNode) : false;
-	};
+	}
 
 	/**
 	 * Queries a CSS selector or selector group against a node.
@@ -119,7 +118,7 @@ gl.selector = new function() {
 			oNode = oNode.documentElement;
 		var oSelectorGroup = oParser.parse(sSelector);
 		return oSelectorGroup ? oSelectorGroup.query(oNode, false) : [];
-	};
+	}
 
 	/**
 	 * Queries a CSS selector or selector group against a node and returns one node.
@@ -133,7 +132,7 @@ gl.selector = new function() {
 		var oSelectorGroup = oParser.parse(sSelector);
 		var aResult = oSelectorGroup ? oSelectorGroup.query(oNode, true) : [];
 		return aResult.length ? aResult[0] : null;
-	};
+	}
 
 	/**
 	 * Use a CSS selector to return the first selection found on a node or its ancestors.
@@ -155,7 +154,7 @@ gl.selector = new function() {
 				break;
 		}
 		return null;
-	};
+	}
 
 	/**
 	 * Queries a CSS selector or selector group against the document and returns one node.
@@ -164,7 +163,7 @@ gl.selector = new function() {
 	 */
 	function queryDocument(sSelector) {
 		return query(document.documentElement, sSelector);
-	};
+	}
 
 	/**
 	 * Queries a CSS selector or selector group against the document.
@@ -173,7 +172,7 @@ gl.selector = new function() {
 	 */
 	function queryDocumentAll(sSelector) {
 		return queryAll(document.documentElement, sSelector);
-	};
+	}
 
 
 
