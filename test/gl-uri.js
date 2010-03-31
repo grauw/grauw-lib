@@ -1,6 +1,6 @@
 gl.module('unit',
 	[
-		'../src/jsunit.js',
+		'../src/unit.js',
 		'../src/gl-uri.js'
 	],
 	function() {

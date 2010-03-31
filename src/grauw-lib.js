@@ -163,8 +163,8 @@ gl.depsys = new function() {
 	 * gl.module(
 	 *     'gl.selector',
 	 *     [
-	 *         '../src/jsunit.js',
 	 *         '../src/selector.js'
+	 *         '../src/unit.js',
 	 *     ],
 	 *     function() {
 	 *         var Parser = function(){};
@@ -173,7 +173,7 @@ gl.depsys = new function() {
 	 * );
 	 * 
 	 * The dependency URIs are accepted as plain strings and in the following format:
-	 * {type: 'application/xml', src: 'jsunit.xml'}
+	 * {type: 'application/xml', src: 'log.xml'}
 	 * 
 	 * The src field is a relative URI pointing to the file you want to load.
 	 * The type field specifies an optional MIME type which will influence how the

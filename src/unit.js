@@ -5,7 +5,7 @@
 gl.module('gl.unit',
 	[
 		'xmlbindings.js',
-		{type: 'application/xml', src: 'jsunit.xml'}
+		{type: 'application/xml', src: 'log.xml'}
 	],
 	function() {
 	
@@ -105,7 +105,7 @@ gl.module('gl.unit',
 		Test.call(this);
 		
 		this.errors = 0;
-		this.log = new gl.unit.JSUnitLog(document);
+		this.log = new gl.unit.Log(document);
 	};
 	gl.extend(Test, TestSuite);
 	
@@ -114,7 +114,7 @@ gl.module('gl.unit',
 	};
 	
 	TestSuite.prototype.initialize = function() {
-		this.writeln('JSUnit running…');
+		this.writeln('Unit tests running…');
 	};
 	
 	TestSuite.prototype.test = function() {
@@ -140,9 +140,9 @@ gl.module('gl.unit',
 
 	TestSuite.prototype.finalize = function() {
 		if (!this.errors)
-			this.writeln('JSUnit finished.'); // ...with x errors
+			this.writeln('Unit tests finished.'); // ...with x errors
 		else
-			this.writeln('JSUnit finished with ' + this.errors + ' errors.');
+			this.writeln('Unit tests finished with ' + this.errors + ' errors.');
 		this.writeln('Time taken: ' + this.getTime() + 'ms');
 		document.body.insertBefore(this.log.view, document.body.firstChild);
 	};

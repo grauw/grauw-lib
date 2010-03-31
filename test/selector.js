@@ -1,7 +1,7 @@
 gl.module(
 	'unit',
 	[
-		'../src/jsunit.js',
+		'../src/unit.js',
 		'../src/selector.js'
 	],
 	function() {

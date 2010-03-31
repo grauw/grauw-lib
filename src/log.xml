@@ -8,7 +8,7 @@
 		Maybe make t:Class for generic classes and t:Component for
 		components (which allow t:template)?
 	-->
-	<t:class name="JSUnitLog" extends="gl.core.Component">
+	<t:class name="Log" extends="gl.core.Component">
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
@@ -40,7 +40,7 @@
 		</t:resource>
 		<t:template>
 			<div class="gl-unit-log">
-				<h2>JSUnit debug log</h2>
+				<h2>Unit test debug log</h2>
 			</div>
 		</t:template>
 		<t:constructor>

@@ -8,8 +8,8 @@ Approach:
 
 Example:
 gl.require(
-{type:'text/javascript', src:'../src/selector.js'},
-{type:'text/javascript', src:'../src/jsunit.js'},
+	{type:'text/javascript', src:'../src/selector.js'},
+	{type:'text/javascript', src:'../src/unit.js'}
 );
 
 
@@ -46,14 +46,14 @@ Pass dependencies as arguments to initialisor instead of as global
 
 Example:
 gl.module(
-'unit.selector',
-{type:'text/javascript', src:'../src/selector.js'},
-{type:'text/javascript', src:'../src/jsunit.js'},
-function(oDep1, oDep2) {
-
-var XXX = function() {};
-this.XXX = XXX;
-XXX.prototype.add = function() {};
+	'unit.selector',
+	{type: 'text/javascript', src: '../src/selector.js'},
+	{type: 'text/javascript', src: '../src/unit.js'},
+	function(oDep1, oDep2) {
+	
+	var XXX = function() {};
+	this.XXX = XXX;
+	XXX.prototype.add = function() {};
 
 });
 
@@ -80,7 +80,7 @@ gl.require vs. gl.module; compare the code:
 
 gl.require(
 	{type:'text/javascript', src:'../src/selector.js'},
-	{type:'text/javascript', src:'../src/jsunit.js'}
+	{type:'text/javascript', src:'../src/unit.js'}
 );
 
 unit.selector = new function() {
@@ -94,7 +94,7 @@ vs.
 gl.module(
 	'unit.selector',
 	{type:'text/javascript', src:'../src/selector.js'},
-	{type:'text/javascript', src:'../src/jsunit.js'},
+	{type:'text/javascript', src:'../src/unit.js'},
 	function() {
 		var XXX = function() {};
 		this.XXX = XXX;
