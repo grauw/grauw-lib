@@ -13,7 +13,6 @@ gl.module('gl.unit',
 		this.log = new gl.unit.JSUnitLog(document);
 		this.init();
 	};
-	this.JSUnit = JSUnit;
 
 	JSUnit.prototype.init = function() {
 		// override
@@ -78,5 +77,11 @@ gl.module('gl.unit',
 	JSUnit.prototype.timeEnd = function() {
 		return new Date() - this.time;
 	};
+	
+	
+	
+	
+	// exports
+	this.JSUnit = JSUnit;
 
 });
