@@ -148,7 +148,7 @@ gl.module(
 		for (var i = 0; i < aExpected.length; i++) {
 			var oNode = document.getElementById(aExpected[i]);
 			var bMatch = gl.selector.match(oNode, sSelector);
-			this.assertTrue(bMatch, 'Node with ID ' + aExpected[i] + ' should match.');
+			this.assert(bMatch, 'Node with ID ' + aExpected[i] + ' should match.');
 		}
 	};
 	

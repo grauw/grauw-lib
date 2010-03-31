@@ -60,16 +60,6 @@ gl.module('gl.unit',
 			this.writelnError('AssertEquals failed. ' + sMessage + ' (Expected: ' + oExpected + ', result: ' + oResult + ')');
 	};
 
-	JSUnit.prototype.assertTrue = function(bResult, sMessage) {
-		if (!bResult)
-			this.writelnError('AssertTrue failed. ' + sMessage);
-	};
-
-	JSUnit.prototype.assertFalse = function(bResult, sMessage) {
-		if (bResult)
-			this.writelnError('AssertFalse failed. ' + sMessage);
-	};
-
 	JSUnit.prototype.timeStart = function() {
 		this.time = new Date();
 	};
