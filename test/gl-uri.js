@@ -87,16 +87,16 @@ gl.module('unit',
 	/**
 	 * Unit tests
 	 */
-	URIUnit = function() {
+	URISuite = function() {
 		TestSuite.call(this);
 	};
-	gl.extend(TestSuite, URIUnit);
+	gl.extend(TestSuite, URISuite);
 	
 	/**
 	 * Unit tests
 	 * See RFC 3986 appendix C
 	 */
-	URIUnit.prototype.getTests = function() {
+	URISuite.prototype.getTests = function() {
 		return [
 			// normal examples
 			new URITest('http://a/b/c/d;p?q', 'g:h'          , 'g:h'),
@@ -166,6 +166,6 @@ gl.module('unit',
 	
 	
 	// exports
-	this.URIUnit = URIUnit;
+	this.URISuite = URISuite;
 
 });

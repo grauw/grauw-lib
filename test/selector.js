@@ -58,15 +58,15 @@ gl.module(
 	/**
 	 * Unit tests
 	 */
-	var SelectorUnit = function() {
+	var SelectorSuite = function() {
 		TestSuite.call(this);
 	};
-	this.SelectorUnit = gl.extend(TestSuite, SelectorUnit);
+	this.SelectorSuite = gl.extend(TestSuite, SelectorSuite);
 	
 	/**
 	 * Unit tests
 	 */
-	SelectorUnit.prototype.getTests = function() {
+	SelectorSuite.prototype.getTests = function() {
 		return [
 			new SelectorTest('*[lang]', ['t0', 't7', 't8']),				// universal selector test
 			new SelectorTest('li', ['t1', 't2', 't3', 't4', 't5', 't6']),	// type selector test
@@ -131,7 +131,7 @@ gl.module(
 	};
 	
 	// TODO: Selectors that should result in parsing errors
-	SelectorUnit.prototype.parsingTests = [
+	SelectorSuite.prototype.parsingTests = [
 	       	'ul:not(.test1.test2)'
 		];
 	
@@ -140,6 +140,6 @@ gl.module(
 	
 	// exports
 	this.SelectorTest = SelectorTest;
-	this.SelectorUnit = SelectorUnit;
+	this.SelectorSuite = SelectorSuite;
 	
 });
