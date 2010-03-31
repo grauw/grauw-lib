@@ -491,7 +491,7 @@ gl.depsys = new function() {
 	 * Special dependency type to load the URI resolving code.
 	 */
 	var URIScriptDependency = function() {
-		ScriptDependency.call(this, 'gl-uri.js');
+		ScriptDependency.call(this, 'uri.js');
 		this.loadListeners = [];
 	};
 	

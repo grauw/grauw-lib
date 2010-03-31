@@ -1,7 +1,7 @@
 gl.module('unit',
 	[
 		'../src/unit.js',
-		'../src/gl-uri.js'
+		'../src/uri.js'
 	],
 	function() {
 	
