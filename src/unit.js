@@ -9,6 +9,9 @@ gl.module('gl.unit',
 	],
 	function() {
 	
+	// imports
+	var Log = gl.unit.Log;
+	
 	
 	
 	
@@ -105,7 +108,7 @@ gl.module('gl.unit',
 		Test.call(this);
 		
 		this.errors = 0;
-		this.log = new gl.unit.Log(document);
+		this.log = new Log(document);
 	};
 	gl.extend(Test, TestSuite);
 	
