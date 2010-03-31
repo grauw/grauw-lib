@@ -18,7 +18,7 @@ Approach:
 * Code implemented in function enclosure (good practice)
 * Function enclosure is passed to module function
 * So that it can be invoked asynchronously
-* Global object (representing the ‘package’) is specified as string parameter
+* Global object (representing the â€˜packageâ€™) is specified as string parameter
 * in the implementor function, this points to
 * solves question of how you specify package context
 * lib = new function(){this.x=1} vs. (function(lib){lib.x=1})(lib)
@@ -36,12 +36,12 @@ Pass dependencies as arguments to initialisor instead of as global
 + Optimises better
 + Dependencies are guaranteed to be correct (no cases where X depends on Y
   which depends on Z, but X also depends on Z without declaring such)
-+ Free namespacing (though namespacing isn’t exactly hard otherwise)
++ Free namespacing (though namespacing isnâ€™t exactly hard otherwise)
 - Less purty
 - More confusing; level of indirection, variable name not guaranteed
 - You probably want global objects anyway
   * so maybe just do both, and evaluate?
-  - but then you can’t remove the module-name argument to bb.module
+  - but then you canâ€™t remove the module-name argument to bb.module
 
 
 Example:
@@ -65,7 +65,7 @@ XXX.prototype.add = function() {};
 
 
 Approach:
-Pass context as first argument instead of using ‘this’
+Pass context as first argument instead of using â€˜thisâ€™
 - Less pretty
 + Optimises better (although not much w/ gzip)
 
