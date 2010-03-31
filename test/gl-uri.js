@@ -5,13 +5,19 @@ gl.module('unit',
 	],
 	function() {
 	
+	// imports
+	var JSUnit = gl.unit.JSUnit;
+	
+	
+	
+	
 	/**
 	 * Unit tests
 	 */
 	URIUnit = function() {
-		gl.unit.JSUnit.call(this);
+		JSUnit.call(this);
 	};
-	this.URIUnit = gl.extend(gl.unit.JSUnit, URIUnit);
+	gl.extend(JSUnit, URIUnit);
 	
 	/**
 	 * Unit tests
@@ -121,5 +127,11 @@ gl.module('unit',
 		}
 		this.writeln('Running 10000x w/ different URIs, milliseconds needed: ' + this.timeEnd() + ' ms');
 	};
+	
+	
+	
+	
+	// exports
+	this.URIUnit = URIUnit;
 
 });
