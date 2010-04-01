@@ -69,14 +69,9 @@ gl.module('gl.unit',
 	var SimpleTest = function(sName, fTest) {
 		Test.call(this);
 		this.name = sName;
-		this.testFunction = fTest;
+		this.test = fTest;
 	};
 	gl.extend(Test, SimpleTest);
-	
-	SimpleTest.prototype.test = function() {
-		var fTest = this.testFunction;
-		fTest();
-	};
 	
 	SimpleTest.prototype.toString = function() {
 		return this.name;
