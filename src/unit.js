@@ -60,7 +60,7 @@ gl.module('gl.unit',
 	};
 
 	Test.prototype.assertEquals = function(vExpected, vResult, sMessage) {
-		if (vExpected != vResult)
+		if (vExpected !== vResult)
 			this.assert(false, sMessage + ' (Expected: ' + vExpected + ', result: ' + vResult + ')');
 	};
 	
