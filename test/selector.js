@@ -10,6 +10,7 @@ gl.module(
 	var Test = gl.unit.Test;
 	var TestSuite = gl.unit.TestSuite;
 	var Parser = gl.selector.Parser;
+	var SimpleTest = gl.unit.SimpleTest;
 	
 	
 	
@@ -126,7 +127,36 @@ gl.module(
 			new SelectorTest('ul:not(.test1)', ['t8']),					// :not parsing tests
 			new SelectorTest('span:not(:empty)', ['t11', 't12', 't14']),
 			new SelectorTest('ul:not(:lang(en))', ['t8']),
-			new SelectorTest('ul.test1 li:not(#t2):not([id=t4])', ['t1', 't3', 't5'])
+			new SelectorTest('ul.test1 li:not(#t2):not([id=t4])', ['t1', 't3', 't5']),
+			new SimpleTest('Test querying on copies', function() {
+				// When nodes are cloned with innerHTML in IE, the __queryResult ‘expando property’
+				// is converted to string, and thus "false" evaluates to true instead of false.
+				var oFirstDiv = document.getElementById('t30');
+				var oSecondDiv = document.getElementById('t31');
+				
+				var oResult1 = gl.selector.query(oFirstDiv, 'em');
+				this.assert(oResult1, 'Should find match.');
+				var oResult2 = gl.selector.query(oFirstDiv, 'em');
+				this.assert(oResult2, 'Should find match.');
+				
+				// copy with cloneNode
+				var oNode = oFirstDiv.firstChild;
+				while (oNode) {
+					oSecondDiv.appendChild(oNode.cloneNode(true));
+					oNode = oNode.nextSibling;
+				}
+				var oResult3 = gl.selector.query(oSecondDiv, 'em');
+				this.assert(oResult3, 'Should find match in nodes copied with cloneNode.');
+				var oResult4 = gl.selector.query(oSecondDiv, 'em');
+				this.assert(oResult4, 'Should find match in nodes copied with cloneNode.');
+				
+				// copy with innerHTML
+				oSecondDiv.innerHTML = oFirstDiv.innerHTML;
+				var oResult5 = gl.selector.query(oSecondDiv, 'em');
+				this.assert(oResult5, 'Should find match in nodes copied with innerHTML.');
+				var oResult6 = gl.selector.query(oSecondDiv, 'em');
+				this.assert(oResult6, 'Should find match in nodes copied with innerHTML.');
+			})
 		];
 	};
 	
