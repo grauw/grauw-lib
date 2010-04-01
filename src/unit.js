@@ -32,6 +32,10 @@ gl.module('gl.unit',
 		return this.time;
 	};
 	
+	Test.prototype.hasCompleted = function() {
+		return this.time != -1;
+	};
+	
 	Test.prototype.run = function() {
 		this.initialize();
 		var oTime = new Date();
@@ -131,7 +135,7 @@ gl.module('gl.unit',
 			} else {
 				aTests[i].run();
 			}
-			if (aTests[i].getTime() > 8)
+			if (aTests[i].hasCompleted() && aTests[i].getTime() > 8)
 				this.writeln('\u00A0\u00A0\u00A0— time taken: ' + aTests[i].getTime() + 'ms');
 		};
 	};
