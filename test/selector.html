@@ -11,6 +11,8 @@
 
 gl.module('', ['selector.js'], function() {
 	gl.domReady(function() {
+		document.getElementById('t29').value = 'two';
+		
 		new unit.SelectorSuite().run();
 	});
 });
@@ -45,6 +47,7 @@ gl.module('', ['selector.js'], function() {
 			<button value="xyz" id="t25">abc</button>
 			<input id="t27"/>
 			<label id="t28" for="t27">label</label>
+			<input type="text" value="one" id="t29"/><!-- value is changed to two -->
 		</form>
 		<form id="t26"></form>
 		<div id="t30">

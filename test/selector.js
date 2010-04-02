@@ -88,8 +88,11 @@ gl.module(
 			new SelectorTest('input[class]', []),
 			new SelectorTest('input[readonly]', ['t24']),				// IE quirk test (readOnly)
 			new SelectorTest('input[readonly="readonly"]', ['t24']),	// IE quirk test (readOnly=true)
-			new SelectorTest('input[type]', ['t24']),
-			new SelectorTest('input[type="text"]', []),					// default value test
+			new SelectorTest('input[type]', ['t24', 't29']),
+			new SelectorTest('input[type="text"]', ['t29']),			// default value test
+			new SelectorTest('input[class]', []),
+			new SelectorTest('input[value="one"]', ['t29']),			// IE quirk test (defaultValue)
+			new SelectorTest('input[value="two"]', []),
 			new SelectorTest('label[for="t27"]', ['t28']),				// IE quirk test (htmlFor)
 			new SelectorTest('form[className]', []),					// IE quirk test (class)
 			new SelectorTest('form[enctype]', ['t20']),					// IE quirk test (encType)
