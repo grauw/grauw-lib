@@ -43,10 +43,8 @@
 				<h2>Unit test debug log</h2>
 			</div>
 		</t:template>
-		<t:constructor>
-			gl.core.Component.call(this, arguments[0]);
-			//this.view = this.getTemplate();
-			//this.callSuper();
+		<t:constructor arguments="oDocument">
+			gl.core.Component.call(this, oDocument);
 		</t:constructor>
 		<t:method name="writeln" arguments="sString">
 			var oDiv = document.createElement('div');
