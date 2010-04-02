@@ -47,14 +47,14 @@
 			gl.core.Component.call(this, oDocument);
 		</t:constructor>
 		<t:method name="writeln" arguments="sString">
-			var oDiv = document.createElement('div');
-			oDiv.appendChild(document.createTextNode(sString));
+			var oDiv = this.document.createElement('div');
+			oDiv.appendChild(this.document.createTextNode(sString));
 			this.getView().appendChild(oDiv);
 		</t:method>
 		<t:method name="writelnError" arguments="sString">
-			var oDiv = document.createElement('div');
+			var oDiv = this.document.createElement('div');
 			oDiv.style.color = '#f00';
-			oDiv.appendChild(document.createTextNode(sString));
+			oDiv.appendChild(this.document.createTextNode(sString));
 			this.getView().appendChild(oDiv);
 		</t:method>
 		<t:implementation>
