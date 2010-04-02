@@ -50,8 +50,7 @@ gl.module('gl.core', [], function() {
 	/**
 	 * A visual component with an HTML view.
 	 */
-	var Component = function(oDocument) {
-		this.document = oDocument;
+	var Component = function() {
 		this._view = null;
 	};
 	this.Component = Component;
@@ -62,10 +61,17 @@ gl.module('gl.core', [], function() {
 		return oDocument.importNode(this._template, true);
 	};
 	
-	Component.prototype.getView = function() {
+	Component.prototype.getView = function(oDocument) {
 		if (!this._view)
-			this._view = this.getTemplate(this.document);
+			this._view = this.getTemplate(oDocument);
 		return this._view;
+	};
+	
+	Component.prototype.repaint = function() {
+		var oView = this._view;
+		this._view = null;
+		if (oView && oView.parentNode)
+			oView.parentNode.replaceChild(this.getView(oView.ownerDocument), oView);
 	};
 	
 	

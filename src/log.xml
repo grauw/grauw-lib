@@ -43,24 +43,61 @@
 				<h2>Unit test debug log</h2>
 			</div>
 		</t:template>
-		<t:constructor arguments="oDocument">
-			gl.core.Component.call(this, oDocument);
+		<t:constructor arguments="oModel">
+			gl.core.Component.call(this);
+			this.model = oModel;
 		</t:constructor>
-		<t:method name="writeln" arguments="sString">
-			var oDiv = this.document.createElement('div');
-			oDiv.appendChild(this.document.createTextNode(sString));
-			this.getView().appendChild(oDiv);
-		</t:method>
-		<t:method name="writelnError" arguments="sString">
-			var oDiv = this.document.createElement('div');
-			oDiv.style.color = '#f00';
-			oDiv.appendChild(this.document.createTextNode(sString));
-			this.getView().appendChild(oDiv);
-		</t:method>
+		<t:method name="getTemplate" arguments="oDocument"><![CDATA[
+			var oView = gl.core.Component.prototype.getTemplate.call(this, oDocument);
+			var aTests = this.model._getTests();
+			for (var i = 0; i < aTests.length; i++) {
+				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
+			}
+			var oCompleted = oDocument.createElement('div');
+			var sCompleted = this.model.errors ? 'Unit tests completed with ' + this.model.errors + ' errors.' : 'Unit tests completed.';
+			oCompleted.appendChild(oDocument.createTextNode(sCompleted));
+			oView.appendChild(oCompleted);
+			var oTime = oDocument.createElement('div');
+			oTime.appendChild(oDocument.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
+			oView.appendChild(oTime);
+			return oView;
+		]]></t:method>
 		<t:implementation>
 			({
 				
 			})
 		</t:implementation>
+	</t:class>
+	
+	<t:class name="LogMessage" extends="gl.core.Component">
+		<t:resource type="text/css">
+			.gl-unit-logmessage {
+			}
+			.gl-unit-logmessage.gl-error {
+				color: red;
+			}
+		</t:resource>
+		<t:template>
+			<div class="gl-unit-logmessage"/>
+		</t:template>
+		<t:constructor arguments="oModel">
+			gl.core.Component.call(this);
+			this.model = oModel;
+		</t:constructor>
+		<t:method name="getTemplate" arguments="oDocument"><![CDATA[
+			var oView = gl.core.Component.prototype.getTemplate.call(this, oDocument);
+			oView.appendChild(oDocument.createTextNode(this.model.toString()));
+			if (!this.model.hasCompleted()) {
+				oView.className += ' gl-notcompleted';
+			}
+			if (this.model.getError()) {
+				oView.className += ' gl-error';
+				oView.appendChild(oDocument.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
+			}
+			if (this.model.hasCompleted() && this.model.getTime() > 8) {
+				oView.appendChild(oDocument.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+			}
+			return oView;
+		]]></t:method>
 	</t:class>
 </t:namespace>

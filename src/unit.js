@@ -11,6 +11,7 @@ gl.module('gl.unit',
 	
 	// imports
 	var Log = gl.unit.Log;
+	var LogMessage = gl.unit.LogMessage;
 	
 	
 	
@@ -20,6 +21,7 @@ gl.module('gl.unit',
 	 */
 	var Test = function() {
 		this.time = -1;
+		this.error = null;
 	};
 	
 	Test.prototype.toString = function() {
@@ -34,6 +36,17 @@ gl.module('gl.unit',
 	
 	Test.prototype.hasCompleted = function() {
 		return this.time != -1;
+	};
+	
+	/**
+	 * If an error has occurred and was caught, set it for the purpose of rendering it to the view. 
+	 */
+	Test.prototype.setError = function(oError) {
+		this.error = oError;
+	};
+	
+	Test.prototype.getError = function(oError) {
+		return this.error;
 	};
 	
 	Test.prototype.run = function() {
@@ -105,7 +118,7 @@ gl.module('gl.unit',
 		Test.call(this);
 		
 		this.errors = 0;
-		this.log = new Log(document);
+		this._tests = null;
 	};
 	gl.extend(Test, TestSuite);
 	
@@ -113,46 +126,32 @@ gl.module('gl.unit',
 		throw new Error('Must implement getTests().');
 	};
 	
-	TestSuite.prototype.initialize = function() {
-		this.writeln('Unit tests running…');
+	TestSuite.prototype._getTests = function() {
+		if (!this._tests)
+			this._tests = this.getTests();
+		return this._tests;
 	};
 	
 	TestSuite.prototype.test = function() {
-		var aTests = this.getTests();
+		var aTests = this._getTests();
 		for (var i = 0; i < aTests.length; i++) {
-			this.writeln(String(aTests[i]));
 			if (location.hash != '#notrycatch') {
 				// Note: Secret feature for debugging!
 				// Add #notrycatch to URL to avoid the try/catch here.
 				try {
 					aTests[i].run();
 				} catch(e) {
-					this.writelnError('Error: ' + (e.message || e));
+					aTests[i].setError(e);
 					this.errors++;
 				}
 			} else {
 				aTests[i].run();
 			}
-			if (aTests[i].hasCompleted() && aTests[i].getTime() > 8)
-				this.writeln('\u00A0\u00A0\u00A0— time taken: ' + aTests[i].getTime() + 'ms');
 		};
 	};
 
 	TestSuite.prototype.finalize = function() {
-		if (!this.errors)
-			this.writeln('Unit tests finished.'); // ...with x errors
-		else
-			this.writeln('Unit tests finished with ' + this.errors + ' errors.');
-		this.writeln('Time taken: ' + this.getTime() + 'ms');
-		document.body.insertBefore(this.log.getView(), document.body.firstChild);
-	};
-
-	TestSuite.prototype.writeln = function(sString) {
-		this.log.writeln(sString);
-	};
-
-	TestSuite.prototype.writelnError = function(sString) {
-		this.log.writelnError(sString);
+		document.body.insertBefore(new Log(this).getView(document), document.body.firstChild);
 	};
 	
 	
