@@ -236,7 +236,7 @@ gl.selector = new function() {
 			bMatch = this.selectors[i].query(oNode, aResult, bSingleResult) || bMatch;
 		// reset __queryResult variable
 		for (var i = 0, iLen = aResult.length; i < iLen; i++)
-			delete aResult[i].__queryResult;
+			aResult[i].__queryResult = false;
 		return aResult;
 	};
 
