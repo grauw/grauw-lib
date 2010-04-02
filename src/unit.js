@@ -129,7 +129,7 @@ gl.module('gl.unit',
 				try {
 					aTests[i].run();
 				} catch(e) {
-					this.writelnError('Error: ' + String(e));
+					this.writelnError('Error: ' + (e.message || e));
 					this.errors++;
 				}
 			} else {
