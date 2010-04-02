@@ -51,7 +51,8 @@ gl.module('gl.core', [], function() {
 	 * A visual component with an HTML view.
 	 */
 	var Component = function(oDocument) {
-		this.view = this.getTemplate(oDocument);
+		this.document = oDocument;
+		this._view = null;
 	};
 	this.Component = Component;
 
@@ -59,6 +60,12 @@ gl.module('gl.core', [], function() {
 		if (browser_ie)
 			return parseHTML_IE(this._template.xml);
 		return oDocument.importNode(this._template, true);
+	};
+	
+	Component.prototype.getView = function() {
+		if (!this._view)
+			this._view = this.getTemplate(this.document);
+		return this._view;
 	};
 	
 	
@@ -131,15 +138,20 @@ gl.module('gl.core', [], function() {
 	 */
 	var Element = function(oModel) {
 		this.model = oModel;
-		gl.core.modelRegistry.setController(oModel, this);
+		oModelRegistry.setController(oModel, this);
 	};
 	this.Element = Element;
 	
 	
 	
 	
+	var oModelRegistry = new ModelRegistry();
+	
+	
+	
+	
 	// instantiate NamespaceList
 	gl.namespaces = new gl.core.NamespaceList();
-	this.modelRegistry = new ModelRegistry();
+	this.modelRegistry = oModelRegistry;
 	
 });

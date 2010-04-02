@@ -51,13 +51,13 @@
 		<t:method name="writeln" arguments="sString">
 			var oDiv = document.createElement('div');
 			oDiv.appendChild(document.createTextNode(sString));
-			this.view.appendChild(oDiv);
+			this.getView().appendChild(oDiv);
 		</t:method>
 		<t:method name="writelnError" arguments="sString">
 			var oDiv = document.createElement('div');
 			oDiv.style.color = '#f00';
 			oDiv.appendChild(document.createTextNode(sString));
-			this.view.appendChild(oDiv);
+			this.getView().appendChild(oDiv);
 		</t:method>
 		<t:implementation>
 			({

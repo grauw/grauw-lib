@@ -146,7 +146,7 @@ gl.module('gl.unit',
 		else
 			this.writeln('Unit tests finished with ' + this.errors + ' errors.');
 		this.writeln('Time taken: ' + this.getTime() + 'ms');
-		document.body.insertBefore(this.log.view, document.body.firstChild);
+		document.body.insertBefore(this.log.getView(), document.body.firstChild);
 	};
 
 	TestSuite.prototype.writeln = function(sString) {
