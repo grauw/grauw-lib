@@ -368,7 +368,7 @@ gl.selector = new function() {
 	Combinator.prototype.querySimpleSelectors = function(oNode, aResult, bSingleResult, iStart) {
 		if (!this.nextCombinator) {
 			// if last combinator
-			if (!oNode.__queryResult && this.matchSimpleSelectors(oNode, iStart)) {
+			if (oNode.__queryResult !== true && this.matchSimpleSelectors(oNode, iStart)) {
 				// __queryResult makes sure it never returns an element more than once
 				aResult[aResult.length] = oNode;
 				return oNode.__queryResult = true;
