@@ -47,41 +47,6 @@ gl = new function() {
 	
 	
 	
-	/**
-	 * Base class.
-	 * Use extend() method to create subclasses.
-	 * This provides an alternate approach to creating classes, compared to gl.extend(). 
-	 */
-	var Class = function() {
-	};
-	
-	/**
-	 * Creates a subclass.
-	 * 
-	 * Not 100% ‘pure’ as it does manual static member inheritance.
-	 * Ideally one would extend Function instead, but this is not possible.
-	 * 
-	 * Example:
-	 * 
-	 * var MyClass = gl.Class.extend(function() {
-	 *     MyBaseClass.call(this); // call super
-	 * });
-	 * MyClass.prototype.myMethod = function(){};
-	 * 
-	 * @param {Function} constructor A constructor function (optional).
-	 * @return The class constructor.
-	 * @type Class
-	 */
-	Class.extend = function(fConstructor) {
-		fConstructor = fConstructor || (this == Class ? function() {} : null);
-		extend(this, fConstructor);
-		mixin(fConstructor, this);	// inherit static members
-		return fConstructor;
-	};
-	
-	
-	
-	
 	var DOMReadyUtil = function() {
 		this.domReady = false;
 		this.listeners = [];
@@ -136,7 +101,6 @@ gl = new function() {
 	// exports
 	this.mixin = mixin;
 	this.extend = extend;
-	this.Class = Class;
 	this.DOMReadyUtil = DOMReadyUtil;
 	this.domReady = domReady;
 	this.domReadyUtil = oDOMReadyUtil;
@@ -167,8 +131,10 @@ gl.depsys = new function() {
 	 *         '../src/unit.js',
 	 *     ],
 	 *     function() {
-	 *         var Parser = function(){};
-	 *         this.Parser = gl.Class.extend(Parser, Object);  // register on gl.selector object
+	 *         var Parser = function() {};
+	 *         Parser.prototype.doSomething = function() {};
+	 *         // exports
+	 *         this.Parser = Parser;  // register on gl.selector object
 	 *     }
 	 * );
 	 * 
