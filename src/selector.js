@@ -1378,10 +1378,8 @@ gl.selector = new function() {
 	 * An exception object that is thrown when there is a parse error.
 	 */
 	var ParsingException = function(sSelector) {
-		Error.call(this, 'CSS Selector parsing error: ' + this.selector);
 		this.selector = sSelector;
 	};
-	extend(Error, ParsingException);
 	
 	ParsingException.prototype.setSelector = function(sSelector) {
 		this.selector = sSelector;

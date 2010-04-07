@@ -89,9 +89,7 @@ gl.module('gl.unit',
 	 */
 	var AssertException = function(sMessage) {
 		this.message = sMessage;
-		Error.call(this, this.toString()); // call super
 	};
-	gl.extend(Error, AssertException);
 	
 	AssertException.prototype.toString = function() {
 		return 'Assertion failed exception: ' + this.message;
