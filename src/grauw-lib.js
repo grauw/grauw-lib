@@ -618,7 +618,7 @@ gl.depsys = new function() {
 	
 	/**
 	 * Creates a Dependency object based on descriptor object.
-	 * If object is instance of Dependency, returns it immediately.
+	 * If object is a Dependency, returns it immediately.
 	 * If object is a string, creates a text/javascript dependency with the string as URI.
 	 * If object is an object, uses .type and .src properties to create the dependency.
 	 */

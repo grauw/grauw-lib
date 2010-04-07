@@ -192,7 +192,7 @@ gl.selector = new function() {
 	 */
 	SelectorGroup.prototype.add = function(oSelector) {
 		if (!oSelector instanceof Selector)
-			throw new Error('Parameter must be instance of Selector!');
+			throw new Error('Argument must be a Selector.');
 		this.selectors[this.selectors.length] = oSelector;
 	};
 
@@ -257,7 +257,7 @@ gl.selector = new function() {
 	 */
 	Selector.prototype.add = function(oCombinator) {
 		if (!oCombinator instanceof Combinator)
-			throw new Error('Parameter must be instance of Combinator!');
+			throw new Error('Argument must be a Combinator.');
 		var iLen = this.combinators.length;
 		if (iLen > 0) {
 			this.combinators[iLen - 1].nextCombinator = oCombinator;
@@ -323,7 +323,7 @@ gl.selector = new function() {
 	 */
 	Combinator.prototype.add = function(oSimpleSelector) {
 		if (!oSimpleSelector instanceof SimpleSelector)
-			throw new Error('Parameter must be instance of SimpleSelector!');
+			throw new Error('Argument must be a SimpleSelector.');
 		this.simpleSelectors[this.simpleSelectors.length] = oSimpleSelector;
 	};
 
@@ -1059,7 +1059,7 @@ gl.selector = new function() {
 	var NotSelector = function(oSimpleSelector) {
 //		SimpleSelector.call(this);
 		if (!oSimpleSelector instanceof SimpleSelector)
-			throw new Error('Parameter must be instance of SimpleSelector!');
+			throw new Error('Argument must be a SimpleSelector.');
 		this.simpleSelector = oSimpleSelector;
 	};
 	extend(SimpleSelector, NotSelector);
