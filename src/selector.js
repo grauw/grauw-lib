@@ -209,7 +209,7 @@ gl.selector = new function() {
 	};
 
 	/**
-	 * Matches a node against a selector group.
+	 * Matches a node against this selector group.
 	 * @param node The node
 	 * @return true if the selector matches.
 	 */
@@ -1223,7 +1223,7 @@ gl.selector = new function() {
 						oCombinator.add(this.parsePseudoSelector(sSelectorPart));
 					} catch(e) {
 						if (e instanceof ParsingException)
-							e.setSelector(sSelector);
+							throw new ParsingException(sSelector);
 						throw e;
 					}
 					break;
@@ -1381,10 +1381,6 @@ gl.selector = new function() {
 		this.selector = sSelector;
 	};
 	
-	ParsingException.prototype.setSelector = function(sSelector) {
-		this.selector = sSelector;
-	};
-
 	ParsingException.prototype.toString = function() {
 		return 'CSS Selector parsing error: ' + this.selector;
 	};
