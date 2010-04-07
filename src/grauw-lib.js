@@ -235,7 +235,7 @@ gl.depsys = new function() {
 	
 	Module.prototype.ready = function() {
 		this.initializer.call(this.object, this);
-		this.parentDependency.moduleReady(this);
+		this.parentDependency.ready(this);
 	};
 	
 	
@@ -243,6 +243,12 @@ gl.depsys = new function() {
 	
 	/**
 	 * A dependency object
+	 * 
+	 * Subclasses need to implement the doLoad() method, or load() if they have
+	 * no dependency on the URI module. When the loading is done, call
+	 * loadComplete(). If there is nothing else that needs to be waited for
+	 * (such as modules inside), also call ready().
+	 * 
 	 * @param {String} sURI The absolute URI of the dependency
 	 */
 	var Dependency = function(sURI) {
@@ -315,9 +321,9 @@ gl.depsys = new function() {
 	};
 
 	/**
-	 * Callback from a child module
+	 * Invoke when the dependency has fully loaded, child modules included.
 	 */
-	Dependency.prototype.moduleReady = function(oModule) {
+	Dependency.prototype.ready = function() {
 		if (this.isLoaded() && this.parentModule)
 			this.parentModule.dependencyLoaded(this);
 	};
@@ -401,7 +407,7 @@ gl.depsys = new function() {
 			bUnboundModules = true;
 		}
 		if (!bUnboundModules)
-			this.moduleReady();
+			this.ready();
 	};
 	
 	ScriptDependency.prototype.toString = function() {
@@ -463,8 +469,8 @@ gl.depsys = new function() {
 		this.doLoad();
 	};
 	
-	URIScriptDependency.prototype.moduleReady = function(oModule) {
-		ScriptDependency.prototype.moduleReady.call(this, oModule);
+	URIScriptDependency.prototype.ready = function() {
+		ScriptDependency.prototype.ready.call(this);
 		if (this.isLoaded())
 			this.fireLoadEvent(this);
 	};
@@ -541,7 +547,7 @@ gl.depsys = new function() {
 	
 	DOMReadyDependency.prototype.handleDOMReady = function() {
 		this.loadComplete();
-		this.moduleReady();
+		this.ready();
 	};
 	
 	

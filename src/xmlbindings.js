@@ -266,7 +266,7 @@ gl.module('gl.templates',
 
 	TemplatesDependency.prototype.loadComplete = function() {
 		Dependency.prototype.loadComplete.call(this);	// call super
-		this.moduleReady();
+		this.ready();
 	};
 	
 	TemplatesDependency.prototype.toString = function() {
