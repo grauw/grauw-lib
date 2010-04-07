@@ -145,7 +145,7 @@ gl.depsys = new function() {
 	 * The type field specifies an optional MIME type which will influence how the
 	 * file is loaded, by default it is text/javascript.
 	 */
-	gl.module = function(sName, aDependencies, fInitializer) {
+	function module(sName, aDependencies, fInitializer) {
 		oDependencyManager.dependencyIseEverything();
 		var oCurrentDependency = oDependencyManager.getCurrentDependency(sName);
 		var oModule = oDependencyManager.createModule(sName, fInitializer);
@@ -690,13 +690,14 @@ gl.depsys = new function() {
 	// create modules for gl and gl.depsys objects
 	// load URI library to do URI resolving (a bit of a paradox :))
 	var oURIDependency = new URIScriptDependency();
-	gl.module('gl.depsys', [oURIDependency], function(){});
-	gl.module('gl', [], function(){});
+	module('gl.depsys', [oURIDependency], function(){});
+	module('gl', [], function(){});
 	
 	
 	
 	
 	// exports
+	gl.module = module;
 	this.Module = Module;
 	this.Dependency = Dependency;
 	this.ScriptDependency = ScriptDependency;
