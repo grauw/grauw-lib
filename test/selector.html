@@ -9,12 +9,10 @@
 		<script src="../src/grauw-lib.js" type="text/javascript"></script>
 		<script type="text/javascript">
 
-gl.module('', ['selector.js'], function() {
-	gl.domReady(function() {
-		document.getElementById('t29').value = 'two';
-		
-		new unit.SelectorSuite().run();
-	});
+gl.module('', [gl.DOMREADY, 'selector.js'], function() {
+	document.getElementById('t29').value = 'two';
+	
+	new unit.SelectorSuite().run();
 });
 
 		</script>

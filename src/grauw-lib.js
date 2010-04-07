@@ -83,15 +83,6 @@ gl = new function() {
 	
 	
 	
-	/**
-	 * Calls the function once the document is ready and all dependencies have been loaded.
-	 */
-	function domReady(fCallback) {
-		oDOMReadyUtil.addDOMReadyListener({handleDOMReady: fCallback});
-	}
-	
-	
-	
 	// instantiate DOM ready util
 	var oDOMReadyUtil = new DOMReadyUtil();
 	
@@ -102,7 +93,6 @@ gl = new function() {
 	this.mixin = mixin;
 	this.extend = extend;
 	this.DOMReadyUtil = DOMReadyUtil;
-	this.domReady = domReady;
 	this.domReadyUtil = oDOMReadyUtil;
 	
 };
@@ -541,6 +531,24 @@ gl.depsys = new function() {
 	
 	
 	
+	var DOMReadyDependency = function() {
+		Dependency.call(this, null);
+	};
+	
+	gl.extend(Dependency, DOMReadyDependency);
+	
+	DOMReadyDependency.prototype.load = function() {
+		gl.domReadyUtil.addDOMReadyListener(this);
+	};
+	
+	DOMReadyDependency.prototype.handleDOMReady = function() {
+		this.loadComplete();
+		this.moduleReady();
+	};
+	
+	
+	
+	
 	/**
 	 * Dependency manager
 	 */
@@ -693,11 +701,14 @@ gl.depsys = new function() {
 	module('gl.depsys', [oURIDependency], function(){});
 	module('gl', [], function(){});
 	
+	var oDOMReadyDependency = new DOMReadyDependency();
+	
 	
 	
 	
 	// exports
 	gl.module = module;
+	gl.DOMREADY = oDOMReadyDependency;
 	this.Module = Module;
 	this.Dependency = Dependency;
 	this.ScriptDependency = ScriptDependency;

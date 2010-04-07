@@ -9,10 +9,8 @@
 		<script src="../src/grauw-lib.js" type="text/javascript"></script>
 		<script type="text/javascript">
 
-gl.module('', ['uri.js'], function() {
-	gl.domReady(function() {
-		new unit.URISuite().run()
-	});
+gl.module('', [gl.DOMREADY, 'uri.js'], function() {
+	new unit.URISuite().run()
 });
 
 		</script>
