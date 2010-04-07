@@ -66,8 +66,6 @@ gl = new function() {
 			window.attachEvent('onload', loadHandler);
 	};
 	
-	this.DOMReadyUtil = DOMReadyUtil;
-	
 	DOMReadyUtil.prototype.fireDOMReady = function() {
 		for (var i = 0; i < this.listeners.length; i++)
 			this.listeners[i].handleDOMReady();
