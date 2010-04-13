@@ -12,7 +12,7 @@
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
-				width: 600px;
+				max-width: 600px;
 				top: 10px;
 				right: 10px;
 				padding: 5px;
