@@ -111,9 +111,9 @@ gl.module('gl.templates',
 		return oConstructor ? oConstructor.getConstructor() : new Function;
 	};
 	
-	Class.prototype.getTemplate = function() {
+	Class.prototype.createView = function() {
 		var oTemplate = getChildInstancesOf(this.model, Template)[0];
-		return oTemplate ? oTemplate.getTemplate() : null;
+		return oTemplate ? oTemplate.createView() : null;
 	};
 	
 	Class.prototype.getMethods = function() {
@@ -123,7 +123,7 @@ gl.module('gl.templates',
 	Class.prototype.init = function(oNamespace) {
 		var fConstructor = this.getConstructor();
 		gl.extend(this.getExtends(), fConstructor);
-		fConstructor.prototype._template = this.getTemplate();
+		fConstructor.prototype._template = this.createView();
 		var aMethods = this.getMethods();
 		for (var i = 0; i < aMethods.length; i++) {
 			fConstructor.prototype[aMethods[i].getName()] = aMethods[i].getMethod();
@@ -143,7 +143,7 @@ gl.module('gl.templates',
 	};
 	this.Template = gl.extend(Element, Template);
 	
-	Template.prototype.getTemplate = function() {
+	Template.prototype.createView = function() {
 		var oNode = this.model.firstChild;
 		while (oNode) {
 			if (oNode.nodeType == 1)

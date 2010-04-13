@@ -55,7 +55,7 @@ gl.module('gl.core', [], function() {
 	};
 	this.Component = Component;
 
-	Component.prototype.getTemplate = function(oDocument) {
+	Component.prototype.createView = function(oDocument) {
 		if (browser_ie)
 			return parseHTML_IE(this._template.xml);
 		return oDocument.importNode(this._template, true);
@@ -63,7 +63,7 @@ gl.module('gl.core', [], function() {
 	
 	Component.prototype.getView = function(oDocument) {
 		if (!this._view)
-			this._view = this.getTemplate(oDocument);
+			this._view = this.createView(oDocument);
 		return this._view;
 	};
 	

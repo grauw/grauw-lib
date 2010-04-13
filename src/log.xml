@@ -47,8 +47,8 @@
 			gl.core.Component.call(this);
 			this.model = oModel;
 		</t:constructor>
-		<t:method name="getTemplate" arguments="oDocument"><![CDATA[
-			var oView = gl.core.Component.prototype.getTemplate.call(this, oDocument);
+		<t:method name="createView" arguments="oDocument"><![CDATA[
+			var oView = gl.core.Component.prototype.createView.call(this, oDocument);
 			var aTests = this.model._getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
@@ -84,8 +84,8 @@
 			gl.core.Component.call(this);
 			this.model = oModel;
 		</t:constructor>
-		<t:method name="getTemplate" arguments="oDocument"><![CDATA[
-			var oView = gl.core.Component.prototype.getTemplate.call(this, oDocument);
+		<t:method name="createView" arguments="oDocument"><![CDATA[
+			var oView = gl.core.Component.prototype.createView.call(this, oDocument);
 			oView.appendChild(oDocument.createTextNode(this.model.toString()));
 			if (!this.model.hasCompleted()) {
 				oView.className += ' gl-notcompleted';
