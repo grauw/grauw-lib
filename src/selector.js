@@ -12,7 +12,7 @@
  * See: http://www.grauw.nl/projects/selectors/
  * 
  * @version 1.1.2
- * @author L. Holst (http://www.grauw.nl/)
+ * @author Laurens Holst (http://www.grauw.nl/)
  * 
  *   Copyright 2010 Laurens Holst
  * 

@@ -7,9 +7,9 @@
  * 
  * See: http://www.w3.org/TR/DOM-Level-3-Events/
  * 
- * @author L. Holst (http://www.grauw.nl/)
+ * @author Laurens Holst (http://www.grauw.nl/)
  * 
- *   Copyright 2008 Laurens Holst
+ *   Copyright 2010 Laurens Holst
  * 
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
