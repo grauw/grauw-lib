@@ -24,12 +24,6 @@ gl.module('gl.core', [], function() {
 	
 	var browser_ie = !!window.ActiveXObject;
 	
-	function parseHTML_IE(sHTML) {
-		var oDiv = document.createElement('div');
-		oDiv.innerHTML = '&#160;' + sHTML;
-		return oDiv.childNodes[1];
-	}
-	
 	
 	
 	
@@ -66,6 +60,7 @@ gl.module('gl.core', [], function() {
 	
 	/**
 	 * A visual component with an HTML view.
+	 * Abstract class, subclasses must implement createView().
 	 */
 	var Component = function() {
 		this._view = null;
@@ -73,9 +68,7 @@ gl.module('gl.core', [], function() {
 	this.Component = Component;
 
 	Component.prototype.createView = function(oDocument) {
-		if (browser_ie)
-			return parseHTML_IE(this._template.xml);
-		return oDocument.importNode(this._template, true);
+		throw new Error('Must implement createView().');
 	};
 	
 	Component.prototype.getView = function(oDocument) {

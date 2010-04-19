@@ -21,11 +21,12 @@
  * 
  */
 gl.module('gl.templates',
-	['mvc.js'],
+	['mvc.js', 'selector.js'],
 	function() {
 	
 	// imports
 	var Element = gl.core.Element;
+	var CoreComponent = gl.core.Component;
 	var Dependency = gl.depsys.Dependency;
 	var oModelRegistry = gl.core.modelRegistry;
 	
@@ -77,6 +78,26 @@ gl.module('gl.templates',
 	
 	
 	/**
+	 * A subclass of gl.core.Component containing template-specific code.
+	 */
+	var Component = function() {
+		CoreComponent.call(this);
+	};
+	gl.extend(CoreComponent, Component);
+	
+	Component.prototype._template = null;
+	
+	Component.prototype.createView = function(oDocument) {
+		if (browser_ie)
+			return parseHTML_IE(this._template.xml);
+		else
+			return oDocument.importNode(this._template, true);
+	};
+	
+	
+	
+	
+	/**
 	 * 
 	 */
 	var Namespace = function(oModel) {
@@ -120,7 +141,7 @@ gl.module('gl.templates',
 	};
 	
 	Class.prototype.getExtends = function() {
-		return getReference(this.model.getAttribute('extends') || 'gl.core.Component');
+		return getReference(this.model.getAttribute('extends') || 'gl.templates.Component');
 	};
 	
 	Class.prototype.getConstructor = function() {
@@ -313,6 +334,7 @@ gl.module('gl.templates',
 	
 	
 	// exports
+	this.Component = Component;
 	this.Namespace = Namespace;
 	this.Class = Class;
 	this.Template = Template;

@@ -23,7 +23,7 @@
 		Maybe make t:Class for generic classes and t:Component for
 		components (which allow t:template)?
 	-->
-	<t:class name="Log" extends="gl.core.Component">
+	<t:class name="Log" extends="gl.templates.Component">
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
@@ -63,7 +63,7 @@
 			this.model = oModel;
 		</t:constructor>
 		<t:method name="createView" arguments="oDocument"><![CDATA[
-			var oView = gl.core.Component.prototype.createView.call(this, oDocument);
+			var oView = gl.templates.Component.prototype.createView.call(this, oDocument);
 			var aTests = this.model._getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
@@ -84,7 +84,7 @@
 		</t:implementation>
 	</t:class>
 	
-	<t:class name="LogMessage" extends="gl.core.Component">
+	<t:class name="LogMessage" extends="gl.templates.Component">
 		<t:resource type="text/css">
 			.gl-unit-logmessage {
 			}
@@ -100,7 +100,7 @@
 			this.model = oModel;
 		</t:constructor>
 		<t:method name="createView" arguments="oDocument"><![CDATA[
-			var oView = gl.core.Component.prototype.createView.call(this, oDocument);
+			var oView = gl.templates.Component.prototype.createView.call(this, oDocument);
 			oView.appendChild(oDocument.createTextNode(this.model.toString()));
 			if (!this.model.hasCompleted()) {
 				oView.className += ' gl-notcompleted';
