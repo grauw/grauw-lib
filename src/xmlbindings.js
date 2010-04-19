@@ -86,12 +86,37 @@ gl.module('gl.templates',
 	gl.extend(CoreComponent, Component);
 	
 	Component.prototype._template = null;
+	Component.prototype._handlers = null;
 	
 	Component.prototype.createView = function(oDocument) {
+		var oView = this.instantiateTemplate(oDocument);
+		this.attachHandlers(oView);
+		return oView;
+	};
+	
+	Component.prototype.instantiateTemplate = function(oDocument) {
 		if (browser_ie)
 			return parseHTML_IE(this._template.xml);
 		else
 			return oDocument.importNode(this._template, true);
+	};
+	
+	Component.prototype.attachHandlers = function(oView) {
+		function createHandler(oContext, fHandler, sMatch) {
+			return function(oEvent) {
+				oEvent = oEvent || event;
+				var oTarget = oEvent.target || oEvent.srcElement;
+				if (!sMatch || gl.selector.match(oTarget, sMatch))
+					fHandler.call(oContext, oEvent);
+			};
+		};
+		
+		for (var i = 0; i < this._handlers.length; i++) {
+			var sEventType = this._handlers[i].getEvent();
+			var fHandler = this._handlers[i].getHandler();
+			var sMatch = this._handlers[i].getMatch();
+			oView.addEventListener(sEventType, createHandler(this, fHandler, sMatch), false);
+		}
 	};
 	
 	
@@ -158,10 +183,15 @@ gl.module('gl.templates',
 		return getChildInstancesOf(this.model, Method);
 	};
 	
+	Class.prototype.getHandlers = function() {
+		return getChildInstancesOf(this.model, Handler);
+	};
+	
 	Class.prototype.init = function(oNamespace) {
 		var fConstructor = this.getConstructor();
 		gl.extend(this.getExtends(), fConstructor);
 		fConstructor.prototype._template = this.createView();
+		fConstructor.prototype._handlers = this.getHandlers();
 		var aMethods = this.getMethods();
 		for (var i = 0; i < aMethods.length; i++) {
 			fConstructor.prototype[aMethods[i].getName()] = aMethods[i].getMethod();
@@ -228,6 +258,31 @@ gl.module('gl.templates',
 	
 	Method.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
+	};
+	
+	
+	
+	
+	/**
+	 * 
+	 */
+	var Handler = function(oModel, oParent) {
+		Element.call(this, oModel);
+		this._class = oParent;
+	};
+	gl.extend(Element, Handler);
+	
+	Handler.prototype.getHandler = function() {
+		var sBody = this.model.textContent || this.model.text || '';
+		return new Function('event', sBody);
+	};
+	
+	Handler.prototype.getEvent = function() {
+		return this.model.getAttribute('event') || null;
+	};
+	
+	Handler.prototype.getMatch = function() {
+		return this.model.getAttribute('match') || null;
 	};
 	
 	
@@ -322,6 +377,7 @@ gl.module('gl.templates',
 	oTNamespace.add(Template,    'template');
 	oTNamespace.add(Constructor, 'constructor');
 	oTNamespace.add(Method,      'method');
+	oTNamespace.add(Handler,     'handler');
 	oTNamespace.add(Resource,    'resource');
 	
 	// register templates namespace
@@ -340,6 +396,7 @@ gl.module('gl.templates',
 	this.Template = Template;
 	this.Constructor = Constructor;
 	this.Method = Method;
+	this.Handler = Handler;
 	this.Resource = Resource; 
 	this.TemplatesDependency = TemplatesDependency;
 	this.namespace = oTNamespace;

@@ -52,18 +52,34 @@
 				-webkit-border-top-left-radius: 5px;
 				-webkit-border-top-right-radius: 5px;
 			}
+			.gl-unit-log h2 button {
+				float: right;
+			}
+			.gl-unit-log.gl-closed > * {
+				display: none;
+			}
+			.gl-unit-log.gl-closed h2 {
+				display: block;
+			}
 		</t:resource>
 		<t:template>
 			<div class="gl-unit-log">
-				<h2>Unit test debug log</h2>
+				<h2>
+					Unit test debug log
+					<button type="button"></button>
+				</h2>
 			</div>
 		</t:template>
 		<t:constructor arguments="oModel">
 			gl.core.Component.call(this);
 			this.model = oModel;
+			this.open = true;
 		</t:constructor>
 		<t:method name="createView" arguments="oDocument"><![CDATA[
 			var oView = gl.templates.Component.prototype.createView.call(this, oDocument);
+			if (!this.open)
+				oView.className += ' gl-closed';
+			gl.selector.query(oView, 'h2 button').appendChild(oDocument.createTextNode(this.open ? '-' : '+'));
 			var aTests = this.model._getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
@@ -77,11 +93,10 @@
 			oView.appendChild(oTime);
 			return oView;
 		]]></t:method>
-		<t:implementation>
-			({
-				
-			})
-		</t:implementation>
+		<t:handler event="click" match=".gl-unit-log h2 button">
+			this.open = !this.open;
+			this.repaint();
+		</t:handler>
 	</t:class>
 	
 	<t:class name="LogMessage" extends="gl.templates.Component">
