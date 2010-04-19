@@ -82,7 +82,7 @@ gl.module('gl.templates',
 	var Namespace = function(oModel) {
 		Element.call(this, oModel);
 	};
-	this.Namespace = gl.extend(Element, Namespace);
+	gl.extend(Element, Namespace);
 	
 	Namespace.prototype.getURI = function() {
 		return this.model.getAttribute('name') || null;
@@ -113,7 +113,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._namespace = oParent;
 	};
-	this.Class = gl.extend(Element, Class);
+	gl.extend(Element, Class);
 	
 	Class.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
@@ -158,7 +158,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Template = gl.extend(Element, Template);
+	gl.extend(Element, Template);
 	
 	Template.prototype.createView = function() {
 		var oNode = this.model.firstChild;
@@ -180,7 +180,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Constructor = gl.extend(Element, Constructor);
+	gl.extend(Element, Constructor);
 	
 	Constructor.prototype.getConstructor = function() {
 		var sArguments = this.model.getAttribute('arguments');
@@ -201,7 +201,7 @@ gl.module('gl.templates',
 		Element.call(this, oModel);
 		this._class = oParent;
 	};
-	this.Method = gl.extend(Element, Method);
+	gl.extend(Element, Method);
 	
 	Method.prototype.getMethod = Constructor.prototype.getConstructor;
 	
@@ -237,7 +237,7 @@ gl.module('gl.templates',
 			break;
 		}
 	};
-	this.Resource = gl.extend(Element, Resource);
+	gl.extend(Element, Resource);
 	
 	Resource.prototype.getType = function() {
 		return this.model.getAttribute('type') || null;
@@ -254,8 +254,7 @@ gl.module('gl.templates',
 		Dependency.call(this, sURI);
 		this.xml = null;
 	};
-	
-	this.TemplatesDependency = gl.extend(Dependency, TemplatesDependency);
+	gl.extend(Dependency, TemplatesDependency);
 	
 	TemplatesDependency.prototype.doLoad = function() {
 		var oXHR = new XMLHttpRequest();
@@ -295,7 +294,6 @@ gl.module('gl.templates',
 	
 	// instantiate templates namespace
 	var oTNamespace = new gl.core.Namespace('http://www.grauw.nl/templates');
-	this.namespace = oTNamespace;
 	
 	// add element types
 	oTNamespace.add(Namespace,   'namespace');
@@ -310,5 +308,18 @@ gl.module('gl.templates',
 	
 	// register the XML templates dependency type
 	gl.depsys.dependencyManager.registerDependencyHandler('application/xml', TemplatesDependency);
+	
+	
+	
+	
+	// exports
+	this.Namespace = Namespace;
+	this.Class = Class;
+	this.Template = Template;
+	this.Constructor = Constructor;
+	this.Method = Method;
+	this.Resource = Resource; 
+	this.TemplatesDependency = TemplatesDependency;
+	this.namespace = oTNamespace;
 	
 });
