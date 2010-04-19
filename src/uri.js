@@ -4,11 +4,17 @@ gl.module('gl.uri', [], function() {
 	 * Constructs a URI object.
 	 * @constructor
 	 * @class Implementation of URI parsing and base URI resolving algorithm in RFC 3986.
-	 * @param {String} uri the relative URI to resolve
+	 * @param {string|URI} uri A string or URI object to create the object from.
 	 */
-	var URI = function(sURI) {
-		if (sURI) {
-			var c = sURI.match(oParseRegex);
+	var URI = function(vURI) {
+		if (vURI instanceof URI) {	// copy constructor
+			this.scheme = vURI.scheme;
+			this.authority = vURI.authority;
+			this.path = vURI.path;
+			this.query = vURI.query;
+			this.fragment = vURI.fragment;
+		} else if (vURI) { // vURI is URI string or cast to string
+			var c = oParseRegex.exec(vURI);
 			this.scheme = c[1];
 			this.authority = c[2];
 			this.path = c[3];
@@ -41,19 +47,6 @@ gl.module('gl.uri', [], function() {
 	};
 	
 	var hCache = {};
-	
-	/**
-	 * Clones this URI object
-	 */
-	URI.prototype.clone = function() {
-		var oURI = new URI();
-		oURI.scheme = this.scheme;
-		oURI.authority = this.authority;
-		oURI.path = this.path;
-		oURI.query = this.query;
-		oURI.fragment = this.fragment;
-		return oURI;
-	};
 	
 	/**
 	 * Tests whether the URI is an absolute URI.
