@@ -115,7 +115,10 @@ gl.module('gl.templates',
 			var sEventType = this._handlers[i].getEvent();
 			var fHandler = this._handlers[i].getHandler();
 			var sMatch = this._handlers[i].getMatch();
-			oView.addEventListener(sEventType, createHandler(this, fHandler, sMatch), false);
+			if (oView.addEventListener)
+				oView.addEventListener(sEventType, createHandler(this, fHandler, sMatch), false);
+			else
+				oView.attachEvent('on' + sEventType, createHandler(this, fHandler, sMatch));
 		}
 	};
 	
