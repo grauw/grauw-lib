@@ -240,6 +240,7 @@ gl.module(
 			new SelectorTest('#t40 > *:nth-child(4n+3)', ['t43', 't47']),
 			new SelectorTest('#t40 > *:nth-child(4n-1)', ['t43', 't47']),
 			new SelectorTest('#t40 > *:nth-last-child(4n-1)', ['t42', 't46']),
+			new SelectorTest('#t40 > *:nth-child(4n+5)', ['t45']),
 			new SelectorTest('td:nth-child(1n+0)', ['t41', 't42', 't44', 't45', 't46', 't47']),
 			new SelectorTest('td:nth-child(-1n+4)', ['t41', 't42', 't44']),
 			new SelectorTest('td:nth-last-child(-1n+3)', ['t46', 't47']),
@@ -262,7 +263,10 @@ gl.module(
 			new SelectorTest('td:nth-of-type(3n+1)', ['t41', 't45']),
 			new SelectorTest('td:nth-last-of-type(3n+1)', ['t44', 't47']),
 			new SelectorTest('td:nth-of-type(3n-1)', ['t42', 't46']),
-			new SelectorTest('td:nth-last-of-type(-1n+2)', ['t46', 't47'])
+			new SelectorTest('td:nth-last-of-type(-1n+2)', ['t46', 't47']),
+			
+			new SelectorTest('td:nth-of-type(n+2):nth-last-of-type(n+2)', ['t42', 't44', 't45', 't46']),
+			new SelectorTest('td:not(:first-of-type):not(:last-of-type)', ['t42', 't44', 't45', 't46'])
 		];
 	};
 	
