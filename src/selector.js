@@ -775,8 +775,8 @@ gl.selector = new function() {
 			n = sArg.indexOf('n');
 			a = sArg.substring(0, n);
 			b = sArg.substring(n + 1);
-			a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : parseInt(a, 10);
-			b = b == '' ? 0 : parseInt(b, 10);
+			a = n == -1 ? 0 : a == '' ? 1 : a == '-' ? -1 : Number(a);
+			b = b == '' ? 0 : Number(b);
 		}
 		this.a = a;
 		this.b = b;
