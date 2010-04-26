@@ -9,8 +9,9 @@ gl.module(
 	// imports
 	var Test = gl.unit.Test;
 	var TestSuite = gl.unit.TestSuite;
-	var Parser = gl.selector.Parser;
 	var SimpleTest = gl.unit.SimpleTest;
+	var Parser = gl.selector.Parser;
+	var NthSelector = gl.selector.NthSelector;
 	
 	
 	
@@ -51,6 +52,33 @@ gl.module(
 			var sResult = aResult[i] ? aResult[i].getAttribute('id') : 'undefined';
 			this.assertEquals(sExpected, sResult, 'Result node ID should match expected ID.');
 		}
+	};
+	
+	
+	
+	
+	/**
+	 * Test parsing of position (an+b, odd, even) in the nth-* selectors,
+	 * which should result in integer values a and b corresponding to an+b.
+	 * @param sNth The nth-* selector position
+	 * @param iA The expected a value
+	 * @param iB The expected b value
+	 */
+	var NthTest = function(sNth, iA, iB) {
+		this.nth = sNth;
+		this.a = iA;
+		this.b = iB;
+	};
+	gl.extend(Test, NthTest);
+
+	NthTest.prototype.toString = function() {
+		return 'Test parsing of nth-* position “' + this.nth + '”';
+	};
+	
+	NthTest.prototype.test = function() {
+		var oNth = new NthSelector(this.nth);
+		this.assertEquals(this.a, oNth.a, 'Value a should be correct.');
+		this.assertEquals(this.b, oNth.b, 'Value b should be correct.');
 	};
 	
 	
@@ -159,7 +187,32 @@ gl.module(
 				this.assert(oResult5, 'Should find match in nodes copied with innerHTML.');
 				var oResult6 = gl.selector.query(oSecondDiv, 'em');
 				this.assert(oResult6, 'Should find match in nodes copied with innerHTML.');
-			})
+			}),
+			new NthTest('odd', 2, 1),
+			new NthTest('even', 2, 0),
+			new NthTest('2n+1', 2, 1),
+			new NthTest('2n+0', 2, 0),
+			new NthTest('4n+1', 4, 1),
+			new NthTest('4n+2', 4, 2),
+			new NthTest('4n+3', 4, 3),
+			new NthTest('4n+4', 4, 4),
+			new NthTest('10n-1', 10, -1),
+			new NthTest('10n+9', 10, 9),
+//			new NthTest('10n+-1', undefined, undefined),
+			new NthTest('0n+5', 0, 5),
+			new NthTest('5', 0, 5),
+			new NthTest('1n+0', 1, 0),
+			new NthTest('n+0', 1, 0),
+			new NthTest('n', 1, 0),
+			new NthTest('2n', 2, 0),
+			new NthTest(' 3n + 1 ', 3, 1),
+			new NthTest(' +3n - 2 ', 3, -2),
+			new NthTest(' -n+ 6', -1, 6),
+			new NthTest(' +6 ', 0, 6),
+//			new NthTest('3 n', undefined, undefined),
+//			new NthTest('+ 2n', undefined, undefined),
+//			new NthTest('+ 2 ', undefined, undefined),
+			new NthTest('-n+6', -1, 6)
 		];
 	};
 	
