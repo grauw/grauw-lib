@@ -83,21 +83,11 @@ gl.module('unit',
 	
 	
 	
-	
-	/**
-	 * Unit tests
-	 */
-	URISuite = function() {
-		TestSuite.call(this);
-	};
-	gl.extend(TestSuite, URISuite);
-	
 	/**
 	 * Unit tests
 	 * See RFC 3986 appendix C
 	 */
-	URISuite.prototype.getTests = function() {
-		return [
+	var oURISuite = new TestSuite([
 			// normal examples
 			new URITest('http://a/b/c/d;p?q', 'g:h'          , 'g:h'),
 			new URITest('http://a/b/c/d;p?q', 'g'            , 'http://a/b/c/g'),
@@ -159,13 +149,12 @@ gl.module('unit',
 			new URIPerformanceTest1(),
 			new URIPerformanceTest2(),
 			new URIPerformanceTest3()
-		];
-	};
+		]);
 	
 	
 	
 	
 	// exports
-	this.URISuite = URISuite;
+	this.uriSuite = oURISuite;
 
 });

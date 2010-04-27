@@ -87,16 +87,7 @@ gl.module(
 	/**
 	 * Unit tests
 	 */
-	var SelectorSuite = function() {
-		TestSuite.call(this);
-	};
-	this.SelectorSuite = gl.extend(TestSuite, SelectorSuite);
-	
-	/**
-	 * Unit tests
-	 */
-	SelectorSuite.prototype.getTests = function() {
-		return [
+	var oSelectorSuite = new TestSuite([
 			new SelectorTest('*[lang]', ['t0', 't7', 't8']),				// universal selector test
 			new SelectorTest('li', ['t1', 't2', 't3', 't4', 't5', 't6']),	// type selector test
 			new SelectorTest('.test1', ['t7']),								// class selector tests
@@ -267,19 +258,15 @@ gl.module(
 			
 			new SelectorTest('td:nth-of-type(n+2):nth-last-of-type(n+2)', ['t42', 't44', 't45', 't46']),
 			new SelectorTest('td:not(:first-of-type):not(:last-of-type)', ['t42', 't44', 't45', 't46'])
-		];
-	};
+		]);
 	
 	// TODO: Selectors that should result in parsing errors
-	SelectorSuite.prototype.parsingTests = [
-	       	'ul:not(.test1.test2)'
-		];
+//	       	'ul:not(.test1.test2)'
 	
 	
 	
 	
 	// exports
-	this.SelectorTest = SelectorTest;
-	this.SelectorSuite = SelectorSuite;
+	this.selectorSuite = oSelectorSuite;
 	
 });
