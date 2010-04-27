@@ -80,7 +80,7 @@
 			if (!this.open)
 				oView.className += ' gl-closed';
 			gl.selector.query(oView, 'h2 button').appendChild(oDocument.createTextNode(this.open ? '-' : '+'));
-			var aTests = this.model._getTests();
+			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
 			}

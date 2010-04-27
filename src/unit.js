@@ -130,28 +130,26 @@ gl.module('gl.unit',
 	
 	
 	/**
-	 * A test suite
+	 * A group of tests
 	 */
-	var TestSuite = function() {
+	var TestGroup = function(sName, aTests) {
 		Test.call(this);
-		
+		this.name = sName;
+		this.tests = aTests || [];
 		this.errors = 0;
-		this._tests = null;
 	};
-	gl.extend(Test, TestSuite);
+	gl.extend(Test, TestGroup);
 	
-	TestSuite.prototype.getTests = function() {
-		throw new Error('Must implement getTests().');
-	};
-	
-	TestSuite.prototype._getTests = function() {
-		if (!this._tests)
-			this._tests = this.getTests();
-		return this._tests;
+	TestGroup.prototype.getTests = function() {
+		return this.tests;
 	};
 	
-	TestSuite.prototype.test = function() {
-		var aTests = this._getTests();
+	TestGroup.prototype.addTest = function(oTest) {
+		this.tests.push(oTest);
+	};
+	
+	TestGroup.prototype.test = function() {
+		var aTests = this.getTests();
 		for (var i = 0; i < aTests.length; i++) {
 			if (location.hash != '#notrycatch') {
 				// Note: Secret feature for debugging!
@@ -167,7 +165,18 @@ gl.module('gl.unit',
 			}
 		};
 	};
-
+	
+	
+	
+	
+	/**
+	 * A test suite
+	 */
+	var TestSuite = function(aTests) {
+		TestGroup.call(this, 'Test suite', aTests);
+	};
+	gl.extend(TestGroup, TestSuite);
+	
 	TestSuite.prototype.finalize = function() {
 		document.body.insertBefore(new Log(this).getView(document), document.body.firstChild);
 	};
@@ -179,6 +188,7 @@ gl.module('gl.unit',
 	this.Test = Test;
 	this.SimpleTest = SimpleTest;
 	this.AssertException = AssertException;
+	this.TestGroup = TestGroup;
 	this.TestSuite = TestSuite;
 
 });
