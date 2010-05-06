@@ -38,7 +38,7 @@ gl.module('gl.unit',
 	 */
 	var Test = function() {
 		this.time = -1;
-		this.error = null;
+		this.errors = [];
 	};
 	
 	Test.prototype.toString = function() {
@@ -58,12 +58,12 @@ gl.module('gl.unit',
 	/**
 	 * If an error has occurred and was caught, set it for the purpose of rendering it to the view. 
 	 */
-	Test.prototype.setError = function(oError) {
-		this.error = oError;
+	Test.prototype.addError = function(oError) {
+		this.errors.push(oError);
 	};
 	
-	Test.prototype.getError = function(oError) {
-		return this.error;
+	Test.prototype.getErrors = function() {
+		return this.errors;
 	};
 	
 	Test.prototype.run = function() {
@@ -135,7 +135,6 @@ gl.module('gl.unit',
 		Test.call(this);
 		this.name = sName;
 		this.tests = aTests || [];
-		this.errors = 0;
 	};
 	gl.extend(Test, TestGroup);
 	
@@ -147,6 +146,14 @@ gl.module('gl.unit',
 		this.tests.push(oTest);
 	};
 	
+	TestGroup.prototype.getErrors = function() {
+		var aErrors = [];
+		for (var i = 0; i < this.tests.length; i++) {
+			aErrors.push.apply(aErrors, this.tests[i].getErrors());
+		}
+		return aErrors;
+	};
+	
 	TestGroup.prototype.test = function() {
 		var aTests = this.getTests();
 		for (var i = 0; i < aTests.length; i++) {
@@ -156,8 +163,7 @@ gl.module('gl.unit',
 				try {
 					aTests[i].run();
 				} catch(e) {
-					aTests[i].setError(e);
-					this.errors++;
+					aTests[i].addError(e);
 				}
 			} else {
 				aTests[i].run();

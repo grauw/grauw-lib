@@ -29,7 +29,8 @@
 			}
 			
 			var oCompleted = document.createElement('div');
-			var sCompleted = this.model.errors ? 'Unit tests completed with ' + this.model.errors + ' errors.' : 'Unit tests completed.';
+			var aErrors = this.model.getErrors();
+			var sCompleted = aErrors.length ? 'Unit tests completed with ' + aErrors.length + ' errors.' : 'Unit tests completed.';
 			oCompleted.appendChild(document.createTextNode(sCompleted));
 			oLog.appendChild(oCompleted);
 			var oTime = document.createElement('div');
@@ -54,9 +55,12 @@
 			if (!this.model.hasCompleted()) {
 				oMessage.className += ' gl-notcompleted';
 			}
-			if (this.model.getError()) {
+			var aErrors = this.model.getErrors();
+			if (aErrors.length) {
 				oMessage.className += ' gl-error';
-				oMessage.appendChild(document.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
+				for (var i = 0; i < aErrors.length; i++) {
+					oMessage.appendChild(document.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
+				}
 			}
 			if (this.model.hasCompleted() && this.model.getTime() > 8) {
 				oMessage.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
