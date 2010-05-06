@@ -34,7 +34,6 @@ gl.module('gl.core', [], function() {
 	var ModelRegistry = function() {
 		this.registry = [];	// only used in IE
 	};
-	this.ModelRegistry = ModelRegistry;
 	
 	ModelRegistry.prototype.setController = function(oModel, oController) {
 		if (browser_ie) {
@@ -65,7 +64,6 @@ gl.module('gl.core', [], function() {
 	var Component = function() {
 		this._view = null;
 	};
-	this.Component = Component;
 
 	Component.prototype.createView = function(oDocument) {
 		throw new Error('Must implement createView().');
@@ -93,7 +91,6 @@ gl.module('gl.core', [], function() {
 	var NamespaceList = function() {
 		this.namespaces = {};
 	};
-	this.NamespaceList = NamespaceList;
 
 	NamespaceList.prototype.add = function(oNamespace) {
 //		if (!(oElement instanceof Namespace))
@@ -134,7 +131,6 @@ gl.module('gl.core', [], function() {
 		this.uri = sURI;
 		this.elements = {};
 	};
-	this.Namespace = Namespace;
 
 	Namespace.prototype.add = function(oElement, sLocalName) {
 //		if (!(oElement instanceof Element))
@@ -156,18 +152,23 @@ gl.module('gl.core', [], function() {
 		this.model = oModel;
 		oModelRegistry.setController(oModel, this);
 	};
-	this.Element = Element;
 	
 	
 	
 	
 	var oModelRegistry = new ModelRegistry();
+	var oNamespaceList = new NamespaceList();
 	
 	
 	
 	
-	// instantiate NamespaceList
-	gl.namespaces = new gl.core.NamespaceList();
+	// exports
+	this.ModelRegistry = ModelRegistry;
+	this.Component = Component;
+	this.NamespaceList = NamespaceList;
+	this.Namespace = Namespace;
+	this.Element = Element;
 	this.modelRegistry = oModelRegistry;
+	gl.namespaces = oNamespaceList;
 	
 });
