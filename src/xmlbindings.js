@@ -135,14 +135,14 @@ gl.module('gl.templates',
 		return getReference(this.model.getAttribute('object') || '', true);
 	};
 	
-	Namespace.prototype.getClasses = function() {
-		return getChildInstancesOf(this.model, Class);
+	Namespace.prototype.getViews = function() {
+		return getChildInstancesOf(this.model, ViewTemplate);
 	};
 	
 	Namespace.prototype.init = function() {
-		var aClasses = this.getClasses();
-		for (var i = 0; i < aClasses.length; i++) {
-			aClasses[i].init(this);
+		var aViews = this.getViews();
+		for (var i = 0; i < aViews.length; i++) {
+			aViews[i].init(this);
 		}
 	};
 	
@@ -152,30 +152,30 @@ gl.module('gl.templates',
 	/**
 	 * 
 	 */
-	var Class = function(oModel, oParent) {
+	var ViewTemplate = function(oModel, oParent) {
 		Element.call(this, oModel);
 		this._namespace = oParent;
 	};
-	gl.extend(Element, Class);
+	gl.extend(Element, ViewTemplate);
 	
-	Class.prototype.getName = function() {
+	ViewTemplate.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
 	};
 	
-	Class.prototype.getTemplate = function() {
+	ViewTemplate.prototype.getTemplate = function() {
 		var oTemplate = getChildInstancesOf(this.model, Template)[0];
 		return oTemplate ? oTemplate.getInstantiator() : null;
 	};
 	
-	Class.prototype.getMethods = function() {
+	ViewTemplate.prototype.getMethods = function() {
 		return getChildInstancesOf(this.model, Method);
 	};
 	
-	Class.prototype.getHandlers = function() {
+	ViewTemplate.prototype.getHandlers = function() {
 		return getChildInstancesOf(this.model, Handler);
 	};
 	
-	Class.prototype.init = function(oNamespace) {
+	ViewTemplate.prototype.init = function(oNamespace) {
 		var cView = gl.extend(Component);
 		cView.prototype._createHTML = this.getTemplate();
 		cView.prototype._handlers = this.getHandlers();
@@ -341,7 +341,7 @@ gl.module('gl.templates',
 	
 	// add element types
 	oTNamespace.add(Namespace,   'namespace');
-	oTNamespace.add(Class,       'class');
+	oTNamespace.add(ViewTemplate,'view');
 	oTNamespace.add(Template,    'template');
 	oTNamespace.add(Method,      'method');
 	oTNamespace.add(Handler,     'handler');
@@ -359,7 +359,7 @@ gl.module('gl.templates',
 	// exports
 	this.Component = Component;
 	this.Namespace = Namespace;
-	this.Class = Class;
+	this.ViewTemplate = ViewTemplate;
 	this.Template = Template;
 	this.Method = Method;
 	this.Handler = Handler;

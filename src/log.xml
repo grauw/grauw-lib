@@ -16,14 +16,7 @@
 <t:namespace name="http://www.grauw.nl/lib" object="gl.unit"
 		xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:t="http://www.grauw.nl/templates">
-	<!--
-		Default value for extends is gl.core.Component.
-		Must extend gl.core.Component. InstanceOf check is done.
-		
-		Maybe make t:Class for generic classes and t:Component for
-		components (which allow t:template)?
-	-->
-	<t:class name="Log">
+	<t:view name="Log">
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
@@ -95,9 +88,9 @@
 			this.closed = !this.closed;
 			this.repaint();
 		</t:handler>
-	</t:class>
+	</t:view>
 	
-	<t:class name="LogMessage">
+	<t:view name="LogMessage">
 		<t:resource type="text/css">
 			.gl-unit-logmessage {
 			}
@@ -121,5 +114,5 @@
 			}
 			return oView;
 		]]></t:template>
-	</t:class>
+	</t:view>
 </t:namespace>
