@@ -13,6 +13,7 @@ gl.module('unit',
 	
 	
 	var URITest = function(sBaseURI, sURI, sResult) {
+		Test.call(this);
 		this.baseURI = sBaseURI;
 		this.uri = sURI;
 		this.result = sResult;
@@ -32,6 +33,7 @@ gl.module('unit',
 	
 	
 	var URIPerformanceTest1 = function() {
+		Test.call(this);
 	};
 	gl.extend(Test, URIPerformanceTest1);
 	
@@ -49,6 +51,7 @@ gl.module('unit',
 	
 	
 	var URIPerformanceTest2 = function() {
+		Test.call(this);
 	};
 	gl.extend(Test, URIPerformanceTest2);
 	
@@ -66,6 +69,7 @@ gl.module('unit',
 	
 	
 	var URIPerformanceTest3 = function() {
+		Test.call(this);
 	};
 	gl.extend(Test, URIPerformanceTest3);
 	
