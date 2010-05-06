@@ -165,6 +165,10 @@ gl.module('gl.unit',
 		};
 	};
 	
+	TestGroup.prototype.toString = function() {
+		return this.name;
+	};
+	
 	
 	
 	
