@@ -18,6 +18,7 @@ gl.module(
 	
 	
 	var SelectorTest = function(sSelector, aMatches) {
+		Test.call(this);
 		this.selector = sSelector;
 		this.matches = aMatches;
 	};
@@ -66,6 +67,7 @@ gl.module(
 	 * @param iB The expected b value
 	 */
 	var NthTest = function(sNth, iA, iB) {
+		Test.call(this);
 		this.nth = sNth;
 		this.a = iA;
 		this.b = iB;
