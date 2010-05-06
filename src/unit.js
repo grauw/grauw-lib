@@ -28,7 +28,7 @@ gl.module('gl.unit',
 	function() {
 	
 	// imports
-	var TestSuiteView = gl.unit.TestSuiteView;
+	var WindowView = gl.unit.WindowView;
 	
 	
 	
@@ -177,7 +177,36 @@ gl.module('gl.unit',
 	gl.extend(TestGroup, TestSuite);
 	
 	TestSuite.prototype.finalize = function() {
-		document.body.insertBefore(new TestSuiteView(this).getHTML(document), document.body.firstChild);
+		document.body.insertBefore(
+				new WindowView(new Window(this)).getHTML(document),
+				document.body.firstChild);
+	};
+	
+	
+	
+	
+	/**
+	 * A window container
+	 */
+	var Window = function(oTestSuite) {
+		this.testSuite = oTestSuite;
+		this.minimized = false;
+	};
+	
+	Window.prototype.isMinimized = function() {
+		return this.minimized;
+	};
+	
+	Window.prototype.setMinimized = function(bValue) {
+		this.minimized = bValue;
+	};
+	
+	Window.prototype.getTitle = function() {
+		return 'Unit test debug log';
+	};
+	
+	Window.prototype.getBodyContents = function() {
+		return [this.testSuite];
 	};
 	
 	
@@ -189,5 +218,6 @@ gl.module('gl.unit',
 	this.AssertException = AssertException;
 	this.TestGroup = TestGroup;
 	this.TestSuite = TestSuite;
+	this.Window = Window;
 
 });

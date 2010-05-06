@@ -17,59 +17,9 @@
 		xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:t="http://www.grauw.nl/templates">
 	<t:view name="TestSuiteView">
-		<t:resource type="text/css">
-			.gl-unit-log {
-				position: absolute;
-				max-width: 600px;
-				top: 10px;
-				right: 10px;
-				padding: 5px;
-				color: black;
-				background-color: #ddf;
-				font-family: Arial, sans-serif;
-				font-size: smaller;
-				opacity: 0.8;
-				border-radius: 5px;
-				-moz-border-radius: 5px;
-				-webkit-border-radius: 5px;
-			}
-			.gl-unit-log h2 {
-				margin: -5px -5px 5px -5px;
-				padding: 5px;
-				background-color: #ccf;
-				border-radius: 5px 5px 0 0;
-				border-top-left-radius: 5px;
-				border-top-right-radius: 5px;
-				-moz-border-radius-topleft: 5px;
-				-moz-border-radius-topright: 5px;
-				-webkit-border-top-left-radius: 5px;
-				-webkit-border-top-right-radius: 5px;
-			}
-			.gl-unit-log h2 button {
-				float: right;
-			}
-			.gl-unit-log.gl-closed > * {
-				display: none;
-			}
-			.gl-unit-log.gl-closed h2 {
-				display: block;
-			}
-		</t:resource>
 		<t:template><![CDATA[
 			var oLog = document.createElement('div');
-			oLog.className = 'gl-unit-log' + (this.closed ? ' gl-closed' : '');
-			var oTitle = document.createElement('h2');
-			oTitle.appendChild(document.createTextNode('Unit test debug log'));
-			var oButton = document.createElement('button');
-			try {
-				oButton.type = 'button';
-			} catch(e) {
-				oButton = document.createElement('<button type="button">');	// IE6/7/8...
-			}
-			oButton.appendChild(document.createTextNode(this.closed ? '+' : '-'));
-			oTitle.appendChild(oButton);
-			oLog.appendChild(oTitle);
-			
+			oLog.className = 'gl-unit-log';
 			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				oLog.appendChild(new gl.unit.TestView(aTests[i]).getHTML(document));
@@ -84,10 +34,6 @@
 			oLog.appendChild(oTime);
 			return oLog;
 		]]></t:template>
-		<t:handler event="click" match=".gl-unit-log h2 button">
-			this.closed = !this.closed;
-			this.update();
-		</t:handler>
 	</t:view>
 	
 	<t:view name="TestView">
@@ -114,5 +60,71 @@
 			}
 			return oMessage;
 		]]></t:template>
+	</t:view>
+	
+	<t:view name="WindowView">
+		<t:resource type="text/css">
+			.gl-window {
+				position: absolute;
+				max-width: 600px;
+				top: 10px;
+				right: 10px;
+				padding: 5px;
+				color: black;
+				background-color: #ddf;
+				font-family: Arial, sans-serif;
+				font-size: smaller;
+				opacity: 0.8;
+				border-radius: 5px;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+			}
+			.gl-window h2 {
+				margin: -5px -5px 5px -5px;
+				padding: 5px;
+				background-color: #ccf;
+				border-radius: 5px 5px 0 0;
+				border-top-left-radius: 5px;
+				border-top-right-radius: 5px;
+				-moz-border-radius-topleft: 5px;
+				-moz-border-radius-topright: 5px;
+				-webkit-border-top-left-radius: 5px;
+				-webkit-border-top-right-radius: 5px;
+			}
+			.gl-window h2 button {
+				float: right;
+			}
+			.gl-window-minimized .gl-window-body {
+				display: none;
+			}
+		</t:resource>
+		<t:template><![CDATA[
+			var oWindow = document.createElement('div');
+			oWindow.className = 'gl-window' + (this.model.isMinimized() ? ' gl-window-minimized' : '');
+			var oTitle = document.createElement('h2');
+			oTitle.appendChild(document.createTextNode(this.model.getTitle()));
+			var oButton = document.createElement('button');
+			try {
+				oButton.type = 'button';
+			} catch(e) {
+				oButton = document.createElement('<button type="button">');	// IE6/7/8...
+			}
+			oButton.appendChild(document.createTextNode(this.model.isMinimized() ? '+' : '-'));
+			oTitle.appendChild(oButton);
+			oWindow.appendChild(oTitle);
+			
+			var oBody = document.createElement('div');
+			oBody.className = 'gl-window-body';
+			var aContents = this.model.getBodyContents();
+			for (var i = 0; i < aContents.length; i++) {
+				oBody.appendChild(new gl.unit.TestSuiteView(aContents[i]).getHTML(document));
+			}
+			oWindow.appendChild(oBody);
+			return oWindow;
+		]]></t:template>
+		<t:handler event="click" match=".gl-window h2 button">
+			this.model.setMinimized(!this.model.isMinimized());
+			this.update();
+		</t:handler>
 	</t:view>
 </t:namespace>
