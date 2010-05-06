@@ -28,8 +28,7 @@ gl.module('gl.unit',
 	function() {
 	
 	// imports
-	var Log = gl.unit.Log;
-	var LogMessage = gl.unit.LogMessage;
+	var TestSuiteView = gl.unit.TestSuiteView;
 	
 	
 	
@@ -178,7 +177,7 @@ gl.module('gl.unit',
 	gl.extend(TestGroup, TestSuite);
 	
 	TestSuite.prototype.finalize = function() {
-		document.body.insertBefore(new Log(this).getHTML(document), document.body.firstChild);
+		document.body.insertBefore(new TestSuiteView(this).getHTML(document), document.body.firstChild);
 	};
 	
 	

@@ -16,7 +16,7 @@
 <t:namespace name="http://www.grauw.nl/lib" object="gl.unit"
 		xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:t="http://www.grauw.nl/templates">
-	<t:view name="Log">
+	<t:view name="TestSuiteView">
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
@@ -72,7 +72,7 @@
 			
 			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
-				oLog.appendChild(new gl.unit.LogMessage(aTests[i]).getHTML(document));
+				oLog.appendChild(new gl.unit.TestView(aTests[i]).getHTML(document));
 			}
 			
 			var oCompleted = document.createElement('div');
@@ -90,7 +90,7 @@
 		</t:handler>
 	</t:view>
 	
-	<t:view name="LogMessage">
+	<t:view name="TestView">
 		<t:resource type="text/css">
 			.gl-unit-logmessage {
 			}
