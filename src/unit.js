@@ -23,7 +23,7 @@
 gl.module('gl.unit',
 	[
 		'xmlbindings.js',
-		{type: 'application/xml', src: 'log.xml'}
+		{type: 'application/xml', src: 'unit.xml'}
 	],
 	function() {
 	
