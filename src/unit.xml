@@ -18,54 +18,54 @@
 		xmlns:t="http://www.grauw.nl/templates">
 	<t:view name="TestSuiteView">
 		<t:template><![CDATA[
-			var oLog = document.createElement('div');
-			oLog.className = 'gl-unit-log';
+			var oTestSuite = document.createElement('div');
+			oTestSuite.className = 'gl-unit-testsuite';
 			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
 				if (aTests[i] instanceof gl.unit.TestGroup)
-					oLog.appendChild(new gl.unit.TestGroupView(aTests[i]).getHTML(document));
+					oTestSuite.appendChild(new gl.unit.TestGroupView(aTests[i]).getHTML(document));
 				else if (aTests[i] instanceof gl.unit.Test)
-					oLog.appendChild(new gl.unit.TestView(aTests[i]).getHTML(document));
+					oTestSuite.appendChild(new gl.unit.TestView(aTests[i]).getHTML(document));
 			}
 			
 			var oCompleted = document.createElement('div');
 			var aErrors = this.model.getErrors();
 			var sCompleted = aErrors.length ? 'Unit tests completed with ' + aErrors.length + ' errors.' : 'Unit tests completed.';
 			oCompleted.appendChild(document.createTextNode(sCompleted));
-			oLog.appendChild(oCompleted);
+			oTestSuite.appendChild(oCompleted);
 			var oTime = document.createElement('div');
 			oTime.appendChild(document.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
-			oLog.appendChild(oTime);
-			return oLog;
+			oTestSuite.appendChild(oTime);
+			return oTestSuite;
 		]]></t:template>
 	</t:view>
 	
 	<t:view name="TestView">
 		<t:resource type="text/css">
-			.gl-unit-logmessage {
+			.gl-unit-test {
 			}
-			.gl-unit-logmessage.gl-error {
+			.gl-unit-test.gl-error {
 				color: red;
 			}
 		</t:resource>
 		<t:template><![CDATA[
-			var oMessage = document.createElement('div');
-			oMessage.className = 'gl-unit-logmessage';
-			oMessage.appendChild(document.createTextNode(this.model.toString()));
+			var oTest = document.createElement('div');
+			oTest.className = 'gl-unit-test';
+			oTest.appendChild(document.createTextNode(this.model.toString()));
 			if (!this.model.hasCompleted()) {
-				oMessage.className += ' gl-notcompleted';
+				oTest.className += ' gl-notcompleted';
 			}
 			var aErrors = this.model.getErrors();
 			if (aErrors.length) {
-				oMessage.className += ' gl-error';
+				oTest.className += ' gl-error';
 				for (var i = 0; i < aErrors.length; i++) {
-					oMessage.appendChild(document.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
+					oTest.appendChild(document.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
 				}
 			}
 			if (this.model.hasCompleted() && this.model.getTime() > 8) {
-				oMessage.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+				oTest.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 			}
-			return oMessage;
+			return oTest;
 		]]></t:template>
 	</t:view>
 	
