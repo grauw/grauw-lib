@@ -1,7 +1,7 @@
 /**
  * @fileOverview
  * 
- * Functions to support a Component / Container model.
+ * Functions to support a MVC architecture.
  * 
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
@@ -59,27 +59,27 @@ gl.module('gl.core', [], function() {
 	
 	/**
 	 * A visual component with an HTML view.
-	 * Abstract class, subclasses must implement createView().
+	 * Abstract class, subclasses must implement createHTML().
 	 */
-	var Component = function() {
-		this._view = null;
+	var View = function() {
+		this.html = null;
 	};
 
-	Component.prototype.createView = function(oDocument) {
-		throw new Error('Must implement createView().');
+	View.prototype.createHTML = function(oDocument) {
+		throw new Error('Must implement createHTML().');
 	};
 	
-	Component.prototype.getView = function(oDocument) {
-		if (!this._view)
-			this._view = this.createView(oDocument);
-		return this._view;
+	View.prototype.getHTML = function(oDocument) {
+		if (!this.html)
+			this.html = this.createHTML(oDocument);
+		return this.html;
 	};
 	
-	Component.prototype.repaint = function() {
-		var oView = this._view;
-		this._view = null;
-		if (oView && oView.parentNode)
-			oView.parentNode.replaceChild(this.getView(oView.ownerDocument), oView);
+	View.prototype.update = function() {
+		var oHTML = this.html;
+		this.html = null;
+		if (oHTML && oHTML.parentNode)
+			oHTML.parentNode.replaceChild(this.getHTML(oHTML.ownerDocument), oHTML);
 	};
 	
 	
@@ -164,7 +164,7 @@ gl.module('gl.core', [], function() {
 	
 	// exports
 	this.ModelRegistry = ModelRegistry;
-	this.Component = Component;
+	this.View = View;
 	this.NamespaceList = NamespaceList;
 	this.Namespace = Namespace;
 	this.Element = Element;

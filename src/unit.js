@@ -178,7 +178,7 @@ gl.module('gl.unit',
 	gl.extend(TestGroup, TestSuite);
 	
 	TestSuite.prototype.finalize = function() {
-		document.body.insertBefore(new Log(this).getView(document), document.body.firstChild);
+		document.body.insertBefore(new Log(this).getHTML(document), document.body.firstChild);
 	};
 	
 	

@@ -26,7 +26,7 @@ gl.module('gl.templates',
 	
 	// imports
 	var Element = gl.core.Element;
-	var CoreComponent = gl.core.Component;
+	var CoreView = gl.core.View;
 	var Dependency = gl.depsys.Dependency;
 	var oModelRegistry = gl.core.modelRegistry;
 	
@@ -78,24 +78,24 @@ gl.module('gl.templates',
 	
 	
 	/**
-	 * A subclass of gl.core.Component containing template-specific code.
+	 * A subclass of gl.core.View containing template-specific code.
 	 */
-	var Component = function(oModel) {
-		CoreComponent.call(this);
+	var BaseView = function(oModel) {
+		CoreView.call(this);
 		this.model = oModel;
 	};
-	gl.extend(CoreComponent, Component);
+	gl.extend(CoreView, BaseView);
 	
-	Component.prototype._createHTML = null;
-	Component.prototype._handlers = null;
+	BaseView.prototype._createHTML = null;
+	BaseView.prototype._handlers = null;
 	
-	Component.prototype.createView = function(oDocument) {
-		var oView = this._createHTML(oDocument);
-		this.attachHandlers(oView);
-		return oView;
+	BaseView.prototype.createHTML = function(oDocument) {
+		var oHTML = this._createHTML(oDocument);
+		this.attachHandlers(oHTML);
+		return oHTML;
 	};
 	
-	Component.prototype.attachHandlers = function(oView) {
+	BaseView.prototype.attachHandlers = function(oHTML) {
 		function createHandler(oContext, fHandler, sMatch) {
 			return function(oEvent) {
 				oEvent = oEvent || event;
@@ -109,10 +109,10 @@ gl.module('gl.templates',
 			var sEventType = this._handlers[i].getEvent();
 			var fHandler = this._handlers[i].getHandler();
 			var sMatch = this._handlers[i].getMatch();
-			if (oView.addEventListener)
-				oView.addEventListener(sEventType, createHandler(this, fHandler, sMatch), false);
+			if (oHTML.addEventListener)
+				oHTML.addEventListener(sEventType, createHandler(this, fHandler, sMatch), false);
 			else
-				oView.attachEvent('on' + sEventType, createHandler(this, fHandler, sMatch));
+				oHTML.attachEvent('on' + sEventType, createHandler(this, fHandler, sMatch));
 		}
 	};
 	
@@ -176,7 +176,7 @@ gl.module('gl.templates',
 	};
 	
 	ViewTemplate.prototype.init = function(oNamespace) {
-		var cView = gl.extend(Component);
+		var cView = gl.extend(BaseView);
 		cView.prototype._createHTML = this.getTemplate();
 		cView.prototype._handlers = this.getHandlers();
 		var aMethods = this.getMethods();
@@ -357,7 +357,7 @@ gl.module('gl.templates',
 	
 	
 	// exports
-	this.Component = Component;
+	this.BaseView = BaseView;
 	this.Namespace = Namespace;
 	this.ViewTemplate = ViewTemplate;
 	this.Template = Template;

@@ -56,8 +56,8 @@
 			}
 		</t:resource>
 		<t:template><![CDATA[
-			var oView = document.createElement('div');
-			oView.className = 'gl-unit-log' + (this.closed ? ' gl-closed' : '');
+			var oLog = document.createElement('div');
+			oLog.className = 'gl-unit-log' + (this.closed ? ' gl-closed' : '');
 			var oTitle = document.createElement('h2');
 			oTitle.appendChild(document.createTextNode('Unit test debug log'));
 			var oButton = document.createElement('button');
@@ -68,25 +68,25 @@
 			}
 			oButton.appendChild(document.createTextNode(this.closed ? '+' : '-'));
 			oTitle.appendChild(oButton);
-			oView.appendChild(oTitle);
+			oLog.appendChild(oTitle);
 			
 			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
-				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(document));
+				oLog.appendChild(new gl.unit.LogMessage(aTests[i]).getHTML(document));
 			}
 			
 			var oCompleted = document.createElement('div');
 			var sCompleted = this.model.errors ? 'Unit tests completed with ' + this.model.errors + ' errors.' : 'Unit tests completed.';
 			oCompleted.appendChild(document.createTextNode(sCompleted));
-			oView.appendChild(oCompleted);
+			oLog.appendChild(oCompleted);
 			var oTime = document.createElement('div');
 			oTime.appendChild(document.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
-			oView.appendChild(oTime);
-			return oView;
+			oLog.appendChild(oTime);
+			return oLog;
 		]]></t:template>
 		<t:handler event="click" match=".gl-unit-log h2 button">
 			this.closed = !this.closed;
-			this.repaint();
+			this.update();
 		</t:handler>
 	</t:view>
 	
@@ -99,20 +99,20 @@
 			}
 		</t:resource>
 		<t:template><![CDATA[
-			var oView = document.createElement('div');
-			oView.className = 'gl-unit-logmessage';
-			oView.appendChild(document.createTextNode(this.model.toString()));
+			var oMessage = document.createElement('div');
+			oMessage.className = 'gl-unit-logmessage';
+			oMessage.appendChild(document.createTextNode(this.model.toString()));
 			if (!this.model.hasCompleted()) {
-				oView.className += ' gl-notcompleted';
+				oMessage.className += ' gl-notcompleted';
 			}
 			if (this.model.getError()) {
-				oView.className += ' gl-error';
-				oView.appendChild(document.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
+				oMessage.className += ' gl-error';
+				oMessage.appendChild(document.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
 			}
 			if (this.model.hasCompleted() && this.model.getTime() > 8) {
-				oView.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+				oMessage.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 			}
-			return oView;
+			return oMessage;
 		]]></t:template>
 	</t:view>
 </t:namespace>
