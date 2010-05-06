@@ -23,7 +23,7 @@
 		Maybe make t:Class for generic classes and t:Component for
 		components (which allow t:template)?
 	-->
-	<t:class name="Log" extends="gl.templates.Component">
+	<t:class name="Log">
 		<t:resource type="text/css">
 			.gl-unit-log {
 				position: absolute;
@@ -62,44 +62,42 @@
 				display: block;
 			}
 		</t:resource>
-		<t:template>
-			<div class="gl-unit-log">
-				<h2>
-					Unit test debug log
-					<button type="button"></button>
-				</h2>
-			</div>
-		</t:template>
-		<t:constructor arguments="oModel">
-			gl.core.Component.call(this);
-			this.model = oModel;
-			this.open = true;
-		</t:constructor>
-		<t:method name="createView" arguments="oDocument"><![CDATA[
-			var oView = gl.templates.Component.prototype.createView.call(this, oDocument);
-			if (!this.open)
-				oView.className += ' gl-closed';
-			gl.selector.query(oView, 'h2 button').appendChild(oDocument.createTextNode(this.open ? '-' : '+'));
+		<t:template><![CDATA[
+			var oView = document.createElement('div');
+			oView.className = 'gl-unit-log' + (this.closed ? ' gl-closed' : '');
+			var oTitle = document.createElement('h2');
+			oTitle.appendChild(document.createTextNode('Unit test debug log'));
+			var oButton = document.createElement('button');
+			try {
+				oButton.type = 'button';
+			} catch(e) {
+				oButton = document.createElement('<button type="button">');	// IE6/7/8...
+			}
+			oButton.appendChild(document.createTextNode(this.closed ? '+' : '-'));
+			oTitle.appendChild(oButton);
+			oView.appendChild(oTitle);
+			
 			var aTests = this.model.getTests();
 			for (var i = 0; i < aTests.length; i++) {
-				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(oDocument));
+				oView.appendChild(new gl.unit.LogMessage(aTests[i]).getView(document));
 			}
-			var oCompleted = oDocument.createElement('div');
+			
+			var oCompleted = document.createElement('div');
 			var sCompleted = this.model.errors ? 'Unit tests completed with ' + this.model.errors + ' errors.' : 'Unit tests completed.';
-			oCompleted.appendChild(oDocument.createTextNode(sCompleted));
+			oCompleted.appendChild(document.createTextNode(sCompleted));
 			oView.appendChild(oCompleted);
-			var oTime = oDocument.createElement('div');
-			oTime.appendChild(oDocument.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
+			var oTime = document.createElement('div');
+			oTime.appendChild(document.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
 			oView.appendChild(oTime);
 			return oView;
-		]]></t:method>
+		]]></t:template>
 		<t:handler event="click" match=".gl-unit-log h2 button">
-			this.open = !this.open;
+			this.closed = !this.closed;
 			this.repaint();
 		</t:handler>
 	</t:class>
 	
-	<t:class name="LogMessage" extends="gl.templates.Component">
+	<t:class name="LogMessage">
 		<t:resource type="text/css">
 			.gl-unit-logmessage {
 			}
@@ -107,27 +105,21 @@
 				color: red;
 			}
 		</t:resource>
-		<t:template>
-			<div class="gl-unit-logmessage"/>
-		</t:template>
-		<t:constructor arguments="oModel">
-			gl.core.Component.call(this);
-			this.model = oModel;
-		</t:constructor>
-		<t:method name="createView" arguments="oDocument"><![CDATA[
-			var oView = gl.templates.Component.prototype.createView.call(this, oDocument);
-			oView.appendChild(oDocument.createTextNode(this.model.toString()));
+		<t:template><![CDATA[
+			var oView = document.createElement('div');
+			oView.className = 'gl-unit-logmessage';
+			oView.appendChild(document.createTextNode(this.model.toString()));
 			if (!this.model.hasCompleted()) {
 				oView.className += ' gl-notcompleted';
 			}
 			if (this.model.getError()) {
 				oView.className += ' gl-error';
-				oView.appendChild(oDocument.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
+				oView.appendChild(document.createTextNode(' — Error: ' + (this.model.getError().message || this.model.getError())));
 			}
 			if (this.model.hasCompleted() && this.model.getTime() > 8) {
-				oView.appendChild(oDocument.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+				oView.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 			}
 			return oView;
-		]]></t:method>
+		]]></t:template>
 	</t:class>
 </t:namespace>

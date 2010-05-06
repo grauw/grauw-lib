@@ -80,25 +80,19 @@ gl.module('gl.templates',
 	/**
 	 * A subclass of gl.core.Component containing template-specific code.
 	 */
-	var Component = function() {
+	var Component = function(oModel) {
 		CoreComponent.call(this);
+		this.model = oModel;
 	};
 	gl.extend(CoreComponent, Component);
 	
-	Component.prototype._template = null;
+	Component.prototype._createHTML = null;
 	Component.prototype._handlers = null;
 	
 	Component.prototype.createView = function(oDocument) {
-		var oView = this.instantiateTemplate(oDocument);
+		var oView = this._createHTML(oDocument);
 		this.attachHandlers(oView);
 		return oView;
-	};
-	
-	Component.prototype.instantiateTemplate = function(oDocument) {
-		if (browser_ie)
-			return parseHTML_IE(this._template.xml);
-		else
-			return oDocument.importNode(this._template, true);
 	};
 	
 	Component.prototype.attachHandlers = function(oView) {
@@ -168,18 +162,9 @@ gl.module('gl.templates',
 		return this.model.getAttribute('name') || null;
 	};
 	
-	Class.prototype.getExtends = function() {
-		return getReference(this.model.getAttribute('extends') || 'gl.templates.Component');
-	};
-	
-	Class.prototype.getConstructor = function() {
-		var oConstructor = getChildInstancesOf(this.model, Constructor)[0];
-		return oConstructor ? oConstructor.getConstructor() : new Function;
-	};
-	
-	Class.prototype.createView = function() {
+	Class.prototype.getTemplate = function() {
 		var oTemplate = getChildInstancesOf(this.model, Template)[0];
-		return oTemplate ? oTemplate.createView() : null;
+		return oTemplate ? oTemplate.getInstantiator() : null;
 	};
 	
 	Class.prototype.getMethods = function() {
@@ -191,15 +176,14 @@ gl.module('gl.templates',
 	};
 	
 	Class.prototype.init = function(oNamespace) {
-		var fConstructor = this.getConstructor();
-		gl.extend(this.getExtends(), fConstructor);
-		fConstructor.prototype._template = this.createView();
-		fConstructor.prototype._handlers = this.getHandlers();
+		var cView = gl.extend(Component);
+		cView.prototype._createHTML = this.getTemplate();
+		cView.prototype._handlers = this.getHandlers();
 		var aMethods = this.getMethods();
 		for (var i = 0; i < aMethods.length; i++) {
-			fConstructor.prototype[aMethods[i].getName()] = aMethods[i].getMethod();
+			cView.prototype[aMethods[i].getName()] = aMethods[i].getMethod();
 		}
-		return oNamespace.getObject()[this.getName()] = fConstructor;
+		return oNamespace.getObject()[this.getName()] = cView;
 	};
 	
 	
@@ -214,35 +198,9 @@ gl.module('gl.templates',
 	};
 	gl.extend(Element, Template);
 	
-	Template.prototype.createView = function() {
-		var oNode = this.model.firstChild;
-		while (oNode) {
-			if (oNode.nodeType == 1)
-				return oNode;
-			oNode = oNode.nextSibling;
-		}
-		return null;
-	};
-	
-	
-	
-	
-	/**
-	 * 
-	 */
-	var Constructor = function(oModel, oParent) {
-		Element.call(this, oModel);
-		this._class = oParent;
-	};
-	gl.extend(Element, Constructor);
-	
-	Constructor.prototype.getConstructor = function() {
-		var sArguments = this.model.getAttribute('arguments');
+	Template.prototype.getInstantiator = function() {
 		var sBody = this.model.textContent || this.model.text || '';
-		if (sArguments)
-			return new Function(sArguments, sBody);
-		else
-			return new Function(sBody);
+		return new Function('document', sBody);
 	};
 	
 	
@@ -257,7 +215,14 @@ gl.module('gl.templates',
 	};
 	gl.extend(Element, Method);
 	
-	Method.prototype.getMethod = Constructor.prototype.getConstructor;
+	Method.prototype.getMethod = function() {
+		var sArguments = this.model.getAttribute('arguments');
+		var sBody = this.model.textContent || this.model.text || '';
+		if (sArguments)
+			return new Function(sArguments, sBody);
+		else
+			return new Function(sBody);
+	};
 	
 	Method.prototype.getName = function() {
 		return this.model.getAttribute('name') || null;
@@ -378,7 +343,6 @@ gl.module('gl.templates',
 	oTNamespace.add(Namespace,   'namespace');
 	oTNamespace.add(Class,       'class');
 	oTNamespace.add(Template,    'template');
-	oTNamespace.add(Constructor, 'constructor');
 	oTNamespace.add(Method,      'method');
 	oTNamespace.add(Handler,     'handler');
 	oTNamespace.add(Resource,    'resource');
@@ -397,7 +361,6 @@ gl.module('gl.templates',
 	this.Namespace = Namespace;
 	this.Class = Class;
 	this.Template = Template;
-	this.Constructor = Constructor;
 	this.Method = Method;
 	this.Handler = Handler;
 	this.Resource = Resource; 
