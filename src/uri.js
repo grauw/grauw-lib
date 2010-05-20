@@ -46,7 +46,6 @@ gl.module('gl.uri', [], function() {
 			this.fragment = c[5];
 		}
 	};
-	this.URI = URI;
 	
 	// Initial values on the prototype
 	URI.prototype.scheme    = null;
@@ -229,5 +228,11 @@ gl.module('gl.uri', [], function() {
 			sResult += '#' + this.fragment;
 		return sResult;
 	};
+	
+	
+	
+	
+	// exports
+	this.URI = URI;
 
 });
