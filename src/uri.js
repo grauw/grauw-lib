@@ -1,5 +1,10 @@
 /**
  * @fileOverview
+ * 
+ * Grauw URI utilities
+ * 
+ * See: http://hg.grauw.nl/grauw-lib/file/tip/src/uri.js
+ * 
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
  *   Copyright 2010 Laurens Holst
