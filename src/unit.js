@@ -21,14 +21,8 @@
  * 
  */
 gl.module('gl.unit',
-	[
-		'xmlbindings.js',
-		{type: 'application/xml', src: 'unit.xml'}
-	],
+	[{type: 'text/css', src: 'unit.css'}],
 	function() {
-	
-	// imports
-	var WindowView = gl.unit.WindowView;
 	
 	
 	
@@ -222,6 +216,200 @@ gl.module('gl.unit',
 	
 	
 	
+	/**
+	 * Simple view base class.
+	 * @param {Object} oModel A model object.
+	 */
+	var SimpleView = function(oModel) {
+		this.model = oModel;
+		this.html = null;
+	};
+	
+	SimpleView.prototype.getHTML = function(oDocument) {
+		if (!this.html)
+			this.html = this.createHTML(oDocument);
+		return this.html;
+	};
+	
+	SimpleView.prototype.createHTML = function(oDocument) {
+		throw new Error('Must implement createHTML().');
+	};
+	
+	SimpleView.prototype.update = function() {
+		if (!this.html)
+			throw new Error('View not created yet.');
+		var oHTML = this.createHTML(this.html.ownerDocument);
+		if (this.html.parentNode)
+			this.html.parentNode.replaceChild(oHTML, this.html);
+		this.html = oHTML;
+	};
+	
+	SimpleView.prototype.addEventListenerTo = function(oElement, sEvent, fListener) {
+		var oThis = this;
+		function fWrapper(oEvent) {
+			fListener.call(oThis, oEvent || event);
+		} 
+		if (oElement.addEventListener) {
+			oElement.addEventListener(sEvent, fWrapper, false);
+		} else {
+			oElement.attachEvent(sEvent, fWrapper);
+		}
+	};
+	
+	
+	
+	
+	/**
+	 * View for TestSuite.
+	 * @param {TestSuite} oModel
+	 */
+	var TestSuiteView = function(oModel) {
+		SimpleView.call(this, oModel);
+	};
+	
+	gl.extend(SimpleView, TestSuiteView);
+	
+	TestSuiteView.prototype.createHTML = function(document) {
+		var oTestSuite = document.createElement('div');
+		oTestSuite.className = 'gl-unit-testsuite';
+		var aTests = this.model.getTests();
+		for (var i = 0; i < aTests.length; i++) {
+			if (aTests[i] instanceof TestGroup)
+				oTestSuite.appendChild(new TestGroupView(aTests[i]).getHTML(document));
+			else if (aTests[i] instanceof Test)
+				oTestSuite.appendChild(new TestView(aTests[i]).getHTML(document));
+		}
+		
+		var oCompleted = document.createElement('div');
+		var aErrors = this.model.getErrors();
+		var sCompleted = aErrors.length ? 'Unit tests completed with ' + aErrors.length + ' errors.' : 'Unit tests completed.';
+		oCompleted.appendChild(document.createTextNode(sCompleted));
+		oTestSuite.appendChild(oCompleted);
+		var oTime = document.createElement('div');
+		oTime.appendChild(document.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
+		oTestSuite.appendChild(oTime);
+		return oTestSuite;
+	};
+	
+	
+	
+	
+	/**
+	 * View for Test.
+	 * @param {Test} oModel
+	 */
+	var TestView = function(oModel) {
+		SimpleView.call(this, oModel);
+	};
+	
+	gl.extend(SimpleView, TestView);
+	
+	TestView.prototype.createHTML = function(document) {
+		var oTest = document.createElement('div');
+		oTest.className = 'gl-unit-test';
+		oTest.appendChild(document.createTextNode(this.model.toString()));
+		if (!this.model.hasCompleted()) {
+			oTest.className += ' gl-notcompleted';
+		}
+		var aErrors = this.model.getErrors();
+		if (aErrors.length) {
+			oTest.className += ' gl-error';
+			for (var i = 0; i < aErrors.length; i++) {
+				oTest.appendChild(document.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
+			}
+		}
+		if (this.model.hasCompleted() && this.model.getTime() > 8) {
+			oTest.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+		}
+		return oTest;
+	};
+	
+	
+	
+	
+	/**
+	 * View for TestGroup.
+	 * @param {TestGroup} oModel
+	 */
+	var TestGroupView = function(oModel) {
+		SimpleView.call(this, oModel);
+	};
+	
+	gl.extend(SimpleView, TestGroupView);
+	
+	TestGroupView.prototype.createHTML = function(document) {
+		var oGroup = document.createElement('div');
+		oGroup.className = 'gl-unit-testgroup';
+		if (!this.model.hasCompleted()) {
+			oGroup.className += ' gl-notcompleted';
+		}
+		oGroup.appendChild(document.createTextNode(this.model.toString()));
+		if (this.model.hasCompleted() && this.model.getTime() > 8) {
+			oGroup.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+		}
+		var oContents = document.createElement('div');
+		oContents.className = 'gl-unit-testgroup-contents';
+		var aTests = this.model.getTests();
+		for (var i = 0; i < aTests.length; i++) {
+			var oTestView = null;
+			if (aTests[i] instanceof TestGroup)
+				oTestView = new TestGroupView(aTests[i]);
+			else if (aTests[i] instanceof Test)
+				oTestView = new TestView(aTests[i]);
+			oContents.appendChild(oTestView.getHTML(document));
+		}
+		oGroup.appendChild(oContents);
+		return oGroup;
+	};
+	
+	
+	
+	
+	/**
+	 * View for Window.
+	 * @param {Window} oModel
+	 */
+	var WindowView = function(oModel) {
+		SimpleView.call(this, oModel);
+	};
+	
+	gl.extend(SimpleView, WindowView);
+	
+	WindowView.prototype.createHTML = function(document) {
+		var oWindow = document.createElement('div');
+		oWindow.className = 'gl-window' + (this.model.isMinimized() ? ' gl-window-minimized' : '');
+		var oTitle = document.createElement('h2');
+		oTitle.appendChild(document.createTextNode(this.model.getTitle()));
+		var oButton = document.createElement('button');
+		try {
+			oButton.type = 'button';
+		} catch(e) {
+			oButton = document.createElement('<button type="button">');	// IE6/7/8...
+		}
+		oButton.appendChild(document.createTextNode(this.model.isMinimized() ? '+' : '-'));
+		this.addEventListenerTo(oButton, 'click', this.handleToggleMinimised);
+		oTitle.appendChild(oButton);
+		oWindow.appendChild(oTitle);
+		
+		var oBody = document.createElement('div');
+		oBody.className = 'gl-window-body';
+		var aContents = this.model.getBodyContents();
+		for (var i = 0; i < aContents.length; i++) {
+			if (aContents[i] instanceof TestSuite)
+				oBody.appendChild(new TestSuiteView(aContents[i]).getHTML(document));
+		}
+		oWindow.appendChild(oBody);
+		return oWindow;
+	};
+	
+	WindowView.prototype.handleToggleMinimised = function() {
+		this.model.setMinimized(!this.model.isMinimized());
+		this.update();
+	};
+	
+	
+	
+	
 	// exports
 	this.Test = Test;
 	this.SimpleTest = SimpleTest;
@@ -229,5 +417,10 @@ gl.module('gl.unit',
 	this.TestGroup = TestGroup;
 	this.TestSuite = TestSuite;
 	this.Window = Window;
+	this.SimpleView = SimpleView;
+	this.TestSuiteView = TestSuiteView;
+	this.TestView = TestView;
+	this.TestGroupView = TestGroupView;
+	this.WindowView = WindowView;
 
 });
