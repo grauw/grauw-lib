@@ -20,155 +20,161 @@
  *   limitations under the License.
  * 
  */
-gl.module('gl.core', [], function() {
+gl.module('gl.mvc', [], function() {
 	
-	var browser_ie = !!window.ActiveXObject;
+	/**
+	 * 
+	 */
+	var Model = function() {
+		this.observers = [];
+	};
+	
+	Model.prototype.addObserver = function(oObserver) {
+		this.observers.push(oObserver);
+	};
+	
+	Model.prototype.removeObserver = function(oObserver) {
+		for (var i = 0, len = this.observers.length; i < len; i++) {
+			if (this.observers[i] == oObserver) {
+				this.observers.splice(i, 1);
+				return;
+			}
+		}
+	};
+	
+	Model.prototype.hasObserver = function(oObserver) {
+		for (var i = 0, len = this.observers.length; i < len; i++) {
+			if (this.observers[i] == oObserver)
+				return true;
+		}
+		return false;
+	};
+	
+	Model.prototype.notifyObservers = function(sContext) {
+		for (var i = 0, len = this.observers.length; i < len; i++) {
+			this.observers[i].update(sContext, this);
+		}
+	};
 	
 	
 	
 	
 	/**
-	 * A utility registry to help map model nodes to controllers.
-	 * Primarily to deal IE’s inability to set property on XML nodes.
+	 * 
 	 */
-	var ModelRegistry = function() {
-		this.registry = [];	// only used in IE
-	};
-	
-	ModelRegistry.prototype.setController = function(oModel, oController) {
-		if (browser_ie) {
-			var id = this.registry.length;
-			this.registry[id] = oController;
-			oModel.setAttribute('_controller', id);
-		} else {
-			oModel.controller = oController;
-		}
-	};
-
-	ModelRegistry.prototype.getController = function(oModel) {
-		if (browser_ie) {
-			var id = oModel.getAttribute('_controller');
-			return id && this.registry[id] || null;
-		} else {
-			return oModel.controller;
-		}
-	};
-	
-	
-	
-	
-	/**
-	 * A visual component with an HTML view.
-	 * Abstract class, subclasses must implement createHTML().
-	 */
-	var View = function() {
+	var View = function(oModel) {
+		this.model = oModel;
 		this.html = null;
 	};
-
+	
 	View.prototype.createHTML = function(oDocument) {
 		throw new Error('Must implement createHTML().');
 	};
 	
 	View.prototype.getHTML = function(oDocument) {
-		if (!this.html)
+		if (!this.html) {
 			this.html = this.createHTML(oDocument);
+			if (this.model instanceof Model)
+				this.model.addObserver(this);
+		}
 		return this.html;
 	};
 	
-	View.prototype.update = function() {
-		var oHTML = this.html;
-		this.html = null;
-		if (oHTML && oHTML.parentNode)
-			oHTML.parentNode.replaceChild(this.getHTML(oHTML.ownerDocument), oHTML);
-	};
-	
-	
-	
-	
-	/**
-	 * A registry of namespaces.
-	 */
-	var NamespaceList = function() {
-		this.namespaces = {};
-	};
-
-	NamespaceList.prototype.add = function(oNamespace) {
-//		if (!(oElement instanceof Namespace))
-//			throw new Error('Illegal argument - oElement must be of type gl.core.Element');
-		this.namespaces[oNamespace.uri] = oNamespace;
-	};
-	
-	NamespaceList.prototype.build = function(oNode) {
-		var cElement = this.getElementByNode(oNode);
-		var oElement = cElement ? new cElement(oNode) : null;
-		
-		// recur
-		var oNode = oNode.firstChild;
-		while (oNode) {
-			if (oNode.nodeType == 1)
-				this.build(oNode);
-			oNode = oNode.nextSibling;
+	View.prototype.update = function(sContext, oSource) {
+		if (!this.html)
+			throw new Error('View not created yet.');
+		var oHTML = this.createHTML(this.html.ownerDocument);
+		if (this.html.parentNode) {
+			this.html.parentNode.replaceChild(oHTML, this.html);
 		}
-		return oElement;
+		this.html = oHTML;
 	};
 	
-	NamespaceList.prototype.getNamespace = function(sNamespaceURI) {
-		return this.namespaces[sNamespaceURI];
+	View.prototype.clear = function() {
+		if (this.model instanceof Model)
+			this.model.removeObserver(this);
+		if (this.html && this.html.parentNode)
+			this.html.parentNode.removeChild(this.html);
+		this.html = null;
 	};
 	
-	NamespaceList.prototype.getElementByNode = function(oNode) {
-		var oNamespace = this.namespaces[oNode.namespaceURI];
-		return oNamespace && oNamespace.getElement(oNode.localName || oNode.baseName) || null;
-	};
-	
-	
-	
-	
-	/**
-	 * A namespace.
-	 */
-	var Namespace = function(sURI) {
-		this.uri = sURI;
-		this.elements = {};
-	};
-
-	Namespace.prototype.add = function(oElement, sLocalName) {
-//		if (!(oElement instanceof Element))
-//			throw new Error('Illegal argument - oElement must be of type gl.core.Element');
-		this.elements[sLocalName] = oElement;
-	};
-	
-	Namespace.prototype.getElement = function(sLocalName) {
-		return this.elements[sLocalName];
+	View.prototype.addEventListenerTo = function(oElement, sEvent, fListener) {
+		var oThis = this;
+		function fWrapper(oEvent) {
+			fListener.call(oThis, oEvent || event);
+		} 
+		if (oElement.addEventListener) {
+			oElement.addEventListener(sEvent, fWrapper, false);
+		} else {
+			oElement.attachEvent('on' + sEvent, fWrapper);
+		}
 	};
 	
 	
 	
 	
-	/**
-	 * An element.
-	 */
-	var Element = function(oModel) {
-		this.model = oModel;
-		oModelRegistry.setController(oModel, this);
+	var Iterator = function() {
+		throw new Error('Must implement constructor.');
+	};
+	
+	Iterator.prototype.next = function() {
+		throw new Error('Must implement next().');
+	};
+	
+	Iterator.prototype.peek = function() {
+		throw new Error('Must implement peek().');
+	};
+	
+	Iterator.prototype.hasNext = function() {
+		throw new Error('Must implement hasNext().');
+	};
+	
+	Iterator.prototype.forEach = function(fCallback, oContext) {
+		while (this.hasNext()) {
+			fCallback.call(oContext || this, this.next());
+		}
+	};
+	
+	Iterator.prototype.getArray = function() {
+		var aCopy = [];
+		while (this.hasNext())
+			aCopy.push(this.next());
+		return aCopy;
 	};
 	
 	
 	
 	
-	var oModelRegistry = new ModelRegistry();
-	var oNamespaceList = new NamespaceList();
+	var ArrayIterator = function(oArray) {
+		this.array = oArray;
+		this.index = 0;
+	};
+	
+	gl.extend(Iterator, ArrayIterator);
+	
+	ArrayIterator.prototype.next = function() {
+		return this.array[this.index++];
+	};
+	
+	ArrayIterator.prototype.peek = function() {
+		return this.array[this.index];
+	};
+	
+	ArrayIterator.prototype.hasNext = function() {
+		return this.index < this.array.length;
+	};
+	
+	ArrayIterator.prototype.getArray = function() {
+		return this.array.slice(this.index);
+	};
 	
 	
 	
 	
 	// exports
-	this.ModelRegistry = ModelRegistry;
+	this.Model = Model;
 	this.View = View;
-	this.NamespaceList = NamespaceList;
-	this.Namespace = Namespace;
-	this.Element = Element;
-	this.modelRegistry = oModelRegistry;
-	gl.namespaces = oNamespaceList;
+	this.Iterator = Iterator;
+	this.ArrayIterator = ArrayIterator;
 	
 });
