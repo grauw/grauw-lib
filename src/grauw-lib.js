@@ -364,7 +364,7 @@ gl.depsys = new function() {
 	
 	/**
 	 * Dependency implementation for the script type.
-	 * Uses MIME-type ‘application/javascript’.
+	 * Uses MIME-type ‘text/javascript’.
 	 */
 	var ScriptDependency = function(sURI) {
 		Dependency.call(this, sURI);
