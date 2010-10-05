@@ -418,7 +418,7 @@ gl.depsys = new function() {
 	};
 	
 	ScriptDependency.prototype.loadComplete = function() {
-		Dependency.prototype.loadComplete.call(this);	// call super
+		Dependency.prototype.loadComplete.call(this);
 		var bUnboundModules = false;
 		var oModule;
 		while (oModule = oDependencyManager.getUnboundModule()) {
@@ -461,6 +461,35 @@ gl.depsys = new function() {
 	
 	DummyScriptDependency.prototype.toString = function() {
 		return 'DummyScriptDependency';
+	};
+	
+	
+	
+	
+	/**
+	 * Dependency implementation for the script type.
+	 * Uses MIME-type ‘text/css’.
+	 */
+	var CSSDependency = function(sURI) {
+		Dependency.call(this, sURI);
+	};
+	
+	gl.extend(Dependency, CSSDependency);
+	
+	CSSDependency.prototype.doLoad = function() {
+		var oHead = document.getElementsByTagName('head')[0];
+		var oLink = document.createElement('link');
+		oLink.rel = 'stylesheet';
+		oLink.type = 'text/css';
+		oLink.href = this.getURI();
+		oHead.appendChild(oLink);	// load stylesheet
+		// don’t wait for loading to complete
+		this.loadComplete();
+		this.ready();
+	};
+	
+	CSSDependency.prototype.toString = function() {
+		return 'CSSDependency';
 	};
 	
 	
@@ -717,6 +746,7 @@ gl.depsys = new function() {
 	// initialise dependency manager
 	var oDependencyManager = new DependencyManager();
 	oDependencyManager.registerDependencyHandler('text/javascript', ScriptDependency);
+	oDependencyManager.registerDependencyHandler('text/css', CSSDependency);
 	
 	// create modules for gl and gl.depsys objects
 	// load URI library to do URI resolving (a bit of a paradox :))
