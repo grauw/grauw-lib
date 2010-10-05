@@ -85,12 +85,12 @@ gl.module('gl.unit',
 
 	Test.prototype.assertEquals = function(vExpected, vResult, sMessage) {
 		if (vExpected !== vResult)
-			this.assert(false, sMessage + ' (Expected: ' + vExpected + ', result: ' + vResult + ')');
+			this.assert(false, (sMessage || '') + ' (Expected: ' + vExpected + ', result: ' + vResult + ')');
 	};
 
 	Test.prototype.assertNotEquals = function(vNotExpected, vResult, sMessage) {
 		if (vNotExpected === vResult)
-			this.assert(false, sMessage + ' (Not expected: ' + vResult + ')');
+			this.assert(false, (sMessage || '') + ' (Not expected: ' + vResult + ')');
 	};
 
 	Test.prototype.assertException = function(cException, fTest, sMessage) {
@@ -101,10 +101,10 @@ gl.module('gl.unit',
 			oException = e;
 		}
 		if (!oException) {
-			this.assert(false, sMessage + ' (No exception thrown.)');
+			this.assert(false, (sMessage || '')  + ' (No exception thrown.)');
 		}
 		if (cException && !(oException instanceof cException)) {
-			this.assert(false, sMessage + ' (Unexpected exception thrown: ' + errorToString(oException) + ')');
+			this.assert(false, (sMessage || '') + ' (Unexpected exception thrown: ' + errorToString(oException) + ')');
 		}
 	};
 	
