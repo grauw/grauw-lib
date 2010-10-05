@@ -87,6 +87,38 @@ gl.module('gl.unit',
 		if (vExpected !== vResult)
 			this.assert(false, sMessage + ' (Expected: ' + vExpected + ', result: ' + vResult + ')');
 	};
+
+	Test.prototype.assertNotEquals = function(vNotExpected, vResult, sMessage) {
+		if (vNotExpected === vResult)
+			this.assert(false, sMessage + ' (Not expected: ' + vResult + ')');
+	};
+
+	Test.prototype.assertException = function(cException, fTest, sMessage) {
+		var oException = null;
+		try {
+			fTest.call(this);
+		} catch(e) {
+			oException = e;
+		}
+		if (!oException) {
+			this.assert(false, sMessage + ' (No exception thrown.)');
+		}
+		if (cException && !(oException instanceof cException)) {
+			this.assert(false, sMessage + ' (Unexpected exception thrown: ' + errorToString(oException) + ')');
+		}
+	};
+	
+	/**
+	 * In some browsers (IE) exceptions don’t cast to string nicely.
+	 * @param oError The error object.
+	 * @returns {string} The error message.
+	 */
+	function errorToString(oError) {
+		var sError = String(oError);
+		if (oError instanceof Error && sError.indexOf(oError.message) == -1)
+			sError += ' - ' + oError.message;
+		return sError;
+	}
 	
 	
 	
