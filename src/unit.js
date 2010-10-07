@@ -315,8 +315,15 @@ gl.module('gl.unit',
 		}
 		oTestSuite.appendChild(oTests);
 		var oCompleted = document.createElement('div');
+		oCompleted.className = 'gl-completed';
 		var aErrors = this.model.getErrors();
-		var sCompleted = aErrors.length ? 'Unit tests completed with ' + aErrors.length + ' errors.' : 'Unit tests completed.';
+		var sCompleted;
+		if (aErrors.length) {
+			oCompleted.className += ' gl-with-errors';
+			sCompleted = 'Unit tests completed with ' + aErrors.length + ' errors.';
+		} else {
+			sCompleted = 'Unit tests completed.';
+		}
 		oCompleted.appendChild(document.createTextNode(sCompleted));
 		oTestSuite.appendChild(oCompleted);
 		var oTime = document.createElement('div');

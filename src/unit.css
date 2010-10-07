@@ -12,7 +12,8 @@
 .gl-unit-testsuite .gl-unit-test {
 }
 
-.gl-unit-testsuite .gl-unit-test.gl-error {
+.gl-unit-testsuite .gl-unit-test.gl-error,
+.gl-unit-testsuite .gl-completed.gl-with-errors {
 	color: red;
 }
 
