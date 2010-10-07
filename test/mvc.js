@@ -430,14 +430,6 @@ gl.module('unit',
 					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
 					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
 					this.assertEquals(4, oContainer.childNodes.length);
-				}),
-				
-				new SimpleTest('View::renderViews() re-rendering', function() {
-					this.assert(false, 'TODO');
-				}),
-				
-				new SimpleTest('View::renderViews() replacing white space nodes', function() {
-					this.assert(false, 'TODO');
 				})
 			]
 		),
