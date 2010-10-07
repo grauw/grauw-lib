@@ -8,6 +8,7 @@ gl.module('unit',
 	// imports
 	var Test = gl.unit.Test;
 	var TestSuite = gl.unit.TestSuite;
+	var TestGroup = gl.unit.TestGroup;
 	
 	
 	
@@ -92,7 +93,7 @@ gl.module('unit',
 	 * See RFC 3986 appendix C
 	 */
 	var oURISuite = new TestSuite([
-			// normal examples
+		new TestGroup('Resolving, normal examples', [
 			new URITest('http://a/b/c/d;p?q', 'g:h'          , 'g:h'),
 			new URITest('http://a/b/c/d;p?q', 'g'            , 'http://a/b/c/g'),
 			new URITest('http://a/b/c/d;p?q', './g'          , 'http://a/b/c/g'),
@@ -115,8 +116,9 @@ gl.module('unit',
 			new URITest('http://a/b/c/d;p?q', '../g'         , 'http://a/b/g'),
 			new URITest('http://a/b/c/d;p?q', '../..'        , 'http://a/'),
 			new URITest('http://a/b/c/d;p?q', '../../'       , 'http://a/'),
-			new URITest('http://a/b/c/d;p?q', '../../g'      , 'http://a/g'),
-			// abnormal examples
+			new URITest('http://a/b/c/d;p?q', '../../g'      , 'http://a/g')
+		]),
+		new TestGroup('Resolving, abnormal examples', [
 			new URITest('http://a/b/c/d;p?q', '../../../g'   , 'http://a/g'),
 			new URITest('http://a/b/c/d;p?q', '../../../../g', 'http://a/g'),
 			new URITest('http://a/b/c/d;p?q', '/./g'         , 'http://a/g'),
@@ -135,8 +137,9 @@ gl.module('unit',
 			new URITest('http://a/b/c/d;p?q', 'g?y/../x'     , 'http://a/b/c/g?y/../x'),
 			new URITest('http://a/b/c/d;p?q', 'g#s/./x'      , 'http://a/b/c/g#s/./x'),
 			new URITest('http://a/b/c/d;p?q', 'g#s/../x'     , 'http://a/b/c/g#s/../x'),
-			new URITest('http://a/b/c/d;p?q', 'http:g'       , 'http:g'),
-			// other tests (not from the RFC)
+			new URITest('http://a/b/c/d;p?q', 'http:g'       , 'http:g')
+		]),
+		new TestGroup('Resolving, other tests (not from the RFC)', [
 			new URITest('http:/'  , 'g/h', 'http:/g/h'),
 			new URITest('http:/'  , 'g'  , 'http:/g'),
 			new URITest('http:/'  , '..' , 'http:/'),
@@ -148,12 +151,14 @@ gl.module('unit',
 			new URITest('http:a/b', 'g/h', 'http:a/g/h'),
 			new URITest('http:a/b', 'g'  , 'http:a/g'),
 			new URITest('http:a/b', '..' , 'http:'),
-			new URITest('http:a/b', '.'  , 'http:a/'),
-			// performance tests
+			new URITest('http:a/b', '.'  , 'http:a/')
+		]),
+		new TestGroup('Resolving, performance tests', [
 			new URIPerformanceTest1(),
 			new URIPerformanceTest2(),
 			new URIPerformanceTest3()
-		]);
+		])
+	]);
 	
 	
 	
