@@ -38,6 +38,19 @@ gl.module('unit',
 	
 	
 	
+	var TestView = function(oModel) {
+		View.call(this, oModel);
+	};
+	
+	gl.extend(View, TestView);
+	
+	TestView.prototype.createHTML = function(oDocument) {
+		return oDocument.createElement('div');
+	};
+	
+	
+	
+	
 	/**
 	 * Unit tests
 	 */
@@ -221,10 +234,7 @@ gl.module('unit',
 				
 				new SimpleTest('View::getHTML() observable model', function() {
 					var oModel = new Model();
-					var oView = new View(oModel);
-					oView.createHTML = function(oDocument) {
-						return oDocument.createElement('div');
-					};
+					var oView = new TestView(oModel);
 					oView.getHTML(document);
 					this.assertEquals(true, oModel.hasObserver(oView));
 				}),
@@ -250,11 +260,8 @@ gl.module('unit',
 				}),
 				
 				new SimpleTest('View::update() attached node', function() {
-					var oView = new View({});
+					var oView = new TestView({});
 					var oContainer = document.createElement('div'); 
-					oView.createHTML = function(oDocument) {
-						return oDocument.createElement('div');
-					};
 					var oHTML = oView.getHTML(document);
 					oContainer.appendChild(oHTML);
 					oView.update();
@@ -263,11 +270,8 @@ gl.module('unit',
 				}),
 				
 				new SimpleTest('View::clear()', function() {
-					var oView = new View({});
+					var oView = new TestView({});
 					var oContainer = document.createElement('div'); 
-					oView.createHTML = function(oDocument) {
-						return oDocument.createElement('div');
-					};
 					var oHTML = oView.getHTML(document);
 					oContainer.appendChild(oHTML);
 					oView.clear();
@@ -276,11 +280,8 @@ gl.module('unit',
 				
 				new SimpleTest('View::clear() observable model', function() {
 					var oModel = new Model();
-					var oView = new View(oModel);
-					var oContainer = document.createElement('div'); 
-					oView.createHTML = function(oDocument) {
-						return oDocument.createElement('div');
-					};
+					var oView = new TestView(oModel);
+					var oContainer = document.createElement('div');
 					var oHTML = oView.getHTML(document);
 					oContainer.appendChild(oHTML);
 					oView.clear();
