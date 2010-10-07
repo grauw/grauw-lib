@@ -252,7 +252,7 @@ gl.module('gl.unit',
 	};
 	
 	Window.prototype.getTitle = function() {
-		return 'Unit test debug log';
+		return 'Unit test log';
 	};
 	
 	Window.prototype.getBodyContents = function() {

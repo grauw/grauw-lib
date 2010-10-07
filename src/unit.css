@@ -71,6 +71,7 @@
 
 .gl-window h2 button {
 	float: right;
+	margin-left: 4px;
 }
 
 .gl-window-minimized .gl-window-body {
