@@ -298,7 +298,7 @@ gl.module('gl.unit',
 		if (oElement.addEventListener) {
 			oElement.addEventListener(sEvent, fWrapper, false);
 		} else {
-			oElement.attachEvent(sEvent, fWrapper);
+			oElement.attachEvent('on' + sEvent, fWrapper);
 		}
 	};
 	
