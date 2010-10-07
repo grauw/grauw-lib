@@ -40,11 +40,15 @@ gl.module('unit',
 	
 	var TestView = function(oModel) {
 		View.call(this, oModel);
+		this.called = 0;
+		this.document = null;
 	};
 	
 	gl.extend(View, TestView);
 	
 	TestView.prototype.createHTML = function(oDocument) {
+		this.called++;
+		this.document = this.document && this.document != oDocument ? "Wrong document!" : oDocument;
 		return oDocument.createElement('div');
 	};
 	
@@ -208,28 +212,19 @@ gl.module('unit',
 				}),
 				
 				new SimpleTest('View::getHTML()', function() {
-					var oView = new View({});
-					var bCalled = false;
-					oView.createHTML = function(oDocument) {
-						bCalled = oDocument == document;
-						return oDocument.createElement('div');
-					};
+					var oView = new TestView({});
 					var oHTML = oView.getHTML(document);
-					this.assertEquals(true, bCalled);
+					this.assertEquals(1, oView.called);
+					this.assertEquals(document, oView.document);
 					this.assertEquals('div', oHTML.tagName.toLowerCase());
 				}),
 				
 				new SimpleTest('View::getHTML() twice', function() {
-					var oView = new View({});
-					var iCalled = 0;
-					oView.createHTML = function(oDocument) {
-						if (oDocument == document)
-							iCalled++;
-						return oDocument.createElement('div');
-					};
+					var oView = new TestView({});
 					oView.getHTML(document);
 					oView.getHTML(document);
-					this.assertEquals(1, iCalled);
+					this.assertEquals(1, oView.called);
+					this.assertEquals(document, oView.document);
 				}),
 				
 				new SimpleTest('View::getHTML() observable model', function() {
@@ -240,16 +235,11 @@ gl.module('unit',
 				}),
 				
 				new SimpleTest('View::update()', function() {
-					var oView = new View({});
-					var iCalled = 0;
-					oView.createHTML = function(oDocument) {
-						if (oDocument == document)
-							iCalled++;
-						return oDocument.createElement('div');
-					};
+					var oView = new TestView({});
 					oView.getHTML(document);
 					oView.update();
-					this.assertEquals(2, iCalled);
+					this.assertEquals(2, oView.called);
+					this.assertEquals(document, oView.document);
 				}),
 				
 				new SimpleTest('View::update() before createHTML()', function() {
