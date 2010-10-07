@@ -161,6 +161,7 @@ gl.module('gl.unit',
 		Test.call(this);
 		this.name = sName;
 		this.tests = aTests || [];
+		this.collapsed = true;
 	};
 	gl.extend(Test, TestGroup);
 	
@@ -195,6 +196,19 @@ gl.module('gl.unit',
 				aTests[i].run();
 			}
 		};
+		this.collapsed = !this.getErrors().length;
+	};
+	
+	TestGroup.prototype.isCollapsed = function() {
+		return this.collapsed;
+	};
+	
+	TestGroup.prototype.collapse = function() {
+		this.collapsed = true;
+	};
+	
+	TestGroup.prototype.expand = function() {
+		this.collapsed = false;
 	};
 	
 	TestGroup.prototype.toString = function() {
@@ -384,10 +398,23 @@ gl.module('gl.unit',
 		if (!this.model.hasCompleted()) {
 			oGroup.className += ' gl-notcompleted';
 		}
-		oGroup.appendChild(document.createTextNode(this.model.toString()));
-		if (this.model.hasCompleted() && this.model.getTime() > 8) {
-			oGroup.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+		if (this.model.isCollapsed()) {
+			oGroup.className += ' gl-collapsed';
 		}
+		var oName = document.createElement('div');
+		oName.className = 'gl-unit-testgroup-name';
+		oName.appendChild(document.createTextNode(this.model.toString()));
+		if (this.model.hasCompleted() && this.model.getTime() > 8) {
+			oName.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+		}
+		if (this.model.isCollapsed() && this.model.getErrors().length) {
+			var oErrorCount = document.createElement('span');
+			oErrorCount.className += ' gl-unit-testgroup-errorcount';
+			oErrorCount.appendChild(document.createTextNode(' (with ' + this.model.getErrors().length + ' errors)'));
+			oName.appendChild(oErrorCount);
+		}
+		this.addEventListenerTo(oName, 'click', this.handleCollapse);
+		oGroup.appendChild(oName);
 		var oContents = document.createElement('ul');
 		oContents.className = 'gl-unit-testgroup-contents';
 		var aTests = this.model.getTests();
@@ -401,6 +428,14 @@ gl.module('gl.unit',
 		}
 		oGroup.appendChild(oContents);
 		return oGroup;
+	};
+	
+	TestGroupView.prototype.handleCollapse = function() {
+		if (this.model.isCollapsed())
+			this.model.expand();
+		else
+			this.model.collapse();
+		this.update();
 	};
 	
 	
