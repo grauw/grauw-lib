@@ -304,14 +304,16 @@ gl.module('gl.unit',
 	TestSuiteView.prototype.createHTML = function(document) {
 		var oTestSuite = document.createElement('div');
 		oTestSuite.className = 'gl-unit-testsuite';
+		var oTests = document.createElement('ul');
+		oTests.className = 'gl-tests';
 		var aTests = this.model.getTests();
 		for (var i = 0; i < aTests.length; i++) {
 			if (aTests[i] instanceof TestGroup)
-				oTestSuite.appendChild(new TestGroupView(aTests[i]).getHTML(document));
+				oTests.appendChild(new TestGroupView(aTests[i]).getHTML(document));
 			else if (aTests[i] instanceof Test)
-				oTestSuite.appendChild(new TestView(aTests[i]).getHTML(document));
+				oTests.appendChild(new TestView(aTests[i]).getHTML(document));
 		}
-		
+		oTestSuite.appendChild(oTests);
 		var oCompleted = document.createElement('div');
 		var aErrors = this.model.getErrors();
 		var sCompleted = aErrors.length ? 'Unit tests completed with ' + aErrors.length + ' errors.' : 'Unit tests completed.';
@@ -337,7 +339,7 @@ gl.module('gl.unit',
 	gl.extend(SimpleView, TestView);
 	
 	TestView.prototype.createHTML = function(document) {
-		var oTest = document.createElement('div');
+		var oTest = document.createElement('li');
 		oTest.className = 'gl-unit-test';
 		oTest.appendChild(document.createTextNode(this.model.toString()));
 		if (!this.model.hasCompleted()) {
@@ -370,7 +372,7 @@ gl.module('gl.unit',
 	gl.extend(SimpleView, TestGroupView);
 	
 	TestGroupView.prototype.createHTML = function(document) {
-		var oGroup = document.createElement('div');
+		var oGroup = document.createElement('li');
 		oGroup.className = 'gl-unit-testgroup';
 		if (!this.model.hasCompleted()) {
 			oGroup.className += ' gl-notcompleted';
@@ -379,7 +381,7 @@ gl.module('gl.unit',
 		if (this.model.hasCompleted() && this.model.getTime() > 8) {
 			oGroup.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 		}
-		var oContents = document.createElement('div');
+		var oContents = document.createElement('ul');
 		oContents.className = 'gl-unit-testgroup-contents';
 		var aTests = this.model.getTests();
 		for (var i = 0; i < aTests.length; i++) {

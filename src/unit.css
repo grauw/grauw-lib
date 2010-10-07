@@ -1,18 +1,29 @@
-.gl-unit-test {
+/* Reset browser list styles */
+.gl-unit-testsuite ul {
+	padding: 0;
+	margin: 0;
 }
 
-.gl-unit-test.gl-error {
+/* Reset browser list styles */
+.gl-unit-testsuite li {
+	list-style-type: none;
+}
+
+.gl-unit-testsuite .gl-unit-test {
+}
+
+.gl-unit-testsuite .gl-unit-test.gl-error {
 	color: red;
 }
 
-.gl-unit-testgroup {
+.gl-unit-testsuite .gl-unit-testgroup {
 	margin: 4px 0;
 	background: #ccccf6;
 	padding-top: 2px;
 	padding-left: 2px;
 }
 
-.gl-unit-testgroup-contents {
+.gl-unit-testsuite .gl-unit-testgroup-contents {
 	background: #ddf;
 	padding-left: 4px;
 	border-left: 10px solid #bbe;
