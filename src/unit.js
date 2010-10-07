@@ -315,20 +315,20 @@ gl.module('gl.unit',
 	
 	gl.extend(SimpleView, TestSuiteView);
 	
-	TestSuiteView.prototype.createHTML = function(document) {
-		var oTestSuite = document.createElement('div');
+	TestSuiteView.prototype.createHTML = function(oDocument) {
+		var oTestSuite = oDocument.createElement('div');
 		oTestSuite.className = 'gl-unit-testsuite';
-		var oTests = document.createElement('ul');
+		var oTests = oDocument.createElement('ul');
 		oTests.className = 'gl-tests';
 		var aTests = this.model.getTests();
 		for (var i = 0; i < aTests.length; i++) {
 			if (aTests[i] instanceof TestGroup)
-				oTests.appendChild(new TestGroupView(aTests[i]).getHTML(document));
+				oTests.appendChild(new TestGroupView(aTests[i]).getHTML(oDocument));
 			else if (aTests[i] instanceof Test)
-				oTests.appendChild(new TestView(aTests[i]).getHTML(document));
+				oTests.appendChild(new TestView(aTests[i]).getHTML(oDocument));
 		}
 		oTestSuite.appendChild(oTests);
-		var oCompleted = document.createElement('div');
+		var oCompleted = oDocument.createElement('div');
 		oCompleted.className = 'gl-completed';
 		var aErrors = this.model.getErrors();
 		var sCompleted;
@@ -338,10 +338,10 @@ gl.module('gl.unit',
 		} else {
 			sCompleted = 'Unit tests completed.';
 		}
-		oCompleted.appendChild(document.createTextNode(sCompleted));
+		oCompleted.appendChild(oDocument.createTextNode(sCompleted));
 		oTestSuite.appendChild(oCompleted);
-		var oTime = document.createElement('div');
-		oTime.appendChild(document.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
+		var oTime = oDocument.createElement('div');
+		oTime.appendChild(oDocument.createTextNode('Time taken: ' + this.model.getTime() + 'ms'));
 		oTestSuite.appendChild(oTime);
 		return oTestSuite;
 	};
@@ -359,10 +359,10 @@ gl.module('gl.unit',
 	
 	gl.extend(SimpleView, TestView);
 	
-	TestView.prototype.createHTML = function(document) {
-		var oTest = document.createElement('li');
+	TestView.prototype.createHTML = function(oDocument) {
+		var oTest = oDocument.createElement('li');
 		oTest.className = 'gl-unit-test';
-		oTest.appendChild(document.createTextNode(this.model.toString()));
+		oTest.appendChild(oDocument.createTextNode(this.model.toString()));
 		if (!this.model.hasCompleted()) {
 			oTest.className += ' gl-notcompleted';
 		}
@@ -370,11 +370,11 @@ gl.module('gl.unit',
 		if (aErrors.length) {
 			oTest.className += ' gl-error';
 			for (var i = 0; i < aErrors.length; i++) {
-				oTest.appendChild(document.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
+				oTest.appendChild(oDocument.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
 			}
 		}
 		if (this.model.hasCompleted() && this.model.getTime() > 8) {
-			oTest.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+			oTest.appendChild(oDocument.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 		}
 		return oTest;
 	};
@@ -392,8 +392,8 @@ gl.module('gl.unit',
 	
 	gl.extend(SimpleView, TestGroupView);
 	
-	TestGroupView.prototype.createHTML = function(document) {
-		var oGroup = document.createElement('li');
+	TestGroupView.prototype.createHTML = function(oDocument) {
+		var oGroup = oDocument.createElement('li');
 		oGroup.className = 'gl-unit-testgroup';
 		if (!this.model.hasCompleted()) {
 			oGroup.className += ' gl-notcompleted';
@@ -401,21 +401,21 @@ gl.module('gl.unit',
 		if (this.model.isCollapsed()) {
 			oGroup.className += ' gl-collapsed';
 		}
-		var oName = document.createElement('div');
+		var oName = oDocument.createElement('div');
 		oName.className = 'gl-unit-testgroup-name';
-		oName.appendChild(document.createTextNode(this.model.toString()));
+		oName.appendChild(oDocument.createTextNode(this.model.toString()));
 		if (this.model.hasCompleted() && this.model.getTime() > 8) {
-			oName.appendChild(document.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
+			oName.appendChild(oDocument.createTextNode(' — time taken: ' + this.model.getTime() + 'ms'));
 		}
 		if (this.model.isCollapsed() && this.model.getErrors().length) {
-			var oErrorCount = document.createElement('span');
+			var oErrorCount = oDocument.createElement('span');
 			oErrorCount.className += ' gl-unit-testgroup-errorcount';
-			oErrorCount.appendChild(document.createTextNode(' (with ' + this.model.getErrors().length + ' errors)'));
+			oErrorCount.appendChild(oDocument.createTextNode(' (with ' + this.model.getErrors().length + ' errors)'));
 			oName.appendChild(oErrorCount);
 		}
 		this.addEventListenerTo(oName, 'click', this.handleCollapse);
 		oGroup.appendChild(oName);
-		var oContents = document.createElement('ul');
+		var oContents = oDocument.createElement('ul');
 		oContents.className = 'gl-unit-testgroup-contents';
 		var aTests = this.model.getTests();
 		for (var i = 0; i < aTests.length; i++) {
@@ -424,7 +424,7 @@ gl.module('gl.unit',
 				oTestView = new TestGroupView(aTests[i]);
 			else if (aTests[i] instanceof Test)
 				oTestView = new TestView(aTests[i]);
-			oContents.appendChild(oTestView.getHTML(document));
+			oContents.appendChild(oTestView.getHTML(oDocument));
 		}
 		oGroup.appendChild(oContents);
 		return oGroup;
@@ -451,28 +451,28 @@ gl.module('gl.unit',
 	
 	gl.extend(SimpleView, WindowView);
 	
-	WindowView.prototype.createHTML = function(document) {
-		var oWindow = document.createElement('div');
+	WindowView.prototype.createHTML = function(oDocument) {
+		var oWindow = oDocument.createElement('div');
 		oWindow.className = 'gl-window' + (this.model.isMinimized() ? ' gl-window-minimized' : '');
-		var oTitle = document.createElement('h2');
-		oTitle.appendChild(document.createTextNode(this.model.getTitle()));
-		var oButton = document.createElement('button');
+		var oTitle = oDocument.createElement('h2');
+		oTitle.appendChild(oDocument.createTextNode(this.model.getTitle()));
+		var oButton = oDocument.createElement('button');
 		try {
 			oButton.type = 'button';
 		} catch(e) {
-			oButton = document.createElement('<button type="button">');	// IE6/7/8...
+			oButton = oDocument.createElement('<button type="button">');	// IE6/7/8...
 		}
-		oButton.appendChild(document.createTextNode(this.model.isMinimized() ? '+' : '-'));
+		oButton.appendChild(oDocument.createTextNode(this.model.isMinimized() ? '+' : '-'));
 		this.addEventListenerTo(oButton, 'click', this.handleToggleMinimised);
 		oTitle.appendChild(oButton);
 		oWindow.appendChild(oTitle);
 		
-		var oBody = document.createElement('div');
+		var oBody = oDocument.createElement('div');
 		oBody.className = 'gl-window-body';
 		var aContents = this.model.getBodyContents();
 		for (var i = 0; i < aContents.length; i++) {
 			if (aContents[i] instanceof TestSuite)
-				oBody.appendChild(new TestSuiteView(aContents[i]).getHTML(document));
+				oBody.appendChild(new TestSuiteView(aContents[i]).getHTML(oDocument));
 		}
 		oWindow.appendChild(oBody);
 		return oWindow;
