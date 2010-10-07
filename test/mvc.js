@@ -55,6 +55,13 @@ gl.module('unit',
 	
 	
 	
+	function createSomeViews() {
+		return [new TestView({}), new TestView({}), new TestView({}), new TestView({})];
+	};
+	
+	
+	
+	
 	/**
 	 * Unit tests
 	 */
@@ -307,6 +314,130 @@ gl.module('unit',
 					
 					// clean up
 					document.body.removeChild(oInput);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element)', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					oContainer.appendChild(document.createTextNode('x1'));
+					oContainer.appendChild(document.createTextNode('x2'));
+					oView.renderViews(aViews, oContainer);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[0]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(4, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element, after)', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					var oAfter = document.createTextNode('after');
+					oContainer.appendChild(document.createTextNode('x1'));
+					oContainer.appendChild(oAfter);
+					oContainer.appendChild(document.createTextNode('x2'));
+					oView.renderViews(aViews, oContainer, oAfter);
+					this.assertEquals(oAfter, oContainer.childNodes[1]);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[4]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[5]);
+					this.assertEquals(6, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element, , before)', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					var oBefore = document.createTextNode('before');
+					oContainer.appendChild(document.createTextNode('x1'));
+					oContainer.appendChild(oBefore);
+					oContainer.appendChild(document.createTextNode('x2'));
+					oView.renderViews(aViews, oContainer, null, oBefore);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[0]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(oBefore, oContainer.childNodes[4]);
+					this.assertEquals(6, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element, after, before)', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					var oAfter = document.createTextNode('after');
+					var oBefore = document.createTextNode('before');
+					oContainer.appendChild(oAfter);
+					oContainer.appendChild(document.createTextNode('x'));
+					oContainer.appendChild(oBefore);
+					oView.renderViews(aViews, oContainer, oAfter, oBefore);
+					this.assertEquals(oAfter, oContainer.childNodes[0]);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[4]);
+					this.assertEquals(oBefore, oContainer.childNodes[5]);
+					this.assertEquals(6, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element) reordering', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					oContainer.appendChild(aViews[1].getHTML(document));
+					oContainer.appendChild(aViews[3].getHTML(document));
+					oContainer.appendChild(aViews[2].getHTML(document));
+					oContainer.appendChild(aViews[0].getHTML(document));
+					oView.renderViews(aViews, oContainer);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[0]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(4, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element) inserting', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					oContainer.appendChild(aViews[0].getHTML(document));
+					oContainer.appendChild(aViews[1].getHTML(document));
+					oContainer.appendChild(aViews[3].getHTML(document));
+					oView.renderViews(aViews, oContainer);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[0]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(4, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews(views, element) removing', function() {
+					var oView = new View({});
+					var aViews = createSomeViews();
+					var oContainer = document.createElement('div');
+					oContainer.appendChild(aViews[3].getHTML(document));
+					oContainer.appendChild(document.createElement('div'));
+					oContainer.appendChild(aViews[0].getHTML(document));
+					oContainer.appendChild(document.createTextNode('x'));
+					oContainer.appendChild(aViews[1].getHTML(document));
+					oContainer.appendChild(aViews[2].getHTML(document));
+					oView.renderViews(aViews, oContainer);
+					this.assertEquals(aViews[0].getHTML(document), oContainer.childNodes[0]);
+					this.assertEquals(aViews[1].getHTML(document), oContainer.childNodes[1]);
+					this.assertEquals(aViews[2].getHTML(document), oContainer.childNodes[2]);
+					this.assertEquals(aViews[3].getHTML(document), oContainer.childNodes[3]);
+					this.assertEquals(4, oContainer.childNodes.length);
+				}),
+				
+				new SimpleTest('View::renderViews() re-rendering', function() {
+					this.assert(false, 'TODO');
+				}),
+				
+				new SimpleTest('View::renderViews() replacing white space nodes', function() {
+					this.assert(false, 'TODO');
 				})
 			]
 		),

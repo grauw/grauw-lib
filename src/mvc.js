@@ -110,6 +110,61 @@ gl.module('gl.mvc', [], function() {
 		}
 	};
 	
+	/**
+	 * Create a view by model.
+	 * @param oModel
+	 * @return {View}
+	 */
+	View.prototype.createView = function(oModel) {
+		throw new Error('Must implement createView().');
+	};
+	
+	/**
+	 * Renders the provided views into an element.
+	 * Optionally you can specify between which nodes to render the views.
+	 * 
+	 * Re-inserting nodes already in the correct position is avoided.
+	 * Unrecognised nodes are removed. Note that the presence of nodes that
+	 * need to be removed makes the process suboptimal, so it is preferred
+	 * to remove nodes earlier, e.g. with clear().
+	 * 
+	 * @param {View[]} aViews An array of views to render.
+	 * @param {Element} oElement The element to render into.
+	 * @param {Node} [oAfter] The node to render after. Optional.
+	 * @param {Node} [oBefore] The node to render before. Optional.
+	 */
+	View.prototype.renderViews = function(aViews, oElement, oAfter, oBefore) {
+		var oDocument = oElement.ownerDocument;
+		var iViews = 0;
+		var aChildNodes = oElement.childNodes;
+		var iChild = 0;
+		
+		// find starting point
+		if (oAfter) {
+			while (aChildNodes[iChild++] != oAfter) {}
+		}
+		// loop over every node between start and end point
+		var oChild = aChildNodes[iChild];
+		var oView = aViews[iViews++];
+		while (oChild != oBefore || iViews < aViews.length) {
+			if (!oView) {
+				oElement.removeChild(oChild);
+				oChild = aChildNodes[iChild];
+			} else {
+				var oHTML = oView.getHTML(oDocument);
+				if (oChild == oHTML) {
+					oChild = aChildNodes[++iChild];
+					oView = aViews[iViews++];
+				} else {
+					oElement.insertBefore(oHTML, oChild);
+					if (oChild != oBefore)
+						iChild++;
+					oView = aViews[iViews++];
+				}
+			}
+		}
+	};
+	
 	
 	
 	
