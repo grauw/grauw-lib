@@ -90,7 +90,7 @@ gl.module(
 	/**
 	 * Unit tests
 	 */
-	var oSelectorSuite = new TestSuite([
+	var suite = new TestSuite([
 			new TestGroup('Universal selector tests', [
 				new SelectorTest('*[lang]', ['t0', 't7', 't8'])
 			]),
@@ -289,6 +289,6 @@ gl.module(
 	
 	
 	// exports
-	this.selectorSuite = oSelectorSuite;
+	window.suite = oSuite;
 	
 });

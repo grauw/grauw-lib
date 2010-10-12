@@ -65,7 +65,7 @@ gl.module('unit',
 	/**
 	 * Unit tests
 	 */
-	var oMVCSuite = new TestSuite([
+	var oSuite = new TestSuite([
 		new TestGroup('Model',
 			[
 				new SimpleTest('Model::constructor()', function() {
@@ -594,6 +594,6 @@ gl.module('unit',
 	
 	
 	// exports
-	this.mvcSuite = oMVCSuite;
+	window.suite = oSuite;
 
 });
