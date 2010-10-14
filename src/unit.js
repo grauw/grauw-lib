@@ -24,6 +24,18 @@ gl.module('gl.unit',
 	[{type: 'text/css', src: 'unit.css'}],
 	function() {
 	
+	/**
+	 * In some browsers (IE) exceptions don’t cast to string nicely.
+	 * @param oError The error object.
+	 * @returns {string} The error message.
+	 */
+	function errorToString(oError) {
+		var sError = String(oError);
+		if (oError instanceof Error && sError.indexOf(oError.message) == -1)
+			return oError.name + ': ' + oError.message;
+		return sError;
+	}
+	
 	
 	
 	
@@ -111,18 +123,6 @@ gl.module('gl.unit',
 					(sMessage ? ' ' + sMessage : ''));
 		}
 	};
-	
-	/**
-	 * In some browsers (IE) exceptions don’t cast to string nicely.
-	 * @param oError The error object.
-	 * @returns {string} The error message.
-	 */
-	function errorToString(oError) {
-		var sError = String(oError);
-		if (oError instanceof Error && sError.indexOf(oError.message) == -1)
-			sError += ' - ' + oError.message;
-		return sError;
-	}
 	
 	
 	
@@ -374,7 +374,7 @@ gl.module('gl.unit',
 		if (aErrors.length) {
 			oTest.className += ' gl-error';
 			for (var i = 0; i < aErrors.length; i++) {
-				oTest.appendChild(oDocument.createTextNode(' — Error: ' + (aErrors[i].message || aErrors[i])));
+				oTest.appendChild(oDocument.createTextNode(' — ' + errorToString(aErrors[i])));
 			}
 		}
 		if (this.model.hasCompleted() && this.model.getTime() > 8) {
