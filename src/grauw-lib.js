@@ -82,8 +82,18 @@ gl = new function() {
 	 * @return {Object} The object that was passed.
 	 */
 	function require(oObject) {
-		if (oObject === undefined)
-			throw new ReferenceError("Required object is not defined");
+		if (oObject === undefined) {
+			var oError = new ReferenceError("Required object is not defined");
+			// Be nice to Firefox
+			if (oError.stack) {
+				var sLastCall = oError.stack && oError.stack.split('\n')[2];
+				var aResults = sLastCall && sLastCall.match(/^[^@]*@(.*):(\d+)$/);
+				if (aResults[1] && aResults[2]) {
+					oError = new ReferenceError(oError.message, aResults[1], Number(aResults[2]));
+				}
+			}
+			throw oError;
+		}
 		return oObject;
 	}
 	
