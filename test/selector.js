@@ -7,12 +7,12 @@ gl.module(
 	function() {
 	
 	// imports
-	var Test = gl.unit.Test;
-	var TestSuite = gl.unit.TestSuite;
-	var TestGroup = gl.unit.TestGroup;
-	var SimpleTest = gl.unit.SimpleTest;
-	var Parser = gl.selector.Parser;
-	var NthSelector = gl.selector.NthSelector;
+	var Test = gl.require(gl.unit.Test);
+	var TestSuite = gl.require(gl.unit.TestSuite);
+	var TestGroup = gl.require(gl.unit.TestGroup);
+	var SimpleTest = gl.require(gl.unit.SimpleTest);
+	var Parser = gl.require(gl.selector.Parser);
+	var NthSelector = gl.require(gl.selector.NthSelector);
 	
 	
 	

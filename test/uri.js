@@ -6,9 +6,9 @@ gl.module('unit',
 	function() {
 	
 	// imports
-	var Test = gl.unit.Test;
-	var TestSuite = gl.unit.TestSuite;
-	var TestGroup = gl.unit.TestGroup;
+	var Test = gl.require(gl.unit.Test);
+	var TestSuite = gl.require(gl.unit.TestSuite);
+	var TestGroup = gl.require(gl.unit.TestGroup);
 	
 	
 	

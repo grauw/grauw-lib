@@ -6,14 +6,14 @@ gl.module('unit',
 	function() {
 	
 	// imports
-	var Test = gl.unit.Test;
-	var SimpleTest = gl.unit.SimpleTest;
-	var TestSuite = gl.unit.TestSuite;
-	var TestGroup = gl.unit.TestGroup;
-	var Model = gl.mvc.Model;
-	var View = gl.mvc.View;
-	var Iterator = gl.mvc.Iterator;
-	var ArrayIterator = gl.mvc.ArrayIterator;
+	var Test = gl.require(gl.unit.Test);
+	var SimpleTest = gl.require(gl.unit.SimpleTest);
+	var TestSuite = gl.require(gl.unit.TestSuite);
+	var TestGroup = gl.require(gl.unit.TestGroup);
+	var Model = gl.require(gl.mvc.Model);
+	var View = gl.require(gl.mvc.View);
+	var Iterator = gl.require(gl.mvc.Iterator);
+	var ArrayIterator = gl.require(gl.mvc.ArrayIterator);
 	
 	
 	
