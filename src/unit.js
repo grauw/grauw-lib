@@ -85,12 +85,14 @@ gl.module('gl.unit',
 
 	Test.prototype.assertEquals = function(vExpected, vResult, sMessage) {
 		if (vExpected !== vResult)
-			this.assert(false, (sMessage || '') + ' (Expected: ' + vExpected + ', result: ' + vResult + ')');
+			this.assert(false, 'Expected: ' + vExpected + ', result: ' + vResult + '.' +
+					(sMessage ? ' ' + sMessage : ''));
 	};
 
 	Test.prototype.assertNotEquals = function(vNotExpected, vResult, sMessage) {
 		if (vNotExpected === vResult)
-			this.assert(false, (sMessage || '') + ' (Not expected: ' + vResult + ')');
+			this.assert(false, 'Not expected: ' + vResult + '.' +
+					(sMessage ? ' ' + sMessage : ''));
 	};
 
 	Test.prototype.assertException = function(cException, fTest, sMessage) {
@@ -101,10 +103,12 @@ gl.module('gl.unit',
 			oException = e;
 		}
 		if (!oException) {
-			this.assert(false, (sMessage || '')  + ' (No exception thrown.)');
+			this.assert(false, 'No exception thrown.' +
+					(sMessage ? ' ' + sMessage : ''));
 		}
 		if (cException && !(oException instanceof cException)) {
-			this.assert(false, (sMessage || '') + ' (Unexpected exception thrown: ' + errorToString(oException) + ')');
+			this.assert(false, 'Unexpected exception thrown: ' + errorToString(oException) + '.' +
+					(sMessage ? ' ' + sMessage : ''));
 		}
 	};
 	
@@ -148,7 +152,7 @@ gl.module('gl.unit',
 	};
 	
 	AssertException.prototype.toString = function() {
-		return 'Assertion failed exception: ' + this.message;
+		return 'Assertion failed.' + (this.message ? ' ' + this.message : '');
 	};
 	
 	
