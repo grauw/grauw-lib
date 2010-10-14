@@ -66,6 +66,31 @@ gl = new function() {
 	
 	
 	
+	/**
+	 * Function to require external objects.
+	 * 
+	 * Through this function, at load-time you can make an assertion that
+	 * an object is initialised. This can be used to ensure the existence of
+	 * dependencies, to avoid run-time surprises. The required object is
+	 * also returned, so that it can be assigned to a local alias.
+	 * 
+	 * Example:
+	 * 
+	 * var extend = gl.require('gl.extend');
+	 * var URI = gl.require('gl.uri.URI');
+	 * 
+	 * @param {Object} object The required object.
+	 * @return {Object} The object that was passed.
+	 */
+	function require(oObject) {
+		if (oObject === undefined)
+			throw new ReferenceError("Required object is not defined");
+		return oObject;
+	}
+	
+	
+	
+	
 	var DOMReadyUtil = function() {
 		this.domReady = false;
 		this.listeners = [];
@@ -109,6 +134,7 @@ gl = new function() {
 	// exports
 	this.mixin = mixin;
 	this.extend = extend;
+	this.require = require;
 	this.DOMReadyUtil = DOMReadyUtil;
 	this.domReadyUtil = oDOMReadyUtil;
 	
