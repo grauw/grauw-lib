@@ -21,13 +21,13 @@ gl = new function() {
 	
 	/**
 	 * Copies properties from a hash object onto another object.
-	 * @param object The object to copy the members to.
-	 * @param members The hash object containing the members.
+	 * @param {Object} oObject The object to copy the members to.
+	 * @param {Object} oMembers The object containing the members.
 	 */
-	function mixin(oObject, hMembers) {
-	   for (var i in hMembers)
-		   if (hMembers.hasOwnProperty(i))
-			   oObject[i] = hMembers[i];
+	function mixin(oObject, oMembers) {
+	   for (var i in oMembers)
+		   if (oMembers.hasOwnProperty(i))
+			   oObject[i] = oMembers[i];
 	}
 	
 	
@@ -51,8 +51,7 @@ gl = new function() {
 	 * 
 	 * @param {Function} base The base class.
 	 * @param {Function} constructor A constructor function (optional).
-	 * @return The class constructor.
-	 * @type Function
+	 * @return {Function} The class constructor.
 	 */
 	function extend(cBase, fConstructor) {
 		fConstructor = fConstructor || function() { cBase.apply(this, arguments); };
