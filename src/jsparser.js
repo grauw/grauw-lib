@@ -374,7 +374,18 @@ gl.module('gl.jsparser', [], function() {
 	
 	
 	
+	/**
+	 * The lexer splits a JavaScript program into smaller parts (tokens),
+	 * which are used by the parser to simplify the parsing process.
+	 * 
+	 * This object contains regular expressions for most of the ECMAScript 5
+	 * lexical grammar (see section A.1). These regular expressions are stored
+	 * on the object with a name identical to the corresponding production rule.
+	 * 
+	 * A split() method is provided to invoke the parsing of a string.
+	 */
 	var Lexer = function() {
+		// A.1 Lexical Grammar
 		this.WhiteSpace = /[ \t\x0B\f\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF]/g;
 		this.LineTerminator = /[\n\r\u2028\u2029]/g;
 		this.Comment = /\/\*[\s\S]*?\*\/|\/\/.*/g;
@@ -432,11 +443,16 @@ gl.module('gl.jsparser', [], function() {
 		this.Identifier = new RegExp('(?!' + this.ReservedWord.source + ')', 'g');
 	};
 	
+	/**
+	 * Tokenize a given program string.
+	 * @param {string} sInput The input program.
+	 * @returns {string[]} An array of tokens.
+	 */
 	Lexer.prototype.split = function(sInput) {
-		var sTokens = sInput.match(this.InputElementDiv) || [];
-		if (sTokens.join('') != sInput)
+		var aTokens = sInput.match(this.InputElementDiv) || [];
+		if (aTokens.join('') != sInput)
 			throw new Error('Parsing failed.');
-		return sTokens;
+		return aTokens;
 	};
 	
 	
