@@ -411,6 +411,17 @@ gl.module('gl.jsparser', [], function() {
 				this.Comment.source + "|" +
 				this.Token.source + '|' +
 				this.DivPunctuator.source, 'g');
+		
+		this.Keyword = /break|do|instanceof|typeof|case|else|new|var|catch|finally|return|void|continue|for|switch|while|debugger|function|this|with|default|if|throw|delete|in|try/g;
+		this.FutureReservedWord = /class|enum|extends|super|const|export|import/g;
+		this.NullLiteral = /null/g;
+		this.BooleanLiteral = /true|false/g;
+		this.ReservedWord = new RegExp(
+				this.Keyword.source + '|' +
+				this.FutureReservedWord.source + '|' +
+				this.NullLiteral.source + '|' +
+				this.BooleanLiteral.source, 'g');
+		this.Identifier = new RegExp('(?!' + this.ReservedWord.source + ')', 'g');
 	};
 	
 	Lexer.prototype.split = function(sInput) {
