@@ -396,7 +396,7 @@ gl.module('unit',
 					 "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008",
 					 "\u2009", "\u200A", "\u202F", "\u205F", "\u3000", "\uFEFF"]),
 			// LineTerminator tests
-			new LexerTest("\n\r\r\n\n\u2028\u2029", ["\n", "\r", "\r\n", "\n", "\u2028", "\u2029"]),
+			new LexerTest("\n\r\r\n\n\u2028\u2029", ["\n", "\r", "\r", "\n", "\n", "\u2028", "\u2029"]),
 			// Comment tests
 			new LexerTest("//foo\n", ['//foo', '\n']),
 			new LexerTest("//\n", ["//", "\n"]),

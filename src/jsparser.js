@@ -376,7 +376,7 @@ gl.module('gl.jsparser', [], function() {
 	
 	var Lexer = function() {
 		this.WhiteSpace = /[ \t\x0B\f\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF]/g;
-		this.LineTerminator = /[\n\u2028\u2029]|\r\n?/g;
+		this.LineTerminator = /[\n\r\u2028\u2029]/g;
 		this.Comment = /\/\*[\s\S]*?\*\/|\/\/.*/g;
 		{
 			{
