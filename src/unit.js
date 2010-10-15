@@ -36,6 +36,26 @@ gl.module('gl.unit',
 		return sError;
 	}
 	
+	/**
+	 * Convert an object to string in a nice readable format showing indications of type.
+	 * @param oError The error object.
+	 * @returns {string} The error message.
+	 */
+	function objectToString(oObject) {
+		if (typeof oObject == 'string' || oObject instanceof String) {
+			return '"' + oObject.replace(/\\/g, '\\\\').replace(/\n/g, '\\n')
+					.replace(/\r/g, '\\r').replace(/\t/g, '\\t').replace(/\v/g, '\\v')
+					.replace(/\u0008/g, '\\b').replace(/\f/g, '\\f') + '"';
+		} else if (oObject instanceof Array) {
+			var aResult = [];
+			for (var i = 0; i < oObject.length; i++) {
+				aResult.push(objectToString(oObject[i]));
+			}
+			return '[' + aResult.join(', ') + ']';
+		}
+		return String(oObject);
+	}
+	
 	
 	
 	
@@ -97,13 +117,14 @@ gl.module('gl.unit',
 
 	Test.prototype.assertEquals = function(vExpected, vResult, sMessage) {
 		if (vExpected !== vResult)
-			this.assert(false, 'Expected: ' + vExpected + ', result: ' + vResult + '.' +
+			this.assert(false, 'Expected: ' + objectToString(vExpected) +
+					', result: ' + objectToString(vResult) + '.' +
 					(sMessage ? ' ' + sMessage : ''));
 	};
 
 	Test.prototype.assertNotEquals = function(vNotExpected, vResult, sMessage) {
 		if (vNotExpected === vResult)
-			this.assert(false, 'Not expected: ' + vResult + '.' +
+			this.assert(false, 'Not expected: ' + objectToString(vResult) + '.' +
 					(sMessage ? ' ' + sMessage : ''));
 	};
 
@@ -502,5 +523,7 @@ gl.module('gl.unit',
 	this.TestView = TestView;
 	this.TestGroupView = TestGroupView;
 	this.WindowView = WindowView;
+	this.errorToString = errorToString;
+	this.objectToString = objectToString;
 
 });
