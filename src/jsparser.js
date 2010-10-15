@@ -375,9 +375,9 @@ gl.module('gl.jsparser', [], function() {
 	
 	
 	var Lexer = function() {
-		var oWhiteSpace = /[ \t\x0B\f\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF]/g;
-		var oLineTerminator = /[\n\u2028\u2029]|\r\n?/g;
-		var oComment = /\/\*[\s\S]*?\*\/|\/\/.*/g;
+		this.WhiteSpace = /[ \t\x0B\f\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF]/g;
+		this.LineTerminator = /[\n\u2028\u2029]|\r\n?/g;
+		this.Comment = /\/\*[\s\S]*?\*\/|\/\/.*/g;
 		{
 			{
 				var sUnicodeLetter = 'a-zA-Z'; // simplification, does not include the full range
@@ -389,34 +389,32 @@ gl.module('gl.jsparser', [], function() {
 						sUnicodeCombiningMark + sUnicodeConnectorPunctuation + ']+|\\\\u[0-9a-fA-F]{4}';
 			}
 			// simplification, does not exclude and reserved words
-			var oIdentifierName = new RegExp('(?:' + sIdentifierStart + ')(?:' + sIdentifierPart + ')*', 'g');
-			var oPunctuator = /[{}()\[\].;,~?:]|\+\+|--|&&|\|\||(?:[=!+\-*%&|^]|<<|>>|>>>|[<>]|==|!=)=?/g;
+			this.IdentifierName = new RegExp('(?:' + sIdentifierStart + ')(?:' + sIdentifierPart + ')*', 'g');
+			this.Punctuator = /[{}()\[\].;,~?:]|\+\+|--|&&|\|\||(?:[=!+\-*%&|^]|<<|>>|>>>|[<>]|==|!=)=?/g;
 			// TODO: Note: The source character immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
-			var oNumericLiteral = /(?:(?:0(?!\d)|[1-9][0-9]*)(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|0[xX][0-9a-fA-F]+/g;
+			this.NumericLiteral = /(?:(?:0(?!\d)|[1-9][0-9]*)(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|0[xX][0-9a-fA-F]+/g;
 			var oStringLiteralDouble = /"(?:[^\\"]+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*"/g;
 			var oStringLiteralSingle = /'(?:[^\\']+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*'/g;
+			this.StringLiteral = new RegExp(oStringLiteralDouble.source + '|' + oStringLiteralSingle.source, 'g');
 		}
-		var oToken = new RegExp(
-				oIdentifierName.source + '|' +
-				oNumericLiteral.source + '|' +
-				oPunctuator.source + '|' +
-				oStringLiteralDouble.source + '|' +
-				oStringLiteralSingle.source, 'g');
+		this.Token = new RegExp(
+				this.IdentifierName.source + '|' +
+				this.NumericLiteral.source + '|' + // swapped with Punctuator to match .1-style numbers...
+				this.Punctuator.source + '|' +
+				this.StringLiteral.source, 'g');
 		
-		var oDivPunctuator = /\/=?/g;
+		this.DivPunctuator = /\/=?/g;
 		
-		var oInputElementDiv = new RegExp(
-				oWhiteSpace.source + '|' +
-				oLineTerminator.source + '|' +
-				oComment.source + "|" +
-				oToken.source + '|' +
-				oDivPunctuator.source, 'g');
-		
-		this.inputElementDiv = oInputElementDiv;
+		this.InputElementDiv = new RegExp(
+				this.WhiteSpace.source + '|' +
+				this.LineTerminator.source + '|' +
+				this.Comment.source + "|" +
+				this.Token.source + '|' +
+				this.DivPunctuator.source, 'g');
 	};
 	
 	Lexer.prototype.split = function(sInput) {
-		var sTokens = sInput.match(this.inputElementDiv) || [];
+		var sTokens = sInput.match(this.InputElementDiv) || [];
 		if (sTokens.join('') != sInput)
 			throw new Error('Parsing failed.');
 		return sTokens;
