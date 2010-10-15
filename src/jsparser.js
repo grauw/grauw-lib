@@ -411,6 +411,14 @@ gl.module('gl.jsparser', [], function() {
 				this.Comment.source + "|" +
 				this.Token.source + '|' +
 				this.DivPunctuator.source, 'g');
+
+		// this one is optimised to grab complete sequences of white space / line terminators
+		this.optimisedInputElementDiv = new RegExp(
+				this.WhiteSpace.source + '+|' +
+				this.LineTerminator.source + '+|' +
+				this.Comment.source + "|" +
+				this.Token.source + '|' +
+				this.DivPunctuator.source, 'g');
 		
 		this.Keyword = /break|do|instanceof|typeof|case|else|new|var|catch|finally|return|void|continue|for|switch|while|debugger|function|this|with|default|if|throw|delete|in|try/g;
 		this.FutureReservedWord = /class|enum|extends|super|const|export|import/g;
