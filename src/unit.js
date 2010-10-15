@@ -45,7 +45,7 @@ gl.module('gl.unit',
 		if (typeof oObject == 'string' || oObject instanceof String) {
 			return '"' + oObject.replace(/\\/g, '\\\\').replace(/\n/g, '\\n')
 					.replace(/\r/g, '\\r').replace(/\t/g, '\\t').replace(/\v/g, '\\v')
-					.replace(/[\b]/g, '\\b').replace(/\f/g, '\\f') + '"';
+					.replace(/[\b]/g, '\\b').replace(/\f/g, '\\f').replace(/\0/g, '\\0') + '"';
 		} else if (oObject instanceof Array) {
 			var aResult = [];
 			for (var i = 0; i < oObject.length; i++) {
