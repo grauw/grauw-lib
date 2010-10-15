@@ -387,27 +387,40 @@ gl.module('gl.jsparser', [], function() {
 	var Lexer = function() {
 		// A.1 Lexical Grammar
 		this.WhiteSpace = /[ \t\x0B\f\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF]/g;
+		
 		this.LineTerminator = /[\n\r\u2028\u2029]/g;
+		
 		this.Comment = /\/\*[\s\S]*?\*\/|\/\/.*/g;
-		{
-			{
-				var sUnicodeLetter = 'a-zA-Z'; // simplification, does not include the full range
-				var sUnicodeCombiningMark = ''; // TODO
-				var sUnicodeDigit = '\\d'; // simplification, does not include the full range
-				var sUnicodeConnectorPunctuation = ''; // TODO
-				var sIdentifierStart = '[' + sUnicodeLetter + '$_]|\\\\u[0-9a-fA-F]{4}';
-				var sIdentifierPart = '[' + sUnicodeLetter + sUnicodeDigit + '$_\\u200C\\u200D' +
-						sUnicodeCombiningMark + sUnicodeConnectorPunctuation + ']+|\\\\u[0-9a-fA-F]{4}';
-			}
-			// simplification, does not exclude and reserved words
-			this.IdentifierName = new RegExp('(?:' + sIdentifierStart + ')(?:' + sIdentifierPart + ')*', 'g');
-			this.Punctuator = /[{}()\[\].;,~?:]|\+\+|--|&&|\|\||(?:[=!+\-*%&|^]|<<|>>|>>>|[<>]|==|!=)=?/g;
-			// TODO: Note: The source character immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
-			this.NumericLiteral = /(?:(?:0(?!\d)|[1-9][0-9]*)(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|0[xX][0-9a-fA-F]+/g;
-			var oStringLiteralDouble = /"(?:[^\\"]+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*"/g;
-			var oStringLiteralSingle = /'(?:[^\\']+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*'/g;
-			this.StringLiteral = new RegExp(oStringLiteralDouble.source + '|' + oStringLiteralSingle.source, 'g');
-		}
+		
+		var sUnicodeLetter = 'a-zA-Z'; // simplification, does not include the full range
+		var sUnicodeCombiningMark = ''; // TODO
+		var sUnicodeDigit = '\\d'; // simplification, does not include the full range
+		var sUnicodeConnectorPunctuation = ''; // TODO
+		var sIdentifierStart = '[' + sUnicodeLetter + '$_]|\\\\u[0-9a-fA-F]{4}';
+		var sIdentifierPart = '[' + sUnicodeLetter + sUnicodeDigit + '$_\\u200C\\u200D' +
+				sUnicodeCombiningMark + sUnicodeConnectorPunctuation + ']+|\\\\u[0-9a-fA-F]{4}';
+		this.IdentifierName = new RegExp('(?:' + sIdentifierStart + ')(?:' + sIdentifierPart + ')*', 'g');
+		
+		this.Punctuator = /[{}()\[\].;,~?:]|\+\+|--|&&|\|\||(?:[=!+\-*%&|^]|<<|>>|>>>|[<>]|==|!=)=?/g;
+		
+		// TODO: Note: The source character immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
+		this.NumericLiteral = /(?:(?:0(?!\d)|[1-9][0-9]*)(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|0[xX][0-9a-fA-F]+/g;
+		
+		var oStringLiteralDouble = /"(?:[^\\"]+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*"/g;
+		var oStringLiteralSingle = /'(?:[^\\']+|\\(?:0(?!\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\r\n|[^0-9xu]))*'/g;
+		this.StringLiteral = new RegExp(oStringLiteralDouble.source + '|' + oStringLiteralSingle.source, 'g');
+		
+		this.Keyword = /break|do|instanceof|typeof|case|else|new|var|catch|finally|return|void|continue|for|switch|while|debugger|function|this|with|default|if|throw|delete|in|try/g;
+		this.FutureReservedWord = /class|enum|extends|super|const|export|import/g;
+		this.NullLiteral = /null/g;
+		this.BooleanLiteral = /true|false/g;
+		this.ReservedWord = new RegExp(
+				this.Keyword.source + '|' +
+				this.FutureReservedWord.source + '|' +
+				this.NullLiteral.source + '|' +
+				this.BooleanLiteral.source, 'g');
+		this.Identifier = new RegExp('(?!' + this.ReservedWord.source + ')', 'g');
+		
 		this.Token = new RegExp(
 				this.IdentifierName.source + '|' +
 				this.NumericLiteral.source + '|' + // swapped with Punctuator to match .1-style numbers...
@@ -430,17 +443,6 @@ gl.module('gl.jsparser', [], function() {
 				this.Comment.source + "|" +
 				this.Token.source + '|' +
 				this.DivPunctuator.source, 'g');
-		
-		this.Keyword = /break|do|instanceof|typeof|case|else|new|var|catch|finally|return|void|continue|for|switch|while|debugger|function|this|with|default|if|throw|delete|in|try/g;
-		this.FutureReservedWord = /class|enum|extends|super|const|export|import/g;
-		this.NullLiteral = /null/g;
-		this.BooleanLiteral = /true|false/g;
-		this.ReservedWord = new RegExp(
-				this.Keyword.source + '|' +
-				this.FutureReservedWord.source + '|' +
-				this.NullLiteral.source + '|' +
-				this.BooleanLiteral.source, 'g');
-		this.Identifier = new RegExp('(?!' + this.ReservedWord.source + ')', 'g');
 	};
 	
 	/**
