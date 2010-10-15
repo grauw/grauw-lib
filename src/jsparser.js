@@ -374,6 +374,46 @@ gl.module('gl.jsparser', [], function() {
 	
 	
 	
+	var Lexer = function() {
+		var sWhiteSpace = '[ \\t\\x0B\\f\\xA0\\u1680\\u180E\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200A\\u202F\\u205F\\u3000\\uFEFF]';
+		var sLineTerminator = '[\\n\\u2028\\u2029]|\\r\\n?';
+		var sComment = '/\\*[\\s\\S]*?\\*/|//.*';
+		{
+			{
+				var sUnicodeLetter = 'a-zA-Z'; // simplification, does not include the full range
+				var sUnicodeCombiningMark = ''; // TODO
+				var sUnicodeDigit = '\\d'; // simplification, does not include the full range
+				var sUnicodeConnectorPunctuation = ''; // TODO
+				var sIdentifierStart = '[' + sUnicodeLetter + '$_]|\\\\u[0-9a-fA-F]{4}';
+				var sIdentifierPart = '[' + sUnicodeLetter + sUnicodeDigit + '$_\\u200C\\u200D' +
+						sUnicodeCombiningMark + sUnicodeConnectorPunctuation + ']+|\\\\u[0-9a-fA-F]{4}';
+			}
+			// simplification, does not exclude and reserved words
+			var sIdentifierName = '(?:' + sIdentifierStart + ')(?:' + sIdentifierPart + ')*';
+			var sPunctuator = '[{}()\\[\\].;,~?:]|\\+\\+|--|&&|\\|\\||(?:[=!+\\-*%&|^]|<<|>>|>>>|[<>]|==|!=)=?';
+			// TODO: Note: The source character immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
+			var sNumericLiteral = '(?:(?:0(?!\\d)|[1-9][0-9]*)(?:\\.[0-9]+)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|0[xX][0-9a-fA-F]+';
+			var sStringLiteral = '"(?:[^\\\\"]+|\\\\(?:0(?!\\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\\r\\n|[^0-9xu]))*"' +
+					"|'(?:[^\\\\']+|\\\\(?:0(?!\\d)|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|\\r\\n|[^0-9xu]))*'";
+		}
+		var sToken = sIdentifierName + '|' + sNumericLiteral + '|' + sPunctuator + '|' + sStringLiteral;
+		var sDivPunctuator = '/=?';
+		var sInputElementDiv = sWhiteSpace + '|' + sLineTerminator + '|' +
+				sComment + "|" + sToken + '|' + sDivPunctuator;
+		
+		this.regexp = new RegExp(sInputElementDiv, 'g');
+	};
+	
+	Lexer.prototype.split = function(sInput) {
+		var sTokens = sInput.match(this.regexp) || [];
+		if (sTokens.join('') != sInput)
+			throw new Error('Parsing failed.');
+		return sTokens;
+	};
+	
+	
+	
+	
 	// exports
 	this.Symbol = Symbol;
 	this.Production = Production;
@@ -383,5 +423,6 @@ gl.module('gl.jsparser', [], function() {
 	this.Optional = Optional;
 	this.LookAhead = LookAhead;
 	this.Parser = Parser;
+	this.Lexer = Lexer;
 	
 });

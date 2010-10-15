@@ -10,6 +10,7 @@ gl.module('unit',
 	var SimpleTest = gl.require(gl.unit.SimpleTest);
 	var TestSuite = gl.require(gl.unit.TestSuite);
 	var TestGroup = gl.require(gl.unit.TestGroup);
+	var objectToString = gl.require(gl.unit.objectToString);
 	var Symbol = gl.require(gl.jsparser.Symbol);
 	var Production = gl.require(gl.jsparser.Production);
 	var Seq = gl.require(gl.jsparser.Seq);
@@ -18,6 +19,7 @@ gl.module('unit',
 	var Optional = gl.require(gl.jsparser.Optional);
 	var LookAhead = gl.require(gl.jsparser.LookAhead);
 	var Parser = gl.require(gl.jsparser.Parser);
+	var Lexer = gl.require(gl.jsparser.Lexer);
 	
 	
 	
@@ -27,11 +29,56 @@ gl.module('unit',
 	
 	
 	
+	var LexerTest = function(sInput, aExpected) {
+		Test.call(this);
+		this.input = sInput;
+		this.expected = aExpected;
+	};
+	gl.extend(Test, LexerTest);
+	
+	LexerTest.prototype.test = function() {
+		var oLexer = new Lexer();
+		var aOutput = oLexer.split(this.input);
+		for (var i = 0; i < this.expected.length && i < aOutput.length; i++) {
+			this.assertEquals(this.expected[i], aOutput[i], "Output part " + i + " should match.");
+		}
+		var aOutput = oLexer.split(" " + this.input + " ");
+		for (var i = 0; i < this.expected.length && i < aOutput.length - 2; i++) {
+			this.assertEquals(this.expected[i], aOutput[i + 1], "Context test: output part " + i + " should match.");
+		}
+	};
+	
+	LexerTest.prototype.toString = function() {
+		return 'Lexing ' + objectToString(this.input);
+	};
+	
+	
+	
+	
+	var LexerErrorTest = function(sInput) {
+		Test.call(this);
+		this.input = sInput;
+	};
+	gl.extend(Test, LexerErrorTest);
+	
+	LexerErrorTest.prototype.test = function() {
+		var oLexer = new Lexer();
+		this.assertException(Error, function() {
+			oLexer.split(this.input);
+		});
+	};
+	
+	LexerErrorTest.prototype.toString = function() {
+		return 'Lexing ' + objectToString(this.input) + ', expecting error';
+	};
+	
+	
+	
+	
 	var MatchTest = function(sProgram) {
 		Test.call(this);
 		this.program = sProgram;
 	};
-	
 	gl.extend(Test, MatchTest);
 	
 	MatchTest.prototype.test = function() {
@@ -39,7 +86,7 @@ gl.module('unit',
 	};
 	
 	MatchTest.prototype.toString = function() {
-		return 'Matching "' + this.program + '"';
+		return 'Matching ' + objectToString(this.program);
 	};
 	
 	
@@ -49,7 +96,6 @@ gl.module('unit',
 		Test.call(this);
 		this.program = sProgram;
 	};
-	
 	gl.extend(Test, NoMatchTest);
 	
 	NoMatchTest.prototype.test = function() {
@@ -57,7 +103,7 @@ gl.module('unit',
 	};
 	
 	NoMatchTest.prototype.toString = function() {
-		return 'Not matching "' + this.program + '"';
+		return 'Matching ' + objectToString(this.program) + ', expecting no match';
 	};
 	
 	
@@ -309,6 +355,95 @@ gl.module('unit',
 				var oParser = new Parser();
 				this.assertEquals(false, oParser.test(")"));
 			})
+		]),
+		new TestGroup('Lexer class', [
+   			new SimpleTest('Lexer::constructor()', function() {
+   				var oLexer = new Lexer();
+   				this.assert(oLexer instanceof Lexer);
+   			}),
+   			
+   			new SimpleTest('Lexer::split() empty program', function() {
+   				var oLexer = new Lexer();
+   				var aResult = oLexer.split('');
+   				this.assert(aResult instanceof Array);
+   				this.assertEquals(0, aResult.length);
+   			}),
+   			
+   			new SimpleTest('Lexer::split() simple program', function() {
+   				var oLexer = new Lexer();
+   				var aResult = oLexer.split(' ');
+   				this.assert(aResult instanceof Array);
+   				this.assertEquals(1, aResult.length);
+   				this.assertEquals(' ', aResult[0]);
+   			}),
+   			
+   			new SimpleTest('Lexer::split() slightly less simple program', function() {
+   				var oLexer = new Lexer();
+   				var aResult = oLexer.split(' \n');
+   				this.assert(aResult instanceof Array);
+   				this.assertEquals(2, aResult.length);
+   				this.assertEquals(' ', aResult[0]);
+   				this.assertEquals('\n', aResult[1]);
+   			})
+   		]),
+   		new TestGroup('Lexer tests', [
+			// WhiteSpace tests
+			new LexerTest(' ', [' ']),
+			new LexerTest("  ", [" ", " "]),
+			new LexerTest("\u0009\u000B\u000C\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003" +
+					"\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF",
+					["\u0009", "\u000B", "\u000C", "\u0020", "\u00A0", "\u1680", "\u180E", "\u2000",
+					 "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008",
+					 "\u2009", "\u200A", "\u202F", "\u205F", "\u3000", "\uFEFF"]),
+			// LineTerminator tests
+			new LexerTest("\n\r\r\n\n\u2028\u2029", ["\n", "\r", "\r\n", "\n", "\u2028", "\u2029"]),
+			// Comment tests
+			new LexerTest("//foo\n", ['//foo', '\n']),
+			new LexerTest("//\n", ["//", "\n"]),
+			new LexerTest("// foo \n", ["// foo ", "\n"]),
+			new LexerTest("/**/", ["/**/"]),
+			new LexerTest("/* foo */\n", ["/* foo */", "\n"]),
+			new LexerTest("/* * */", ["/* * */"]),
+			new LexerTest("/* **/*/", ["/* **/", "*", "/"]),
+			new LexerTest("/* \n */", ["/* \n */"]),
+			// Token tests
+			new LexerTest("a", ["a"]),
+			new LexerTest("foo", ["foo"]),
+			new LexerTest("f00", ["f00"]),
+			new LexerTest("$1", ["$1"]),
+			new LexerTest("_1$", ["_1$"]),
+			new LexerTest("{}()[].;,<><=>===!====!==+-*%++--<<>>>>>&|^!~&&||?:=+=-=*=%=<<=>>=>>>=&=|=^=",
+					'{', '}', '(', ')', '[', ']', '.', ';', ',', '<', '>', '<=', '>=', '==', '!=',
+					'===', '!==', '+', '-', '*', '%', '++', '--', '<<', '>>', '>>>', '&', '|', '^',
+					'!', '~', '&&', '||', '?', ':', '=', '+=', '-=', '*=', '%=', '<<=', '>>=', '>>>=',
+					'&=', '|=', '^='),
+			new LexerTest("0", ["0"]),
+			new LexerTest("123", ["123"]),
+			new LexerTest(".1", [".1"]),
+			new LexerTest("0.1", ["0.1"]),
+			new LexerTest("0.123", ["0.123"]),
+			new LexerTest("123.123", ["123.123"]),
+			new LexerTest("0.1e1", ["0.1e1"]),
+			new LexerTest("0.1E1", ["0.1E1"]),
+			new LexerTest("0.1e12", ["0.1e12"]),
+			new LexerTest("0.1e+12", ["0.1e+12"]),
+			new LexerTest("0.1e-1", ["0.1e-1"]),
+			new LexerTest("2e10", ["2e10"]),
+			new LexerTest(".2e10", [".2e10"]),
+			new LexerTest("2.2e10", ["2.2e10"]),
+			new LexerErrorTest("00", ["00"]),
+			new LexerErrorTest("0123", ["0123"]),
+			new LexerTest("''", ["''"]),
+			new LexerTest('""', ['""']),
+			new LexerTest("'foo'", ["'foo'"]),
+			new LexerTest("'\\0'", ["'\\0'"]),
+			new LexerTest("'\\''", ["'\\''"]),
+			new LexerTest('"\\""', ['"\\""']),
+			new LexerErrorTest("'\\00'", ["'\\00'"]),
+			new LexerErrorTest("'\\'", ["'\\'"]),
+			// DivPunctuator tests
+			new LexerTest("/", ["/"]),
+			new LexerTest("/=", ["/="])
 		]),
 		new TestGroup('Matching tests', [
 			// empty
