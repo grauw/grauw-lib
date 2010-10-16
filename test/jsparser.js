@@ -357,36 +357,36 @@ gl.module('unit',
 			})
 		]),
 		new TestGroup('Lexer class', [
-   			new SimpleTest('Lexer::constructor()', function() {
-   				var oLexer = new Lexer();
-   				this.assert(oLexer instanceof Lexer);
-   			}),
-   			
-   			new SimpleTest('Lexer::tokenize() empty program', function() {
-   				var oLexer = new Lexer();
-   				var aResult = oLexer.tokenize('');
-   				this.assert(aResult instanceof Array);
-   				this.assertEquals(0, aResult.length);
-   			}),
-   			
-   			new SimpleTest('Lexer::tokenize() simple program', function() {
-   				var oLexer = new Lexer();
-   				var aResult = oLexer.tokenize(' ');
-   				this.assert(aResult instanceof Array);
-   				this.assertEquals(1, aResult.length);
-   				this.assertEquals(' ', aResult[0]);
-   			}),
-   			
-   			new SimpleTest('Lexer::tokenize() slightly less simple program', function() {
-   				var oLexer = new Lexer();
-   				var aResult = oLexer.tokenize(' \n');
-   				this.assert(aResult instanceof Array);
-   				this.assertEquals(2, aResult.length);
-   				this.assertEquals(' ', aResult[0]);
-   				this.assertEquals('\n', aResult[1]);
-   			})
-   		]),
-   		new TestGroup('Lexer tests', [
+			new SimpleTest('Lexer::constructor()', function() {
+				var oLexer = new Lexer();
+				this.assert(oLexer instanceof Lexer);
+			}),
+			
+			new SimpleTest('Lexer::tokenize() empty program', function() {
+				var oLexer = new Lexer();
+				var aResult = oLexer.tokenize('');
+				this.assert(aResult instanceof Array);
+				this.assertEquals(0, aResult.length);
+			}),
+			
+			new SimpleTest('Lexer::tokenize() simple program', function() {
+				var oLexer = new Lexer();
+				var aResult = oLexer.tokenize(' ');
+				this.assert(aResult instanceof Array);
+				this.assertEquals(1, aResult.length);
+				this.assertEquals(' ', aResult[0]);
+			}),
+			
+			new SimpleTest('Lexer::tokenize() slightly less simple program', function() {
+				var oLexer = new Lexer();
+				var aResult = oLexer.tokenize(' \n');
+				this.assert(aResult instanceof Array);
+				this.assertEquals(2, aResult.length);
+				this.assertEquals(' ', aResult[0]);
+				this.assertEquals('\n', aResult[1]);
+			})
+		]),
+		new TestGroup('Lexer tests', [
 			// WhiteSpace tests
 			new LexerTest(' ', [' ']),
 			new LexerTest("  ", [" ", " "]),
