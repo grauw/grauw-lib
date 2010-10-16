@@ -446,11 +446,11 @@ gl.module('gl.jsparser', [], function() {
 	};
 	
 	/**
-	 * Tokenize a given program string.
+	 * Tokenise a given program string.
 	 * @param {string} sInput The input program.
 	 * @returns {string[]} An array of tokens.
 	 */
-	Lexer.prototype.split = function(sInput) {
+	Lexer.prototype.tokenize = function(sInput) {
 		var aTokens = sInput.match(this.InputElementDiv) || [];
 		if (aTokens.join('') != sInput)
 			throw new Error('Parsing failed.');

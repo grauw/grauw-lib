@@ -38,11 +38,11 @@ gl.module('unit',
 	
 	LexerTest.prototype.test = function() {
 		var oLexer = new Lexer();
-		var aOutput = oLexer.split(this.input);
+		var aOutput = oLexer.tokenize(this.input);
 		for (var i = 0; i < this.expected.length && i < aOutput.length; i++) {
 			this.assertEquals(this.expected[i], aOutput[i], "Output part " + i + " should match.");
 		}
-		var aOutput = oLexer.split(" " + this.input + " ");
+		var aOutput = oLexer.tokenize(" " + this.input + " ");
 		for (var i = 0; i < this.expected.length && i < aOutput.length - 2; i++) {
 			this.assertEquals(this.expected[i], aOutput[i + 1], "Context test: output part " + i + " should match.");
 		}
@@ -362,24 +362,24 @@ gl.module('unit',
    				this.assert(oLexer instanceof Lexer);
    			}),
    			
-   			new SimpleTest('Lexer::split() empty program', function() {
+   			new SimpleTest('Lexer::tokenize() empty program', function() {
    				var oLexer = new Lexer();
-   				var aResult = oLexer.split('');
+   				var aResult = oLexer.tokenize('');
    				this.assert(aResult instanceof Array);
    				this.assertEquals(0, aResult.length);
    			}),
    			
-   			new SimpleTest('Lexer::split() simple program', function() {
+   			new SimpleTest('Lexer::tokenize() simple program', function() {
    				var oLexer = new Lexer();
-   				var aResult = oLexer.split(' ');
+   				var aResult = oLexer.tokenize(' ');
    				this.assert(aResult instanceof Array);
    				this.assertEquals(1, aResult.length);
    				this.assertEquals(' ', aResult[0]);
    			}),
    			
-   			new SimpleTest('Lexer::split() slightly less simple program', function() {
+   			new SimpleTest('Lexer::tokenize() slightly less simple program', function() {
    				var oLexer = new Lexer();
-   				var aResult = oLexer.split(' \n');
+   				var aResult = oLexer.tokenize(' \n');
    				this.assert(aResult instanceof Array);
    				this.assertEquals(2, aResult.length);
    				this.assertEquals(' ', aResult[0]);
