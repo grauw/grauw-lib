@@ -384,6 +384,63 @@ gl.module('unit',
 				this.assertEquals(2, aResult.length);
 				this.assertEquals(' ', aResult[0]);
 				this.assertEquals('\n', aResult[1]);
+			}),
+			
+			new SimpleTest('Lexer::processTokens()', function() {
+				var oLexer = new Lexer();
+				var bWhiteSpaceCalled = false;
+				var bLineTerminatorCalled = false;
+				var bCommentCalled = false;
+				var bTokenCalled = false;
+				var bDivPunctuatorCalled = false;
+				oLexer.processTokens([' ', '\n', '//', 'x', '/'], {
+					parseWhiteSpace: function(sToken) { bWhiteSpaceCalled = sToken == ' '; },
+					parseLineTerminator: function(sToken) { bLineTerminatorCalled = sToken == '\n'; },
+					parseComment: function(sToken) { bCommentCalled = sToken == '//'; },
+					parseToken: function(sToken) { bTokenCalled = sToken == 'x'; },
+					parseDivPunctuator: function(sToken) { bDivPunctuatorCalled = sToken == '/'; }
+				});
+				this.assertEquals(true, bWhiteSpaceCalled, 'parseWhiteSpace() should be called.');
+				this.assertEquals(true, bLineTerminatorCalled, 'parseLineTerminator() should be called.');
+				this.assertEquals(true, bCommentCalled, 'parseComment() should be called.');
+				this.assertEquals(true, bTokenCalled, 'parseToken() should be called.');
+				this.assertEquals(true, bDivPunctuatorCalled, 'parseDivPunctuator() should be called.');
+			}),
+			
+			new SimpleTest('Lexer::processToken() IdentifierName', function() {
+				var oLexer = new Lexer();
+				var bIdentifierNameCalled = false;
+				oLexer.processToken('x', {
+					parseIdentifierName: function(sToken) { bIdentifierNameCalled = sToken == 'x'; }
+				});
+				this.assertEquals(true, bIdentifierNameCalled, 'parseIdentifierName() should be called.');
+			}),
+			
+			new SimpleTest('Lexer::processToken() Punctuator', function() {
+				var oLexer = new Lexer();
+				var bPunctuatorCalled = false;
+				oLexer.processToken('.', {
+					parsePunctuator: function(sToken) { bPunctuatorCalled = sToken == '.'; }
+				});
+				this.assertEquals(true, bPunctuatorCalled, 'parsePunctuator() should be called.');
+			}),
+			
+			new SimpleTest('Lexer::processToken() NumericLiteral', function() {
+				var oLexer = new Lexer();
+				var bNumericLiteralCalled = false;
+				oLexer.processToken('0', {
+					parseNumericLiteral: function(sToken) { bNumericLiteralCalled = sToken == '0'; }
+				});
+				this.assertEquals(true, bNumericLiteralCalled, 'parseNumericLiteral() should be called.');
+			}),
+			
+			new SimpleTest('Lexer::processToken() StringLiteral', function() {
+				var oLexer = new Lexer();
+				var bStringLiteralCalled = false;
+				oLexer.processToken('""', {
+					parseStringLiteral: function(sToken) { bStringLiteralCalled = sToken == '""'; }
+				});
+				this.assertEquals(true, bStringLiteralCalled, 'parseStringLiteral() should be called.');
 			})
 		]),
 		new TestGroup('Lexer tests', [

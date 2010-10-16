@@ -457,6 +457,133 @@ gl.module('gl.jsparser', [], function() {
 		return aTokens;
 	};
 	
+	/**
+	 * Provided an array of tokens, invokes callbacks corresponding
+	 * to the token type on an object:
+	 * 
+	 *   parseWhiteSpace()
+	 *   parseLineTerminator()
+	 *   parseComment()
+	 *   parseToken()
+	 *   parseDivPunctuator()
+	 * 
+	 * @param {string[]} aTokens The tokenised input program.
+	 * @param {Parser} oParser The object to invoke the callbacks on.
+	 */
+	Lexer.prototype.processTokens = function(aTokens, oParser) {
+		for (var i = 0, len = aTokens.length; i < len; i++) {
+			var sToken = aTokens[i];
+			switch (sToken.charAt(0)) {
+				case ' ':
+				case '\t':
+				case '\x0B':
+				case '\f':
+				case '\xA0':
+				case '\u1680':
+				case '\u180E':
+				case '\u2000':
+				case '\u2001':
+				case '\u2002':
+				case '\u2003':
+				case '\u2004':
+				case '\u2005':
+				case '\u2006':
+				case '\u2007':
+				case '\u2008':
+				case '\u2009':
+				case '\u200A':
+				case '\u202F':
+				case '\u205F':
+				case '\u3000':
+				case '\uFEFF':
+					oParser.parseWhiteSpace(sToken);
+					break;
+				case '\n':
+				case '\r':
+				case '\u2028':
+				case '\u2029':
+					oParser.parseLineTerminator(sToken);
+					break;
+				case '/':
+					if (sToken.length > 2 || sToken.charAt(1) === '/')
+						oParser.parseComment(sToken);
+					else
+						oParser.parseDivPunctuator(sToken);
+					break;
+				default:
+					oParser.parseToken(sToken);
+					break;
+			}
+		}
+	};
+	
+	/**
+	 * Additional method to be used in conjencture with processTokens(),
+	 * that further analyses a token of type Token and invokes callbacks
+	 * corresponding to the subtype:
+	 * 
+	 *   parseIdentifierName()
+	 *   parsePunctuator()
+	 *   parseNumericLiteral()
+	 *   parseStringLiteral()
+	 * 
+	 * @param {string[]} aTokens The input program.
+	 * @param {Parser} oParser The object to invoke the callbacks on.
+	 */
+	Lexer.prototype.processToken = function(sToken, oParser) {
+		switch (sToken.charAt(0)) {
+			case '"':
+			case "'":
+				oParser.parseStringLiteral(sToken);
+				break;
+			case '.':
+				if (sToken.length == 1) {
+					oParser.parsePunctuator(sToken);
+					break;
+				}
+				// fall-through
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				oParser.parseNumericLiteral(sToken);
+				break;
+			case '{':
+			case '}':
+			case '(':
+			case ')':
+			case '[':
+			case ']':
+			case ';':
+			case ',':
+			case '<':
+			case '>':
+			case '+':
+			case '-':
+			case '*':
+			case '%':
+			case '&':
+			case '|':
+			case '^':
+			case '!':
+			case '~':
+			case '?':
+			case ':':
+			case '=':
+				oParser.parsePunctuator(sToken);
+				break;
+			default:
+				oParser.parseIdentifierName(sToken);
+				break;
+		}
+	};
+	
 	
 	
 	
