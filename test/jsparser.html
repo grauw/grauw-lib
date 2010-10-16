@@ -13,9 +13,41 @@ gl.module('', [gl.DOMREADY, 'jsparser.js'], function() {
 	suite.run()
 });
 
+function test() {
+	var oProgram = document.getElementById('program');
+	var oResults = document.getElementById('results');
+	
+	var sProgram = oProgram.value;
+	
+	var oLexer = new gl.jsparser.Lexer();
+	var oStartTime = new Date();
+	
+	try {
+		var aTokens = oLexer.tokenize(sProgram);
+		
+		var iTime = new Date() - oStartTime;
+		oResults.value = 'Parsing results:\n\n' +
+				'Time: ' + iTime + 'ms\n' +
+				'Number of tokens: ' + aTokens.length;
+	} catch(e) {
+		oResults.value = 'Error: ' + e + '\n\n' +
+				'Parsed program:\n===============\n' + e.parsedProgram;
+	}
+}
+
 		</script>
 	</head>
 	<body>
 		<h1>JavaScript parser tests (gl.jsparser)</h1>
+		
+		<p>Manual program parse test:</p>
+		
+		<textarea id="program" cols="80" rows="20"></textarea><br />
+		
+		<button onclick="test()">Parse</button>
+		
+		<p>Test output:</p>
+		
+		<textarea id="results" cols="80" rows="15" readonly="readonly"></textarea>
 	</body>
 </html>

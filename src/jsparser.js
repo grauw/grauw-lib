@@ -453,7 +453,7 @@ gl.module('gl.jsparser', [], function() {
 	Lexer.prototype.tokenize = function(sInput) {
 		var aTokens = sInput.match(this.InputElementDiv) || [];
 		if (aTokens.join('') != sInput)
-			throw new Error('Parsing failed.');
+			throw new ParsingError(aTokens.join(''), sInput);
 		return aTokens;
 	};
 	
@@ -582,6 +582,18 @@ gl.module('gl.jsparser', [], function() {
 				oParser.parseIdentifierName(sToken);
 				break;
 		}
+	};
+	
+	
+	
+	
+	var ParsingError = function(sParsedProgram, sInputProgram) {
+		this.parsedProgram = sParsedProgram;
+		this.inputProgram = sInputProgram;
+	};
+	
+	ParsingError.prototype.toString = function(sParsedProgram, sInputProgram) {
+		return 'Parsing failed.';
 	};
 	
 	
