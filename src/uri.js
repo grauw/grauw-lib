@@ -54,7 +54,7 @@ gl.module('gl.uri', [], function() {
 	URI.prototype.query     = null;
 	URI.prototype.fragment  = null;
 	
-	// Regular expression from RFC 2396 appendix B
+	// Regular expression from RFC 3986 appendix B
 	var oParseRegex = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?');
 
 	/**
@@ -78,7 +78,7 @@ gl.module('gl.uri', [], function() {
 	/**
 	 * Returns the path part of the URI.
 	 * In "http://example.com:80/a/b?x#y" this is "/a/b".
-	 * In "about:blank" this is "blank".
+	 * In "mailto:mike@example.com" this is "mike@example.com".
 	 * @return
 	 */
 	URI.prototype.getPath = function() {
@@ -220,6 +220,7 @@ gl.module('gl.uri', [], function() {
 	/**
 	 * Remove dot segments from path.
 	 * See RFC 3986 section 5.2.4
+	 * @private
 	 */
 	URI.prototype.removeDotSegments = function() {
 		var aInput = this.path.split('/'),
