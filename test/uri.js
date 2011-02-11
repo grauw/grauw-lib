@@ -7,6 +7,7 @@ gl.module('unit',
 	
 	// imports
 	var Test = gl.require(gl.unit.Test);
+	var SimpleTest = gl.require(gl.unit.SimpleTest);
 	var TestSuite = gl.require(gl.unit.TestSuite);
 	var TestGroup = gl.require(gl.unit.TestGroup);
 	var URI = gl.require(gl.uri.URI);
@@ -158,6 +159,42 @@ gl.module('unit',
 			new URIPerformanceTest1(),
 			new URIPerformanceTest2(),
 			new URIPerformanceTest3()
+		]),
+		new TestGroup('URI object tests', [
+			new SimpleTest('URI::constructor(string)', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assert(oURI instanceof URI);
+			}),
+			new SimpleTest('URI::constructor(URI)', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				var oCopy = new URI(oURI);
+				this.assert(oCopy instanceof URI);
+				this.assertEquals('http', oCopy.getScheme());
+				this.assertEquals('example.com:80', oCopy.getAuthority());
+				this.assertEquals('/a/b', oCopy.getPath());
+				this.assertEquals('x', oCopy.getQuery());
+				this.assertEquals('y', oCopy.getFragment());
+			}),
+			new SimpleTest('URI::getScheme()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('http', oURI.getScheme());
+			}),
+			new SimpleTest('URI::getAuthority()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('example.com:80', oURI.getAuthority());
+			}),
+			new SimpleTest('URI::getPath()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('/a/b', oURI.getPath());
+			}),
+			new SimpleTest('URI::getQuery()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('x', oURI.getQuery());
+			}),
+			new SimpleTest('URI::getFragment()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('y', oURI.getFragment());
+			})
 		])
 	]);
 	
