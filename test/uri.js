@@ -9,6 +9,7 @@ gl.module('unit',
 	var Test = gl.require(gl.unit.Test);
 	var TestSuite = gl.require(gl.unit.TestSuite);
 	var TestGroup = gl.require(gl.unit.TestGroup);
+	var URI = gl.require(gl.uri.URI);
 	
 	
 	
@@ -26,7 +27,7 @@ gl.module('unit',
 	};
 	
 	URITest.prototype.test = function() {
-		var sURI = gl.uri.URI.resolve(this.uri, this.baseURI);
+		var sURI = URI.resolve(this.uri, this.baseURI);
 		this.assertEquals(this.result, sURI, 'Result URI should match expected URI.');
 	};
 	
@@ -44,7 +45,7 @@ gl.module('unit',
 	
 	URIPerformanceTest1.prototype.test = function() {
 		for (var i = 0; i < 10000; i++) {
-			gl.uri.URI.resolve('a/.././b', 'http://a/b/c/d;p?q');
+			URI.resolve('a/.././b', 'http://a/b/c/d;p?q');
 		}
 	};
 	
@@ -62,7 +63,7 @@ gl.module('unit',
 	
 	URIPerformanceTest2.prototype.test = function() {
 		for (var i = 0; i < 10000; i++) {
-			gl.uri.URI.resolve('a/.././b' + i, 'http://a/b/c/d;p?q');
+			URI.resolve('a/.././b' + i, 'http://a/b/c/d;p?q');
 		}
 	};
 	
@@ -79,9 +80,9 @@ gl.module('unit',
 	};
 	
 	URIPerformanceTest3.prototype.test = function() {
-		var oBaseURI = new gl.uri.URI('http://a/b/c/d;p?q');
+		var oBaseURI = new URI('http://a/b/c/d;p?q');
 		for (var i = 0; i < 10000; i++) {
-			var oURI = new gl.uri.URI('a/.././b');
+			var oURI = new URI('a/.././b');
 			oURI.resolve(oBaseURI).toString();
 		}
 	};
