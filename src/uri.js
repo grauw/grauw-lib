@@ -104,20 +104,6 @@ gl.module('gl.uri', [], function() {
 	};
 	
 	/**
-	 * Resolves a relative URI against an absolute base URI.
-	 * Convenience method.
-	 * @param {String} uri the relative URI to resolve
-	 * @param {String} baseURI the base URI (must be absolute) to resolve against
-	 */
-	URI.resolve = function(sURI, sBaseURI) {
-		var oURI = hCache[sURI] || (hCache[sURI] = new URI(sURI));
-		var oBaseURI = hCache[sBaseURI] || (hCache[sBaseURI] = new URI(sBaseURI));
-		return oURI.resolve(oBaseURI).toString();
-	};
-	
-	var hCache = {};
-	
-	/**
 	 * Tests whether the URI is an absolute URI.
 	 * See RFC 3986 section 4.3.
 	 */
@@ -257,6 +243,20 @@ gl.module('gl.uri', [], function() {
 			aOutput.unshift('');
 		this.path = aOutput.join('/');
 	};
+	
+	/**
+	 * Resolves a relative URI against an absolute base URI.
+	 * Convenience method.
+	 * @param {String} uri the relative URI to resolve
+	 * @param {String} baseURI the base URI (must be absolute) to resolve against
+	 */
+	URI.resolve = function(sURI, sBaseURI) {
+		var oURI = hCache[sURI] || (hCache[sURI] = new URI(sURI));
+		var oBaseURI = hCache[sBaseURI] || (hCache[sBaseURI] = new URI(sBaseURI));
+		return oURI.resolve(oBaseURI).toString();
+	};
+	
+	var hCache = {};
 	
 	/**
 	 * Serialises the URI to a string.
