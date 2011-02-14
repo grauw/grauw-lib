@@ -194,6 +194,29 @@ gl.module('unit',
 			new SimpleTest('URI::getFragment()', function() {
 				var oURI = new URI("http://example.com:80/a/b?x#y");
 				this.assertEquals('y', oURI.getFragment());
+			}),
+			new SimpleTest('URI::isAbsolute()', function() {
+				throw new Error("TODO");
+			}),
+			new SimpleTest('URI::isSameDocumentAs()', function() {
+				throw new Error("TODO");
+			}),
+			new SimpleTest('URI::equals()', function() {
+				throw new Error("TODO");
+			}),
+			new SimpleTest('URI::normalize()', function() {
+				throw new Error("TODO");
+			}),
+			new SimpleTest('URI.resolve()', function() {
+				throw new Error("TODO");
+			}),
+			new SimpleTest('URI::toString()', function() {
+				var oURI = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals("http://example.com:80/a/b?x#y", oURI.toString());
+			}),
+			new SimpleTest('URI::toString() about:blank', function() {
+				var oURI = new URI("about:blank");
+				this.assertEquals("about:blank", oURI.toString());
 			})
 		])
 	]);
