@@ -55,7 +55,7 @@ gl.module('gl.uri', [], function() {
 	URI.prototype.fragment  = null;
 	
 	// Regular expression from RFC 3986 appendix B
-	var oParseRegex = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?');
+	var oParseRegex = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?$');
 
 	/**
 	 * Returns the scheme part of the URI.
