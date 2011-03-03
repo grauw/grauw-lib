@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>nl.grauw</groupId>
+	<artifactId>grauw-lib</artifactId>
+	<version>1.1.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+	<name>Grauw lib</name>
+	<description>Javascript library by Grauw</description>
+	<url>http://www.grauw.nl/projects/selectors/</url>
+	<inceptionYear>2008</inceptionYear>
+	
+	<licenses>
+		<license>
+			<name>Apache 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+			<comments>This is a free software license.</comments>
+		</license>
+	</licenses>
+	
+	<organization>
+		<name>Laurens Holst</name>
+		<url>http://www.grauw.nl/</url>
+	</organization>
+	
+	<scm>
+		<connection>scm:hg:http://hg.grauw.nl/grauw-lib/</connection>
+		<developerConnection>scm:hg:http://hg.grauw.nl/grauw-lib/</developerConnection>
+		<url>http://hg.grauw.nl/grauw-lib/</url>
+	</scm>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<build>
+		<sourceDirectory>src/</sourceDirectory>
+		<scriptSourceDirectory>src/</scriptSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>yuicompressor-maven-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>compress</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+							<jswarn>false</jswarn>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<repositories>
+		<repository>
+			<id>grauw-repository</id>
+			<name>Grauw Repository</name>
+			<url>http://grauw.nl:8081/nexus/content/groups/public</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>grauw-repository</id>
+			<name>Grauw Repository</name>
+			<url>http://grauw.nl:8081/nexus/content/groups/public</url>
+		</pluginRepository>
+	</pluginRepositories>
+</project>

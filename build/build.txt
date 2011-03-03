@@ -1,9 +1,0 @@
-Build instructions
-
-There is a simple Ant build in place which compresses using YUI compressor.
-Download YUI Compressor from http://yuilibrary.com/projects/yuicompressor/,
-and put this file at build/lib/yuicompressor.jar. Create a lib folder and
-rename the jar as necessary.
-
-Now if you run the build.xml build file with Ant, it will output the
-compressed files to the ‘output’ directory.
