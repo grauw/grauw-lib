@@ -51,7 +51,7 @@
 					!(type instanceof Function && arg instanceof type)) {
 				if (typeof type != "string" && !(type instanceof Function))
 					throw new Error("Unsupported type " + type + ".");
-				throw new Error("Argument of type " + (typeof type != "string" && type.constructor.name || type) + " expected at index " + i + ". " +
+				throw new Error("Argument of type " + (typeof type != "string" && type.constructor.name || type) + " expected at index " + (i - 1) + ". " +
 						"Was: " + (arg && typeof arg != "string" && arg.constructor && arg.constructor.name || arg) + ".");
 			}
 		}
