@@ -1,27 +1,21 @@
-gl.module(
-	'unit',
-	[
-		'../src/unit.js',
-		'../src/selector.js'
-	],
-	function() {
+(function(exports) {
 	
-	// imports
-	var Test = gl.require(gl.unit.Test);
-	var TestSuite = gl.require(gl.unit.TestSuite);
-	var TestGroup = gl.require(gl.unit.TestGroup);
-	var SimpleTest = gl.require(gl.unit.SimpleTest);
-	var Parser = gl.require(gl.selector.Parser);
-	var NthSelector = gl.require(gl.selector.NthSelector);
+	var Test = gl.unit.Test;
+	var TestSuite = gl.unit.TestSuite;
+	var TestGroup = gl.unit.TestGroup;
+	var SimpleTest = gl.unit.SimpleTest;
+	var Parser = gl.selector.Parser;
+	var NthSelector = gl.selector.NthSelector;
 	
 	
 	
 	
-	var SelectorTest = function(sSelector, aMatches) {
+	function SelectorTest(selector, matches) {
 		Test.call(this);
-		this.selector = sSelector;
-		this.matches = aMatches;
-	};
+		this.selector = selector;
+		this.matches = matches;
+	}
+	
 	gl.extend(Test, SelectorTest);
 	
 	SelectorTest.prototype.toString = function() {
@@ -40,19 +34,19 @@ gl.module(
 	
 	SelectorTest.prototype.matchTest = function() {
 		for (var i = 0; i < this.matches.length; i++) {
-			var oNode = document.getElementById(this.matches[i]);
-			var bMatch = gl.selector.match(oNode, this.selector);
-			this.assert(bMatch, 'Node with ID ' + this.matches[i] + ' should match.');
+			var node = document.getElementById(this.matches[i]);
+			var match = gl.selector.match(node, this.selector);
+			this.assert(match, 'Node with ID ' + this.matches[i] + ' should match.');
 		}
 	};
 	
 	SelectorTest.prototype.queryTest = function() {
-		var aResult = gl.selector.queryAll(document, this.selector);
-		this.assertEquals(this.matches.length, aResult.length, 'Result length should match expected length.');
-		for (var i = 0; i < this.matches.length || i < aResult.length; i++) {
-			var sExpected = i < this.matches.length ? this.matches[i] : 'undefined';
-			var sResult = aResult[i] ? aResult[i].getAttribute('id') : 'undefined';
-			this.assertEquals(sExpected, sResult, 'Result node ID should match expected ID.');
+		var nodes = gl.selector.queryAll(document, this.selector);
+		this.assertEquals(this.matches.length, nodes.length, 'Result length should match expected length.');
+		for (var i = 0; i < this.matches.length || i < nodes.length; i++) {
+			var expected = i < this.matches.length ? this.matches[i] : 'undefined';
+			var result = nodes[i] ? nodes[i].getAttribute('id') : 'undefined';
+			this.assertEquals(expected, result, 'Result node ID should match expected ID.');
 		}
 	};
 	
@@ -66,12 +60,13 @@ gl.module(
 	 * @param iA The expected a value
 	 * @param iB The expected b value
 	 */
-	var NthTest = function(sNth, iA, iB) {
+	function NthTest(nth, iA, iB) {
 		Test.call(this);
-		this.nth = sNth;
+		this.nth = nth;
 		this.a = iA;
 		this.b = iB;
-	};
+	}
+	
 	gl.extend(Test, NthTest);
 
 	NthTest.prototype.toString = function() {
@@ -79,9 +74,9 @@ gl.module(
 	};
 	
 	NthTest.prototype.test = function() {
-		var oNth = new NthSelector(this.nth);
-		this.assertEquals(this.a, oNth.a, 'Value a should be correct.');
-		this.assertEquals(this.b, oNth.b, 'Value b should be correct.');
+		var nth = new NthSelector(this.nth);
+		this.assertEquals(this.a, nth.a, 'Value a should be correct.');
+		this.assertEquals(this.b, nth.b, 'Value b should be correct.');
 	};
 	
 	
@@ -90,7 +85,7 @@ gl.module(
 	/**
 	 * Unit tests
 	 */
-	var oSuite = new TestSuite([
+	var selectorTests = new TestSuite([
 			new TestGroup('Universal selector tests', [
 				new SelectorTest('*[lang]', ['t0', 't7', 't8'])
 			]),
@@ -254,31 +249,31 @@ gl.module(
 			new SimpleTest('Test querying on copies', function() {
 				// When nodes are cloned with innerHTML in IE, the __queryResult ‘expando property’
 				// is converted to string, and thus "false" evaluates to true instead of false.
-				var oFirstDiv = document.getElementById('t30');
-				var oSecondDiv = document.getElementById('t31');
+				var firstDiv = document.getElementById('t30');
+				var secondDiv = document.getElementById('t31');
 				
-				var oResult1 = gl.selector.query(oFirstDiv, 'em');
-				this.assert(oResult1, 'Should find match.');
-				var oResult2 = gl.selector.query(oFirstDiv, 'em');
-				this.assert(oResult2, 'Should find match.');
+				var result1 = gl.selector.query(firstDiv, 'em');
+				this.assert(result1, 'Should find match.');
+				var result2 = gl.selector.query(firstDiv, 'em');
+				this.assert(result2, 'Should find match.');
 				
 				// copy with cloneNode
-				var oNode = oFirstDiv.firstChild;
+				var oNode = firstDiv.firstChild;
 				while (oNode) {
-					oSecondDiv.appendChild(oNode.cloneNode(true));
+					secondDiv.appendChild(oNode.cloneNode(true));
 					oNode = oNode.nextSibling;
 				}
-				var oResult3 = gl.selector.query(oSecondDiv, 'em');
-				this.assert(oResult3, 'Should find match in nodes copied with cloneNode.');
-				var oResult4 = gl.selector.query(oSecondDiv, 'em');
-				this.assert(oResult4, 'Should find match in nodes copied with cloneNode.');
+				var result3 = gl.selector.query(secondDiv, 'em');
+				this.assert(result3, 'Should find match in nodes copied with cloneNode.');
+				var result4 = gl.selector.query(secondDiv, 'em');
+				this.assert(result4, 'Should find match in nodes copied with cloneNode.');
 				
 				// copy with innerHTML
-				oSecondDiv.innerHTML = oFirstDiv.innerHTML;
-				var oResult5 = gl.selector.query(oSecondDiv, 'em');
-				this.assert(oResult5, 'Should find match in nodes copied with innerHTML.');
-				var oResult6 = gl.selector.query(oSecondDiv, 'em');
-				this.assert(oResult6, 'Should find match in nodes copied with innerHTML.');
+				secondDiv.innerHTML = firstDiv.innerHTML;
+				var result5 = gl.selector.query(secondDiv, 'em');
+				this.assert(result5, 'Should find match in nodes copied with innerHTML.');
+				var result6 = gl.selector.query(secondDiv, 'em');
+				this.assert(result6, 'Should find match in nodes copied with innerHTML.');
 			})
 		]);
 	
@@ -289,6 +284,6 @@ gl.module(
 	
 	
 	// exports
-	window.suite = oSuite;
+	exports.selectorTests = selectorTests;
 	
-});
+})(tests = {});

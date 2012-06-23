@@ -7,17 +7,21 @@
 		<style type="text/css">
 		</style>
 		<script src="../src/grauw-lib.js" type="text/javascript"></script>
+		<link href="../src/unit.css" type="text/css" rel="stylesheet"/>
+		<script src="../src/unit.js" type="text/javascript"></script>
+		<script src="../src/selector.js" type="text/javascript"></script>
+		<script src="selector.js" type="text/javascript"></script>
 		<script type="text/javascript">
 
-gl.module('', [gl.DOMREADY, 'selector.js'], function() {
+function test() {
 	document.getElementById('t29').value = 'two';
 	
-	suite.run();
-});
+	tests.selectorTests.run();
+}
 
 		</script>
 	</head>
-	<body>
+	<body onload="test();">
 		<h1>Selectors tests (gl.selectors)</h1>
 		<ul lang="en-GB" class="test1 test2 test3" id="t7">
 			<li id="t1">Item 1</li>

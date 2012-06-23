@@ -7,7 +7,7 @@
  * 
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
- *   Copyright 2010 Laurens Holst
+ *   Copyright 2012 Laurens Holst
  * 
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
  *   limitations under the License.
  * 
  */
-gl.module('gl.uri', [], function() {
+(function(exports) {
 	
 	/**
 	 * Constructs a URI object.
@@ -30,15 +30,15 @@ gl.module('gl.uri', [], function() {
 	 * @class Implementation of URI parsing and base URI resolving algorithm in RFC 3986.
 	 * @param {string|URI} uri A string or URI object to create the object from.
 	 */
-	var URI = function(vURI) {
-		if (vURI instanceof URI) {	// copy constructor
-			this.scheme = vURI.scheme;
-			this.authority = vURI.authority;
-			this.path = vURI.path;
-			this.query = vURI.query;
-			this.fragment = vURI.fragment;
-		} else if (vURI) { // vURI is URI string or cast to string
-			var c = oParseRegex.exec(vURI);
+	function URI(uri) {
+		if (uri instanceof URI) {  // copy constructor
+			this.scheme = uri.scheme;
+			this.authority = uri.authority;
+			this.path = uri.path;
+			this.query = uri.query;
+			this.fragment = uri.fragment;
+		} else if (uri) {  // uri is URI string or cast to string
+			var c = parseRegex.exec(uri);
 			this.scheme = c[1];
 			this.authority = c[2];
 			this.path = c[3];
@@ -55,7 +55,7 @@ gl.module('gl.uri', [], function() {
 	URI.prototype.fragment  = null;
 	
 	// Regular expression from RFC 3986 appendix B
-	var oParseRegex = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?$');
+	var parseRegex = new RegExp('^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?$');
 
 	/**
 	 * Returns the scheme part of the URI.
@@ -108,7 +108,7 @@ gl.module('gl.uri', [], function() {
 	 * See RFC 3986 section 4.3.
 	 */
 	URI.prototype.isAbsolute = function() {
-		return this.scheme && !this.fragment;
+		return !!this.scheme && !this.fragment;
 	};
 	
 	///**
@@ -122,11 +122,11 @@ gl.module('gl.uri', [], function() {
 	 * 
 	 * To perform more thorough comparison, you can normalise the URI objects.
 	 */
-	URI.prototype.isSameDocumentAs = function(oURI) {
-		return oURI.scheme == this.scheme &&
-		    oURI.authority == this.authority &&
-		         oURI.path == this.path &&
-		        oURI.query == this.query;
+	URI.prototype.isSameDocumentAs = function(uri) {
+		return uri.scheme == this.scheme &&
+		    uri.authority == this.authority &&
+		         uri.path == this.path &&
+		        uri.query == this.query;
 	};
 	
 	/**
@@ -135,8 +135,8 @@ gl.module('gl.uri', [], function() {
 	 * 
 	 * To perform more thorough comparison, you can normalise the URI objects.
 	 */
-	URI.prototype.equals = function(oURI) {
-		return this.isSameDocumentAs(oURI) && oURI.fragment == this.fragment;
+	URI.prototype.equals = function(uri) {
+		return this.isSameDocumentAs(uri) && uri.fragment == this.fragment;
 	};
 	
 	/**
@@ -151,26 +151,26 @@ gl.module('gl.uri', [], function() {
 		if (this.scheme)
 			this.scheme = this.scheme.toLowerCase();
 		if (this.authority)
-			this.authority = this.authority.replace(oAuthorityRegex, fAuthority).
-									replace(oCaseRegex, fCase);
+			this.authority = this.authority.replace(authorityRegex, replaceAuthority).
+									replace(caseRegex, replaceCase);
 		if (this.path)
-			this.path = this.path.replace(oCaseRegex, fCase);
+			this.path = this.path.replace(caseRegex, replaceCase);
 		if (this.query)
-			this.query = this.query.replace(oCaseRegex, fCase);
+			this.query = this.query.replace(caseRegex, replaceCase);
 		if (this.fragment)
-			this.fragment = this.fragment.replace(oCaseRegex, fCase);
+			this.fragment = this.fragment.replace(caseRegex, replaceCase);
 	};
 	
-	var oCaseRegex = /%[0-9a-z]{2}/gi;
-	var oPercentRegex = /[a-zA-Z0-9\-\._~]/;
-	var oAuthorityRegex = /(.*@)?([^@:]*)(:.*)?/;
+	var caseRegex = /%[0-9a-z]{2}/gi;
+	var percentRegex = /[a-zA-Z0-9\-\._~]/;
+	var authorityRegex = /(.*@)?([^@:]*)(:.*)?/;
 	
-	function fCase(sStr) {
-		var sDec = unescape(sStr);
-		return oPercentRegex.test(sDec) ? sDec : sStr.toUpperCase();
+	function replaceCase(str) {
+		var dec = unescape(str);
+		return percentRegex.test(dec) ? dec : str.toUpperCase();
 	}
 	
-	function fAuthority(sStr, p1, p2, p3) {
+	function replaceAuthority(str, p1, p2, p3) {
 		return (p1 || '') + p2.toLowerCase() + (p3 || '');
 	}
 	
@@ -179,42 +179,42 @@ gl.module('gl.uri', [], function() {
 	 * The base URI must be an absolute URI.
 	 * See RFC 3986 section 5.2
 	 */
-	URI.prototype.resolve = function(oBaseURI) {
-		var oURI = new URI();
+	URI.prototype.resolve = function(baseURI) {
+		var uri = new URI();
 		if (this.scheme) {
-			oURI.scheme = this.scheme;
-			oURI.authority = this.authority;
-			oURI.path = this.path;
-			oURI.query = this.query;
+			uri.scheme = this.scheme;
+			uri.authority = this.authority;
+			uri.path = this.path;
+			uri.query = this.query;
 		} else {
-			oURI.scheme = oBaseURI.scheme;
+			uri.scheme = baseURI.scheme;
 			if (this.authority) {
-				oURI.authority = this.authority;
-				oURI.path = this.path;
-				oURI.query = this.query;
+				uri.authority = this.authority;
+				uri.path = this.path;
+				uri.query = this.query;
 			} else {
-				oURI.authority = oBaseURI.authority;
+				uri.authority = baseURI.authority;
 				if (this.path == '') {
-					oURI.path = oBaseURI.path;
-					oURI.query = this.query || oBaseURI.query;
+					uri.path = baseURI.path;
+					uri.query = this.query || baseURI.query;
 				} else {
 					if (this.path.charAt(0) == '/') {
-						oURI.path = this.path;
-						oURI.removeDotSegments();
+						uri.path = this.path;
+						uri.removeDotSegments();
 					} else {
-						if (oBaseURI.authority && oBaseURI.path == '') {
-							oURI.path = '/' + this.path;
+						if (baseURI.authority && baseURI.path == '') {
+							uri.path = '/' + this.path;
 						} else {
-							oURI.path = oBaseURI.path.substring(0, oBaseURI.path.lastIndexOf('/') + 1) + this.path;
+							uri.path = baseURI.path.substring(0, baseURI.path.lastIndexOf('/') + 1) + this.path;
 						}
-						oURI.removeDotSegments();
+						uri.removeDotSegments();
 					}
-					oURI.query = this.query;
+					uri.query = this.query;
 				}
 			}
 		}
-		oURI.fragment = this.fragment;
-		return oURI;
+		uri.fragment = this.fragment;
+		return uri;
 	};
 	
 	/**
@@ -223,26 +223,26 @@ gl.module('gl.uri', [], function() {
 	 * @private
 	 */
 	URI.prototype.removeDotSegments = function() {
-		var aInput = this.path.split('/'),
-			aOutput = [],
-			sSegment,
-			bAbsPath = aInput[0] == '';
-		if (bAbsPath)
-			aInput.shift();
-		var sFirst = aInput[0] == '' ? aInput.shift() : null;
-		while (aInput.length) {
-			sSegment = aInput.shift();
-			if (sSegment == '..') {
-				aOutput.pop();
-			} else if (sSegment != '.') {
-				aOutput.push(sSegment);
+		var input = this.path.split('/'),
+			output = [],
+			segment,
+			absPath = input[0] == '';
+		if (absPath)
+			input.shift();
+		var sFirst = input[0] == '' ? input.shift() : null;
+		while (input.length) {
+			segment = input.shift();
+			if (segment == '..') {
+				output.pop();
+			} else if (segment != '.') {
+				output.push(segment);
 			}
 		}
-		if (sSegment == '.' || sSegment == '..')
-			aOutput.push('');
-		if (bAbsPath)
-			aOutput.unshift('');
-		this.path = aOutput.join('/');
+		if (segment == '.' || segment == '..')
+			output.push('');
+		if (absPath)
+			output.unshift('');
+		this.path = output.join('/');
 	};
 	
 	/**
@@ -252,34 +252,34 @@ gl.module('gl.uri', [], function() {
 	 * @param {String} baseURI the base URI (must be absolute) to resolve against
 	 */
 	URI.resolve = function(sURI, sBaseURI) {
-		var oURI = hCache[sURI] || (hCache[sURI] = new URI(sURI));
-		var oBaseURI = hCache[sBaseURI] || (hCache[sBaseURI] = new URI(sBaseURI));
-		return oURI.resolve(oBaseURI).toString();
+		var uri = cache[sURI] || (cache[sURI] = new URI(sURI));
+		var baseURI = cache[sBaseURI] || (cache[sBaseURI] = new URI(sBaseURI));
+		return uri.resolve(baseURI).toString();
 	};
 	
-	var hCache = {};
+	var cache = {};
 	
 	/**
 	 * Serialises the URI to a string.
 	 */
 	URI.prototype.toString = function() {
-		var sResult = '';
+		var result = '';
 		if (this.scheme)
-			sResult += this.scheme + ':';
+			result += this.scheme + ':';
 		if (this.authority)
-			sResult += '//' + this.authority;
-		sResult += this.path;
+			result += '//' + this.authority;
+		result += this.path;
 		if (this.query)
-			sResult += '?' + this.query;
+			result += '?' + this.query;
 		if (this.fragment)
-			sResult += '#' + this.fragment;
-		return sResult;
+			result += '#' + this.fragment;
+		return result;
 	};
 	
 	
 	
 	
 	// exports
-	this.URI = URI;
+	exports.URI = URI;
 
-});
+})(typeof exports != "undefined" ? exports : gl.uri = {});

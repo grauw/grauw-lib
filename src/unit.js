@@ -5,7 +5,7 @@
  * 
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
- *   Copyright 2010 Laurens Holst
+ *   Copyright 2012 Laurens Holst
  * 
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@
  *   limitations under the License.
  * 
  */
-gl.module('gl.unit',
-	[{type: 'text/css', src: 'unit.css'}],
-	function() {
+(function(exports) {
 	
 	/**
 	 * In some browsers (IE) exceptions don’t cast to string nicely.
@@ -62,10 +60,10 @@ gl.module('gl.unit',
 	/**
 	 * A test unit
 	 */
-	var Test = function() {
+	function Test() {
 		this.time = -1;
 		this.errors = [];
-	};
+	}
 	
 	Test.prototype.toString = function() {
 		return 'Test';
@@ -151,11 +149,12 @@ gl.module('gl.unit',
 	/**
 	 * A simple test, using a test function.
 	 */
-	var SimpleTest = function(sName, fTest) {
+	function SimpleTest(sName, fTest) {
 		Test.call(this);
 		this.name = sName;
 		this.test = fTest;
-	};
+	}
+	
 	gl.extend(Test, SimpleTest);
 	
 	SimpleTest.prototype.toString = function() {
@@ -168,7 +167,7 @@ gl.module('gl.unit',
 	/**
 	 * Exception that is thrown when an assertion fails.
 	 */
-	var AssertException = function(sMessage) {
+	function AssertException(sMessage) {
 		this.message = sMessage;
 	};
 	
@@ -182,12 +181,13 @@ gl.module('gl.unit',
 	/**
 	 * A group of tests
 	 */
-	var TestGroup = function(sName, aTests) {
+	function TestGroup(sName, aTests) {
 		Test.call(this);
 		this.name = sName;
 		this.tests = aTests || [];
 		this.collapsed = true;
-	};
+	}
+	
 	gl.extend(Test, TestGroup);
 	
 	TestGroup.prototype.getTests = function() {
@@ -246,9 +246,10 @@ gl.module('gl.unit',
 	/**
 	 * A test suite
 	 */
-	var TestSuite = function(aTests) {
+	function TestSuite(aTests) {
 		TestGroup.call(this, 'Test suite', aTests);
-	};
+	}
+	
 	gl.extend(TestGroup, TestSuite);
 	
 	TestSuite.prototype.finalize = function() {
@@ -291,10 +292,10 @@ gl.module('gl.unit',
 	 * Simple view base class.
 	 * @param {Object} oModel A model object.
 	 */
-	var SimpleView = function(oModel) {
+	function SimpleView(oModel) {
 		this.model = oModel;
 		this.html = null;
-	};
+	}
 	
 	SimpleView.prototype.getHTML = function(oDocument) {
 		if (!this.html)
@@ -334,9 +335,9 @@ gl.module('gl.unit',
 	 * View for TestSuite.
 	 * @param {TestSuite} oModel
 	 */
-	var TestSuiteView = function(oModel) {
+	function TestSuiteView(oModel) {
 		SimpleView.call(this, oModel);
-	};
+	}
 	
 	gl.extend(SimpleView, TestSuiteView);
 	
@@ -378,9 +379,9 @@ gl.module('gl.unit',
 	 * View for Test.
 	 * @param {Test} oModel
 	 */
-	var TestView = function(oModel) {
+	function TestView(oModel) {
 		SimpleView.call(this, oModel);
-	};
+	}
 	
 	gl.extend(SimpleView, TestView);
 	
@@ -411,9 +412,9 @@ gl.module('gl.unit',
 	 * View for TestGroup.
 	 * @param {TestGroup} oModel
 	 */
-	var TestGroupView = function(oModel) {
+	function TestGroupView(oModel) {
 		SimpleView.call(this, oModel);
-	};
+	}
 	
 	gl.extend(SimpleView, TestGroupView);
 	
@@ -470,9 +471,9 @@ gl.module('gl.unit',
 	 * View for Window.
 	 * @param {Window} oModel
 	 */
-	var WindowView = function(oModel) {
+	function WindowView(oModel) {
 		SimpleView.call(this, oModel);
-	};
+	}
 	
 	gl.extend(SimpleView, WindowView);
 	
@@ -511,19 +512,18 @@ gl.module('gl.unit',
 	
 	
 	
-	// exports
-	this.Test = Test;
-	this.SimpleTest = SimpleTest;
-	this.AssertException = AssertException;
-	this.TestGroup = TestGroup;
-	this.TestSuite = TestSuite;
-	this.Window = Window;
-	this.SimpleView = SimpleView;
-	this.TestSuiteView = TestSuiteView;
-	this.TestView = TestView;
-	this.TestGroupView = TestGroupView;
-	this.WindowView = WindowView;
-	this.errorToString = errorToString;
-	this.objectToString = objectToString;
+	exports.Test = Test;
+	exports.SimpleTest = SimpleTest;
+	exports.AssertException = AssertException;
+	exports.TestGroup = TestGroup;
+	exports.TestSuite = TestSuite;
+	exports.Window = Window;
+	exports.SimpleView = SimpleView;
+	exports.TestSuiteView = TestSuiteView;
+	exports.TestView = TestView;
+	exports.TestGroupView = TestGroupView;
+	exports.WindowView = WindowView;
+	exports.errorToString = errorToString;
+	exports.objectToString = objectToString;
 
-});
+})(typeof exports != "undefined" ? exports : gl.unit = {});

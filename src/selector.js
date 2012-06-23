@@ -14,7 +14,7 @@
  * @version 1.1.3
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
- *   Copyright 2010 Laurens Holst
+ *   Copyright 2012 Laurens Holst
  * 
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -30,23 +30,24 @@
  * 
  */
 
-if (!window.gl)
-	gl = {};
-
 /**
  * The main CSS Selectors object.
  * Acts as sort of a namespace; all other selector objects are closures of the instance of this object.
  */
-gl.selector = new function() {
+(function(exports) {
 
 	var browser_ie = !!window.ActiveXObject;
 
-	function extend(cBase, fConstructor) {
-		var cPrototype = new Function();
-		cPrototype.prototype = cBase.prototype;
-		fConstructor.prototype = new cPrototype();
-		fConstructor.prototype.constructor = fConstructor;
-		return fConstructor;
+	/**
+	 * Class extension utility function.
+	 * @param {Function} base The base class.
+	 * @param {Function} constructor The constructor function for the new class.
+	 */
+	function extend(base, constructor) {
+		var prototype = new Function();
+		prototype.prototype = base.prototype;
+		constructor.prototype = new prototype();
+		constructor.prototype.constructor = constructor;
 	}
 
 	/**
@@ -1393,57 +1394,56 @@ gl.selector = new function() {
 	
 	
 	
-	// exports
-	this.match = match;
-	this.queryAll = queryAll;
-	this.query = query;
-	this.queryAncestorOrSelf = queryAncestorOrSelf;
-	this.queryDocument = queryDocument;
-	this.queryDocumentAll = queryDocumentAll;
-	this.SelectorGroup = SelectorGroup;
-	this.Selector = Selector;
-	this.Combinator = Combinator;
-	this.DescendantCombinator = DescendantCombinator;
-	this.ChildCombinator = ChildCombinator;
-	this.AdjacentCombinator = AdjacentCombinator;
-	this.SiblingCombinator = SiblingCombinator;
-	this.RootCombinator = RootCombinator;
-	this.SimpleSelector = SimpleSelector;
-	this.UniversalSelector = UniversalSelector;
-	this.TypeSelector = TypeSelector;
-	this.ClassSelector = ClassSelector;
-	this.IdSelector = IdSelector;
-	this.AttributeExistSelector = AttributeExistSelector;
-	this.AttributeEqualsSelector = AttributeEqualsSelector;
-	this.AttributeListSelector = AttributeListSelector;
-	this.AttributeLangSelector = AttributeLangSelector;
-	this.AttributeStartSelector = AttributeStartSelector;
-	this.AttributeEndSelector = AttributeEndSelector;
-	this.AttributeContainsSelector = AttributeContainsSelector;
-	this.RootSelector = RootSelector;
-	this.NthSelector = NthSelector;
-	this.NthChildSelector = NthChildSelector;
-	this.NthLastChildSelector = NthLastChildSelector;
-	this.NthOfTypeSelector = NthOfTypeSelector;
-	this.NthLastOfTypeSelector = NthLastOfTypeSelector;
-	this.FirstChildSelector = FirstChildSelector;
-	this.LastChildSelector = LastChildSelector;
-	this.FirstOfTypeSelector = FirstOfTypeSelector;
-	this.LastOfTypeSelector = LastOfTypeSelector;
-	this.OnlyChildSelector = OnlyChildSelector;
-	this.OnlyOfTypeSelector = OnlyOfTypeSelector;
-	this.EmptySelector = EmptySelector;
-	this.LangSelector = LangSelector;
-	this.EnabledSelector = EnabledSelector;
-	this.DisabledSelector = DisabledSelector;
-	this.CheckedSelector = CheckedSelector;
-	this.ReadOnlySelector = ReadOnlySelector;
-	this.ReadWriteSelector = ReadWriteSelector;
-	this.TargetSelector = TargetSelector;
-	this.NotSelector = NotSelector;
-	this.Parser = Parser;
-	this.CachingParser = CachingParser;
-	this.ParsingException = ParsingException;
-	this.parser = oParser;
+	exports.match = match;
+	exports.queryAll = queryAll;
+	exports.query = query;
+	exports.queryAncestorOrSelf = queryAncestorOrSelf;
+	exports.queryDocument = queryDocument;
+	exports.queryDocumentAll = queryDocumentAll;
+	exports.SelectorGroup = SelectorGroup;
+	exports.Selector = Selector;
+	exports.Combinator = Combinator;
+	exports.DescendantCombinator = DescendantCombinator;
+	exports.ChildCombinator = ChildCombinator;
+	exports.AdjacentCombinator = AdjacentCombinator;
+	exports.SiblingCombinator = SiblingCombinator;
+	exports.RootCombinator = RootCombinator;
+	exports.SimpleSelector = SimpleSelector;
+	exports.UniversalSelector = UniversalSelector;
+	exports.TypeSelector = TypeSelector;
+	exports.ClassSelector = ClassSelector;
+	exports.IdSelector = IdSelector;
+	exports.AttributeExistSelector = AttributeExistSelector;
+	exports.AttributeEqualsSelector = AttributeEqualsSelector;
+	exports.AttributeListSelector = AttributeListSelector;
+	exports.AttributeLangSelector = AttributeLangSelector;
+	exports.AttributeStartSelector = AttributeStartSelector;
+	exports.AttributeEndSelector = AttributeEndSelector;
+	exports.AttributeContainsSelector = AttributeContainsSelector;
+	exports.RootSelector = RootSelector;
+	exports.NthSelector = NthSelector;
+	exports.NthChildSelector = NthChildSelector;
+	exports.NthLastChildSelector = NthLastChildSelector;
+	exports.NthOfTypeSelector = NthOfTypeSelector;
+	exports.NthLastOfTypeSelector = NthLastOfTypeSelector;
+	exports.FirstChildSelector = FirstChildSelector;
+	exports.LastChildSelector = LastChildSelector;
+	exports.FirstOfTypeSelector = FirstOfTypeSelector;
+	exports.LastOfTypeSelector = LastOfTypeSelector;
+	exports.OnlyChildSelector = OnlyChildSelector;
+	exports.OnlyOfTypeSelector = OnlyOfTypeSelector;
+	exports.EmptySelector = EmptySelector;
+	exports.LangSelector = LangSelector;
+	exports.EnabledSelector = EnabledSelector;
+	exports.DisabledSelector = DisabledSelector;
+	exports.CheckedSelector = CheckedSelector;
+	exports.ReadOnlySelector = ReadOnlySelector;
+	exports.ReadWriteSelector = ReadWriteSelector;
+	exports.TargetSelector = TargetSelector;
+	exports.NotSelector = NotSelector;
+	exports.Parser = Parser;
+	exports.CachingParser = CachingParser;
+	exports.ParsingException = ParsingException;
+	exports.parser = oParser;
 	
-};
+})((typeof gl == "undefined" && (gl = {}), gl.selector = {}));

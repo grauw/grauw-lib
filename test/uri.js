@@ -1,26 +1,21 @@
-gl.module('unit',
-	[
-		'../src/unit.js',
-		'../src/uri.js'
-	],
-	function() {
+(function(exports) {
 	
-	// imports
-	var Test = gl.require(gl.unit.Test);
-	var SimpleTest = gl.require(gl.unit.SimpleTest);
-	var TestSuite = gl.require(gl.unit.TestSuite);
-	var TestGroup = gl.require(gl.unit.TestGroup);
-	var URI = gl.require(gl.uri.URI);
+	var Test = gl.unit.Test;
+	var SimpleTest = gl.unit.SimpleTest;
+	var TestSuite = gl.unit.TestSuite;
+	var TestGroup = gl.unit.TestGroup;
+	var URI = gl.uri.URI;
 	
 	
 	
 	
-	var URITest = function(sBaseURI, sURI, sResult) {
+	function URITest(baseURI, uri, result) {
 		Test.call(this);
-		this.baseURI = sBaseURI;
-		this.uri = sURI;
-		this.result = sResult;
-	};
+		this.baseURI = baseURI;
+		this.uri = uri;
+		this.result = result;
+	}
+	
 	gl.extend(Test, URITest);
 	
 	URITest.prototype.toString = function() {
@@ -28,16 +23,17 @@ gl.module('unit',
 	};
 	
 	URITest.prototype.test = function() {
-		var sURI = URI.resolve(this.uri, this.baseURI);
-		this.assertEquals(this.result, sURI, 'Result URI should match expected URI.');
+		var uri = URI.resolve(this.uri, this.baseURI);
+		this.assertEquals(this.result, uri, 'Result URI should match expected URI.');
 	};
 	
 	
 	
 	
-	var URIPerformanceTest1 = function() {
+	function URIPerformanceTest1() {
 		Test.call(this);
-	};
+	}
+	
 	gl.extend(Test, URIPerformanceTest1);
 	
 	URIPerformanceTest1.prototype.toString = function() {
@@ -53,9 +49,10 @@ gl.module('unit',
 	
 	
 	
-	var URIPerformanceTest2 = function() {
+	function URIPerformanceTest2() {
 		Test.call(this);
-	};
+	}
+	
 	gl.extend(Test, URIPerformanceTest2);
 	
 	URIPerformanceTest2.prototype.toString = function() {
@@ -71,9 +68,10 @@ gl.module('unit',
 	
 	
 	
-	var URIPerformanceTest3 = function() {
+	function URIPerformanceTest3() {
 		Test.call(this);
-	};
+	}
+	
 	gl.extend(Test, URIPerformanceTest3);
 	
 	URIPerformanceTest3.prototype.toString = function() {
@@ -81,10 +79,10 @@ gl.module('unit',
 	};
 	
 	URIPerformanceTest3.prototype.test = function() {
-		var oBaseURI = new URI('http://a/b/c/d;p?q');
+		var baseURI = new URI('http://a/b/c/d;p?q');
 		for (var i = 0; i < 10000; i++) {
-			var oURI = new URI('a/.././b');
-			oURI.resolve(oBaseURI).toString();
+			var uri = new URI('a/.././b');
+			uri.resolve(baseURI).toString();
 		}
 	};
 	
@@ -94,7 +92,7 @@ gl.module('unit',
 	 * Unit tests
 	 * See RFC 3986 appendix C
 	 */
-	var oURISuite = new TestSuite([
+	var uriSuite = new TestSuite([
 		new TestGroup('Resolving, normal examples', [
 			new URITest('http://a/b/c/d;p?q', 'g:h'          , 'g:h'),
 			new URITest('http://a/b/c/d;p?q', 'g'            , 'http://a/b/c/g'),
@@ -162,38 +160,38 @@ gl.module('unit',
 		]),
 		new TestGroup('URI object tests', [
 			new SimpleTest('URI::constructor(string)', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assert(oURI instanceof URI);
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assert(uri instanceof URI);
 			}),
 			new SimpleTest('URI::constructor(URI)', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				var oCopy = new URI(oURI);
-				this.assert(oCopy instanceof URI);
-				this.assertEquals('http', oCopy.getScheme());
-				this.assertEquals('example.com:80', oCopy.getAuthority());
-				this.assertEquals('/a/b', oCopy.getPath());
-				this.assertEquals('x', oCopy.getQuery());
-				this.assertEquals('y', oCopy.getFragment());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				var copy = new URI(uri);
+				this.assert(copy instanceof URI);
+				this.assertEquals('http', copy.getScheme());
+				this.assertEquals('example.com:80', copy.getAuthority());
+				this.assertEquals('/a/b', copy.getPath());
+				this.assertEquals('x', copy.getQuery());
+				this.assertEquals('y', copy.getFragment());
 			}),
 			new SimpleTest('URI::getScheme()', function() {
 				var oURI = new URI("http://example.com:80/a/b?x#y");
 				this.assertEquals('http', oURI.getScheme());
 			}),
 			new SimpleTest('URI::getAuthority()', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assertEquals('example.com:80', oURI.getAuthority());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('example.com:80', uri.getAuthority());
 			}),
 			new SimpleTest('URI::getPath()', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assertEquals('/a/b', oURI.getPath());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('/a/b', uri.getPath());
 			}),
 			new SimpleTest('URI::getQuery()', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assertEquals('x', oURI.getQuery());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('x', uri.getQuery());
 			}),
 			new SimpleTest('URI::getFragment()', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assertEquals('y', oURI.getFragment());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals('y', uri.getFragment());
 			}),
 			new SimpleTest('URI::isAbsolute()', function() {
 				throw new Error("TODO");
@@ -211,12 +209,12 @@ gl.module('unit',
 				throw new Error("TODO");
 			}),
 			new SimpleTest('URI::toString()', function() {
-				var oURI = new URI("http://example.com:80/a/b?x#y");
-				this.assertEquals("http://example.com:80/a/b?x#y", oURI.toString());
+				var uri = new URI("http://example.com:80/a/b?x#y");
+				this.assertEquals("http://example.com:80/a/b?x#y", uri.toString());
 			}),
 			new SimpleTest('URI::toString() about:blank', function() {
-				var oURI = new URI("about:blank");
-				this.assertEquals("about:blank", oURI.toString());
+				var uri = new URI("about:blank");
+				this.assertEquals("about:blank", uri.toString());
 			})
 		])
 	]);
@@ -224,7 +222,6 @@ gl.module('unit',
 	
 	
 	
-	// exports
-	this.uriSuite = oURISuite;
+	exports.uriTests = uriTests;
 
-});
+})(tests = {});
