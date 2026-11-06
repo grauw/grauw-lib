@@ -27,9 +27,9 @@
 	</organization>
 	
 	<scm>
-		<connection>scm:hg:http://hg.grauw.nl/grauw-lib/</connection>
-		<developerConnection>scm:hg:http://hg.grauw.nl/grauw-lib/</developerConnection>
-		<url>http://hg.grauw.nl/grauw-lib/</url>
+		<connection>scm:git:https://github.com/grauw/grauw-lib.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/grauw/grauw-lib.git</developerConnection>
+		<url>https://github.com/grauw/grauw-lib</url>
 	</scm>
 	
 	<properties>

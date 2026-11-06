@@ -3,7 +3,7 @@
  * 
  * Grauw URI utilities
  * 
- * See: http://hg.grauw.nl/grauw-lib/file/tip/src/uri.js
+ * See: https://github.com/grauw/grauw-lib/blob/main/src/uri.js
  * 
  * @author Laurens Holst (http://www.grauw.nl/)
  * 
